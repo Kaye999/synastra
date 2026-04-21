@@ -43,7 +43,7 @@ const TIERS: TierDef[] = [
     id: 'reader',
     name: 'The Reading',
     tagline: 'Read the whole chart.',
-    price: { monthly: 'A$14.98 / mo', onetime: 'A$79 / year' },
+    price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
     features: [
       'All eight traditions',
       'Daily Guidance',
@@ -58,7 +58,7 @@ const TIERS: TierDef[] = [
     id: 'depth',
     name: 'The Depth',
     tagline: 'Unlock every tradition.',
-    price: { monthly: 'A$29 / mo', onetime: 'A$149 / year' },
+    price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     features: [
       'Everything in The Reading',
       'Compatibility (synastry)',
