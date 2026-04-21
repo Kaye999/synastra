@@ -252,7 +252,7 @@ export default function LandingPage() {
             <div className="mk-hero-rule" />
           </Reveal>
           <Reveal delay={220}>
-            <h1 className="mk-hero-title">Eight traditions. One chart. Your archetype.</h1>
+            <h1 className="mk-hero-title">Twelve traditions. One chart. Your archetype.</h1>
           </Reveal>
           <Reveal delay={300}>
             <p className="mk-hero-sub">
@@ -493,7 +493,7 @@ export default function LandingPage() {
       {/* ── 9. FOOTER ──────────────────────────────────────────────── */}
       <footer className="mk-footer" style={{ position: 'relative', zIndex: 1 }}>
         <div className="wordmark">Synastra</div>
-        <div className="tag">Eight traditions. One chart. Your archetype.</div>
+        <div className="tag">Twelve traditions. One chart. Your archetype.</div>
         <nav>
           <Link href="/how-it-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>

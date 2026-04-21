@@ -342,6 +342,223 @@ Write the transit alert now.`;
 }
 
 /* ============================================================
+ * 8. Tarot — daily single card (~180 words)
+ * ============================================================ */
+
+export type TarotCardBrief = {
+  name: string;
+  arcana: 'major' | 'minor';
+  suit?: string;
+  number?: number;
+  element: string;
+  zodiacal?: string;
+  reversed: boolean;
+  keywords: string[];
+  body: string;
+  shadow: string;
+  gift: string;
+};
+
+export type TarotDailyInput = CommonInput & {
+  card: TarotCardBrief;
+  todayIso: string;
+};
+
+export function tarotDaily(input: TarotDailyInput): ReadingPromptResult {
+  const orientation = input.card.reversed ? 'reversed' : 'upright';
+  const system = `${BASE_VOICE}
+
+TASK: Write a daily tarot reading for ${input.firstName || 'the reader'} on the card drawn — roughly 180 words, one rich paragraph. The card is ${input.card.name} ${orientation}.
+
+Open with a single specific image from the card itself — not "this card represents" framing. Weave the card's archetype into ${input.firstName || 'the reader'}'s current moment. If the natal chart contains a placement in the card's element or its zodiacal attribution, name the synchronicity. Close with one concrete, physical instruction for the day — something with weight, not wellness. No hedging. No "the card suggests". The card simply is.`;
+
+  const userMessage = `Card drawn: ${input.card.name} (${orientation})
+Arcana: ${input.card.arcana}${input.card.suit ? `, suit of ${input.card.suit}` : ''}${input.card.number ? `, ${input.card.number}` : ''}
+Element: ${input.card.element}${input.card.zodiacal ? ` · zodiacal ${input.card.zodiacal}` : ''}
+Keywords (${orientation}): ${input.card.keywords.join(', ')}
+
+Card essence: ${input.card.body}
+Shadow: ${input.card.shadow}
+Gift: ${input.card.gift}
+
+Natal chart:
+${safeJson(input.chart)}
+
+Date: ${input.todayIso}${withContext(input.userContext)}
+
+Write the daily tarot reading now. One paragraph, ~180 words.`;
+
+  return { system, userMessage, maxTokens: 450 };
+}
+
+/* ============================================================
+ * 9. Tarot — three-card spread (~350 words)
+ * ============================================================ */
+
+export type TarotSpreadPositionBrief = {
+  position: string;
+  label: string;
+  card: TarotCardBrief;
+};
+
+export type TarotThreeCardInput = CommonInput & {
+  question: string;
+  cards: TarotSpreadPositionBrief[]; // length 3, past/present/future
+};
+
+export function tarotThreeCard(input: TarotThreeCardInput): ReadingPromptResult {
+  const system = `${BASE_VOICE}
+
+TASK: Write a three-card tarot reading for ${input.firstName || 'the reader'} — roughly 350 words across three labelled sections plus a closing synthesis. The question being asked is at the head of the user message; the spread is Past / Present / Future.
+
+Structure, in this exact order, each heading on its own line followed by blank line then prose:
+
+Past
+Present
+Future
+Synthesis
+
+Each position gets 3-5 sentences tied specifically to its drawn card. In Synthesis (2-3 sentences), name the arc — what the three cards together say about the question. Reference orientation when it matters (reversed / upright). Where the natal chart contains a relevant placement, name it. No hedging. No fortune-telling ("you will meet"). Archetypal synthesis only.`;
+
+  const userMessage = `Subject: ${input.firstName || 'the reader'}
+Question: ${input.question || '(no question specified — read the spread as a general weather report)'}
+
+The cards drawn:
+${input.cards.map((c) => {
+  const o = c.card.reversed ? 'reversed' : 'upright';
+  return `- ${c.label}: ${c.card.name} (${o})
+  Keywords: ${c.card.keywords.join(', ')}
+  Essence: ${c.card.body}`;
+}).join('\n\n')}
+
+Natal chart:
+${safeJson(input.chart)}${withContext(input.userContext)}
+
+Write the three-card reading now.`;
+
+  return { system, userMessage, maxTokens: 900 };
+}
+
+/* ============================================================
+ * 10. Tarot — Celtic Cross (~700 words, depth-tier)
+ * ============================================================ */
+
+export type TarotCelticCrossInput = CommonInput & {
+  question: string;
+  cards: TarotSpreadPositionBrief[]; // length 10, Celtic Cross positions
+};
+
+export function tarotCelticCross(input: TarotCelticCrossInput): ReadingPromptResult {
+  const system = `${BASE_VOICE}
+
+TASK: Write a Celtic Cross tarot reading for ${input.firstName || 'the reader'} — roughly 700 words. Ten positions, each named. Close with a Verdict section that reads the spread whole.
+
+Structure — each heading on its own line followed by blank line then prose, 2-3 sentences per position, 4-5 sentences for Verdict:
+
+The Heart
+The Crossing
+The Foundation
+The Recent Past
+The Crown
+The Near Future
+The Self
+The Environment
+Hopes & Fears
+The Outcome
+Verdict
+
+Bind the reading to the drawn cards card-by-card. Name the card at the top of each section (e.g. "The Heart — Three of Cups upright:"). Reference orientation where it matters. Pull one placement from the natal chart that resonates with the dominant card or suit in the spread, and name it in Verdict. Include one pull-quote-worthy sentence somewhere in the piece. No hedging. No score. No fortune-telling.`;
+
+  const userMessage = `Subject: ${input.firstName || 'the reader'}
+Question: ${input.question || '(no question specified — read the spread as a life-stage map)'}
+
+The ten cards drawn:
+${input.cards.map((c) => {
+  const o = c.card.reversed ? 'reversed' : 'upright';
+  return `${c.position}. ${c.label} — ${c.card.name} (${o})
+  Keywords: ${c.card.keywords.join(', ')}
+  Essence: ${c.card.body}`;
+}).join('\n\n')}
+
+Natal chart:
+${safeJson(input.chart)}${withContext(input.userContext)}
+
+Write the Celtic Cross reading now.`;
+
+  return { system, userMessage, maxTokens: 1700 };
+}
+
+/* ============================================================
+ * 11. Gene Keys Activation Sequence (~650 words)
+ * ============================================================ */
+
+export type GeneKeyBrief = {
+  number: number;
+  name: string;
+  hexagram: string;
+  line: number;
+  shadow: { name: string; body: string };
+  gift: { name: string; body: string };
+  siddhi: { name: string; body: string };
+};
+
+export type GeneKeysReadingInput = CommonInput & {
+  lifesWork: GeneKeyBrief;
+  evolution: GeneKeyBrief;
+  radiance: GeneKeyBrief;
+  purpose: GeneKeyBrief;
+  humanDesignType?: string | null; // e.g. 'Generator', 'Projector' — optional
+};
+
+export function geneKeysReading(input: GeneKeysReadingInput): ReadingPromptResult {
+  const name = input.firstName || 'the reader';
+  const hdLine = input.humanDesignType
+    ? `\nHuman Design type: ${input.humanDesignType}. Reference this once if it strengthens the synthesis.`
+    : '';
+
+  const system = `${BASE_VOICE}
+
+TASK: Weave ${name}'s four Activation Sequence Gene Keys into a single contemplative essay of roughly 650 words. This is not a list of four mini-readings — it is one braided portrait.
+
+Structure:
+1. One opening paragraph (4-6 sentences) introducing the shape of the life this quartet describes. Name all four Gene Keys by number and gift-name in this paragraph.
+
+2. Four labelled sections, in this order, each 3-5 sentences of tight prose. Use exact headings followed by a blank line:
+
+Life's Work — Gene Key ${input.lifesWork.number}
+Evolution — Gene Key ${input.evolution.number}
+Radiance — Gene Key ${input.radiance.number}
+Purpose — Gene Key ${input.purpose.number}
+
+In each section: show how the Shadow (name it) currently hides the Gift (name it), and what integration looks like at Siddhi frequency (name it). Be specific. Reference the Gene Key's hexagram when it sharpens the image. Do not copy the codex prose — metabolise it.
+
+3. A closing paragraph (3-5 sentences) on the synthesis: what these four keys together are initiating. Include exactly one pull-quote-worthy sentence somewhere in the essay.${hdLine}
+
+No hedging. No self-help register. Write like an essayist, not a course instructor.`;
+
+  function brief(label: string, k: GeneKeyBrief): string {
+    return `${label} — Gene Key ${k.number} (${k.name}), Hexagram: ${k.hexagram}, Line ${k.line}
+  Shadow — ${k.shadow.name}: ${k.shadow.body}
+  Gift — ${k.gift.name}: ${k.gift.body}
+  Siddhi — ${k.siddhi.name}: ${k.siddhi.body}`;
+  }
+
+  const userMessage = `Subject: ${name}
+
+${brief("Life's Work", input.lifesWork)}
+
+${brief('Evolution', input.evolution)}
+
+${brief('Radiance', input.radiance)}
+
+${brief('Purpose', input.purpose)}${withContext(input.userContext)}
+
+Write the Gene Keys Activation Sequence reading now.`;
+
+  return { system, userMessage, maxTokens: 1400 };
+}
+
+/* ============================================================
  * Registry
  * ============================================================ */
 
@@ -353,6 +570,10 @@ export const READING_TEMPLATES = {
   shadowWork,
   wealthTiming,
   transitAlert,
+  tarotDaily,
+  tarotThreeCard,
+  tarotCelticCross,
+  geneKeysReading,
 } as const;
 
 export type ReadingTemplateKey = keyof typeof READING_TEMPLATES;

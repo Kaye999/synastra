@@ -37,7 +37,13 @@ export type ReadingType =
   | 'life-purpose'
   | 'shadow'
   | 'wealth'
-  | 'transit-alerts';
+  | 'transit-alerts'
+  | 'tarot-daily'
+  | 'tarot-three'
+  | 'tarot-celtic'
+  | 'enneagram'
+  | 'gene-keys'
+  | 'ayurveda';
 
 /* ============================================================
  * Tier gate helpers
