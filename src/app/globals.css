@@ -626,14 +626,14 @@ body {
   font-family: var(--font-display);
   font-variation-settings: "opsz" 144;
   font-weight: 800;
-  font-size: clamp(72px, 12vw, 200px);
+  font-size: clamp(40px, 6vw, 100px);
   letter-spacing: -0.02em;
   line-height: 0.9;
   color: var(--ink);
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 22px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 .mk-wordmark span { background: linear-gradient(180deg, var(--ink) 0%, var(--brass) 140%); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .mk-wordmark-ornament { color: var(--brass); opacity: 0.75; font-size: 40px; }
