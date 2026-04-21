@@ -112,6 +112,40 @@
 
 * { box-sizing: border-box; }
 html, body { background: var(--bg-base); color: var(--ink); }
+html { zoom: 0.8; }
+@supports (-moz-appearance: none) { html { zoom: unset; font-size: 12.8px; } body { transform-origin: top left; } }
+
+/* ─── Page-nav buttons (footer of pricing, how-it-works) ────────────── */
+.mk-page-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  background: rgba(19, 24, 40, 0.55);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  min-width: 180px;
+  justify-content: center;
+}
+.mk-page-nav-btn:hover {
+  border-color: var(--brass-soft);
+  color: var(--ink);
+  background: rgba(19, 24, 40, 0.85);
+}
+.mk-page-nav-btn-primary {
+  border-color: var(--brass);
+  color: var(--brass);
+}
+.mk-page-nav-btn-primary:hover {
+  background: var(--brass);
+  color: var(--bg-base);
+}
 
 body {
   font-family: var(--font-body);

@@ -43,5 +43,3 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Phase 2 system stubs archived outside repo
-_archive_phase2_systems/

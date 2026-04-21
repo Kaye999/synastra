@@ -421,32 +421,20 @@ export default function PricingPage() {
           </div>
         </div>
 
-        {/* Footer nav */}
+        {/* Footer nav — proper buttons, no more tiny text */}
         <div
           style={{
             marginTop: 80,
             paddingTop: 40,
             borderTop: '1px solid var(--rule)',
-            textAlign: 'center',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--ink-faint)',
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'center',
+            flexWrap: 'wrap',
           }}
         >
-          <Link
-            href="/"
-            style={{ color: 'var(--ink-faint)', textDecoration: 'none', marginRight: 18 }}
-          >
-            ← Home
-          </Link>
-          <Link
-            href="/how-it-works"
-            style={{ color: 'var(--brass)', textDecoration: 'none' }}
-          >
-            How it works →
-          </Link>
+          <Link href="/" className="mk-page-nav-btn">← Home</Link>
+          <Link href="/how-it-works" className="mk-page-nav-btn mk-page-nav-btn-primary">How it works →</Link>
         </div>
       </div>
     </main>

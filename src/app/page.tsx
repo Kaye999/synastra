@@ -116,10 +116,10 @@ const PRICING_PREVIEW = [
     alt: 'or A$129 / year · save A$99',
     tag: 'Read the whole chart.',
     bullets: [
-      'All 8 traditions · full chart',
+      'All 12 traditions · full chart',
       'Daily Guidance · Monthly Forecast',
-      'Life Purpose reading · Shadow prompts',
-      '10 Oracle questions / day',
+      'Tarot · Enneagram · Gene Keys · Ayurveda',
+      'Life Purpose · Shadow prompts · 10 Oracle / day',
     ],
     featured: true,
   },
