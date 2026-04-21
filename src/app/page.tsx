@@ -1,65 +1,121 @@
-import Image from "next/image";
+import Link from 'next/link';
+import Starfield from '@/components/Starfield';
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
+      <Starfield />
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          maxWidth: 960,
+          margin: '0 auto',
+          padding: '140px 24px 100px',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            color: 'var(--brass)',
+            marginBottom: 18,
+          }}
+        >
+          Synastra · An Astral Atlas
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <h1 className="editorial-hero">Five traditions. One chart. Your chart.</h1>
+        <p className="editorial-sub">
+          Western astrology, Vedic, Kabbalah, numerology, and Chinese BaZi — all pulled from the same
+          date, time, and place, and read to you by an AI atlas that knows your chart.
+        </p>
+        <hr className="brass-rule" />
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 72 }}>
+          <Link
+            href="/sign-up"
+            style={{
+              padding: '14px 28px',
+              border: '1px solid var(--brass)',
+              color: 'var(--brass)',
+              textDecoration: 'none',
+              fontFamily: "'Fraunces', serif",
+              fontSize: 14,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            See your chart
+          </Link>
+          <Link
+            href="/chart?demo=1"
+            style={{
+              padding: '14px 28px',
+              border: '1px solid var(--rule)',
+              color: 'var(--ink-dim)',
+              textDecoration: 'none',
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 12,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+            }}
           >
-            Documentation
-          </a>
+            Try a sample
+          </Link>
         </div>
-      </main>
-    </div>
+
+        <hr className="chapter-rule" />
+
+        <h2
+          style={{
+            fontFamily: "'Fraunces', serif",
+            fontSize: 34,
+            fontWeight: 600,
+            letterSpacing: '-0.02em',
+            margin: '0 0 36px',
+          }}
+        >
+          How it works
+        </h2>
+
+        <ol style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 28 }}>
+          <Step n={1} title="Enter your birth data" body="Name, date, time, and birth place. Thirty seconds." />
+          <Step n={2} title="See your chart in 5 traditions" body="Western, Vedic, Kabbalah, Numerology, Chinese — one page, switchable." />
+          <Step n={3} title="Ask the Atlas anything" body="An AI reader that has read your entire chart and answers in your voice." />
+        </ol>
+
+        <hr className="chapter-rule" />
+
+        <div style={{ textAlign: 'center', fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--ink-faint)' }}>
+          <Link href="/pricing" style={{ color: 'var(--brass)', textDecoration: 'underline' }}>
+            See pricing
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+function Step({ n, title, body }: { n: number; title: string; body: string }) {
+  return (
+    <li>
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 11,
+          letterSpacing: '0.2em',
+          color: 'var(--brass)',
+          marginBottom: 10,
+        }}
+      >
+        {String(n).padStart(2, '0')}
+      </div>
+      <h3 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 500, margin: '0 0 10px' }}>{title}</h3>
+      <p style={{ color: 'var(--ink-dim)', fontSize: 16, lineHeight: 1.55, margin: 0 }}>{body}</p>
+    </li>
   );
 }
