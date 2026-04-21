@@ -116,9 +116,9 @@ const PRICING_PREVIEW = [
     alt: 'or A$129 / year · save A$99',
     tag: 'Read the whole chart.',
     bullets: [
-      'All 13 traditions · full chart',
+      'All 8 traditions · full chart',
       'Daily Guidance · Monthly Forecast',
-      'Tarot · I Ching · Enneagram',
+      'Life Purpose reading · Shadow prompts',
       '10 Oracle questions / day',
     ],
     featured: true,
@@ -127,13 +127,12 @@ const PRICING_PREVIEW = [
     name: 'The Depth',
     price: 'A$39 / mo',
     alt: 'or A$259 / year · save A$209',
-    tag: 'Unlock every tradition + synthesis.',
+    tag: 'Unlock every tradition.',
     bullets: [
       'Everything in The Reading',
-      'Cross-Tradition Synthesis (exclusive)',
-      'Compatibility · Wealth & Career timing',
-      'Gene Keys · Ayurveda full profiles',
+      'Compatibility (synastry) · Wealth Timing',
       'Unlimited Oracle · email transit alerts',
+      'Priority access to new traditions',
     ],
   },
 ] as const;

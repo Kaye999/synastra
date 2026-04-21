@@ -59,13 +59,9 @@ const TIERS: TierDef[] = [
     featured: true,
     features: [
       '§ Everything in The Glance',
-      'All 13 traditions fully unlocked',
-      'Western · Vedic · Kabbalah · Numerology · Chinese BaZi',
-      'Human Design · Mayan · Astrocartography',
-      'Tarot (daily card + 3-card spreads)',
-      'Enneagram full profile (type + wing + arrows)',
-      'I Ching daily hexagram oracle',
-      'Ayurveda dosha quiz + daily recommendations',
+      'All 8 traditions fully unlocked',
+      'Western · Vedic · Kabbalah · Numerology',
+      'Chinese BaZi · Human Design · Mayan · Astrocartography',
       'Daily Guidance (AI-written each morning)',
       'Monthly Forecast (5-section arc report)',
       'Life Purpose deep reading (one-shot)',
@@ -79,14 +75,11 @@ const TIERS: TierDef[] = [
   {
     id: 'depth',
     name: 'The Depth',
-    tagline: 'Unlock every tradition + synthesis.',
+    tagline: 'Unlock every tradition.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     savingsPercent: 45, // ((468-259)/468)
     features: [
       '§ Everything in The Reading',
-      '★ Cross-Tradition Synthesis — exclusive',
-      'Find where all 13 systems agree on you',
-      'Gene Keys Hologenetic Profile (Activation Sequence)',
       'Compatibility (full synastry) for any two charts',
       'Group synastry — up to 5 people at once',
       'Wealth & Career Timing — electional windows',
