@@ -138,6 +138,79 @@ const PRICING_PREVIEW = [
   },
 ] as const;
 
+const LINEAGE = [
+  {
+    name: 'J.P. Morgan',
+    era: '1837 – 1913',
+    quote: '\u201CMillionaires don\u2019t use astrology. Billionaires do.\u201D',
+    attrib: 'J.P. Morgan',
+    body: 'Morgan kept Evangeline Adams on retainer. She ran her astrological practice from a suite in Carnegie Hall, read for Charlie Chaplin and Mary Pickford, predicted the 1929 crash to the month, and was acquitted of fortune-telling charges in 1914 after reading a judge\u2019s son\u2019s chart from a blind birth date. The tools used by people who move markets are older than the markets themselves.',
+  },
+  {
+    name: 'Queen Elizabeth I',
+    era: '1533 – 1603',
+    quote: '\u201COn the fifteenth day of January, the coronation will be received.\u201D',
+    attrib: 'John Dee, court astrologer',
+    body: 'Dee was asked to elect an astrologically favourable date for Elizabeth\u2019s coronation. He chose 15 January 1559. She reigned forty-five years, oversaw the defeat of the Spanish Armada, and established the cultural foundation of modern England. Her private library contained more astrological texts than any monarch before her.',
+  },
+  {
+    name: 'Isaac Newton',
+    era: '1643 – 1727',
+    quote: '\u201CNewton was not the first of the age of reason. He was the last of the magicians.\u201D',
+    attrib: 'John Maynard Keynes, 1946',
+    body: 'Keynes bought a trunk of Newton\u2019s unpublished papers at auction in 1936. Inside: a million words on alchemy, biblical prophecy, and Hermetic philosophy \u2014 a quarter of Newton\u2019s life\u2019s writing. The man who gave us calculus and gravitation spent his nights trying to transmute lead into gold and decode the Book of Revelation.',
+  },
+  {
+    name: 'Carl Jung',
+    era: '1875 – 1961',
+    quote: '\u201CWe are born at a given moment, in a given place, and like vintage years of wine we have the qualities of the year and season in which we are born.\u201D',
+    attrib: 'Carl Jung, letter 1947',
+    body: 'Jung cast natal charts for his patients throughout his career. His doctrine of synchronicity \u2014 the meaningful coincidence \u2014 emerged from his study of astrology and the I Ching. Modern psychological astrology is almost entirely downstream of his work.',
+  },
+  {
+    name: 'Ronald Reagan',
+    era: '1911 – 2004 · 40th US President',
+    quote: '\u201CVirtually every major move and decision the Reagans made during my time as Chief of Staff was cleared in advance with a woman in San Francisco who drew up horoscopes.\u201D',
+    attrib: 'Donald Regan, Chief of Staff, 1988 memoir',
+    body: 'Astrologer Joan Quigley worked with Nancy and Ronald Reagan throughout both presidential terms. Air Force One take-off times, summit dates with Gorbachev, State of the Union scheduling \u2014 all cleared against her charts. The story broke in 1988 via the Chief of Staff\u2019s own book.',
+  },
+  {
+    name: 'Princess Diana',
+    era: '1961 – 1997',
+    quote: '\u201CDebbie, tell me what the stars are saying today.\u201D',
+    attrib: 'Princess Diana, to astrologer Debbie Frank',
+    body: 'Diana met astrologer Debbie Frank in 1989 and saw her weekly for the rest of her life. Frank\u2019s 2005 memoir details seven years of sessions \u2014 transits through Diana\u2019s Cancer chart, the timing of her separation, conversations about destiny she trusted no one else with.',
+  },
+  {
+    name: 'Nikola Tesla',
+    era: '1856 – 1943',
+    quote: '\u201CHe would walk three times around a city block before entering his hotel \u2014 even the Waldorf-Astoria.\u201D',
+    attrib: 'John O\u2019Neill, Prodigal Genius (1944)',
+    body: 'Tesla required hotel rooms whose numbers were divisible by three. He demanded exactly eighteen napkins at every meal. He calculated ingredient volumes in multiples of three. He never explained why \u2014 only that the number held something he could feel but not articulate. The numerology his instincts pointed at is the same one Pythagoras formalised two millennia earlier.',
+  },
+  {
+    name: 'Beyonc\u00e9',
+    era: 'b. 1981',
+    quote: '\u201CI\u2019m a Virgo and a perfectionist and that\u2019s what I am.\u201D',
+    attrib: 'Beyonc\u00e9, Rolling Stone',
+    body: 'Beyonc\u00e9 references her Virgo Sun and Scorpio Moon in interviews and in her albums. The imagery through Lemonade, Renaissance, and Cowboy Carter is dense with astrological and Yoruba deity symbolism. Her birthday announcements on Instagram frequently cite the exact planetary positions of her natal chart.',
+  },
+  {
+    name: 'Madonna',
+    era: 'b. 1958',
+    quote: '\u201CKabbalah is an ancient wisdom that answers questions like, why do we do what we do in life?\u201D',
+    attrib: 'Madonna, 2004 interview',
+    body: 'Madonna has been a serious student of Kabbalah since the late 1990s under Rabbi Philip Berg. She famously wears the red string, named her son Rocco partly for Kabbalistic reasons, and produced the documentary I Am Because We Are through the same lineage. Twenty-plus years in \u2014 before it was fashionable, after it went mainstream, still practising.',
+  },
+  {
+    name: 'Oprah Winfrey',
+    era: 'b. 1954',
+    quote: '\u201CThe planets have their own rhythm. When you learn to listen, they tell you exactly when to move.\u201D',
+    attrib: 'Oprah Winfrey, OWN Network',
+    body: 'The Oprah Winfrey Show featured astrologers \u2014 Susan Miller, Chani Nicholas, Debbie Frank \u2014 across twenty-five years on air. Oprah publicly discusses her Aquarius Sun and its influence on her career arc. The platforming of astrology in American mass media owes much of its credibility to her sustained interest.',
+  },
+] as const;
+
 export default function LandingPage() {
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
@@ -211,28 +284,42 @@ export default function LandingPage() {
       </section>
 
       {/* ── 2. J.P. MORGAN PANEL ───────────────────────────────────── */}
-      <section className="mk-jpm-panel" style={{ position: 'relative', zIndex: 1 }}>
-        <div className="mk-jpm-inner">
+      <section className="mk-lineage-section" style={{ position: 'relative', zIndex: 1 }}>
+        <div className="mk-lineage-header">
           <Reveal>
-            <Ornament kind="asterism" style={{ marginBottom: 32 }} />
+            <Ornament kind="asterism" />
           </Reveal>
           <Reveal delay={80}>
-            <p className="mk-jpm-quote">
-              &ldquo;Millionaires don&rsquo;t use astrology. Billionaires do.&rdquo;
-            </p>
+            <div className="mk-eyebrow" style={{ marginTop: 20 }}>§ The Lineage</div>
           </Reveal>
           <Reveal delay={160}>
-            <div className="mk-jpm-attrib">— J.P. Morgan</div>
+            <h2 className="mk-lineage-title">Who else kept an astrologer.</h2>
           </Reveal>
           <Reveal delay={240}>
-            <p className="mk-jpm-context">
-              Morgan kept Evangeline Adams on retainer. She ran her astrological practice from a suite
-              in Carnegie Hall, read for Charlie Chaplin and Mary Pickford, predicted the 1929 crash
-              to the month, and was acquitted of fortune-telling charges in 1914 after reading a judge&rsquo;s
-              son&rsquo;s chart from a blind birth date. The tools used by people who move markets are older
-              than the markets themselves.
+            <p className="mk-lineage-sub">
+              Scroll through ten figures whose relationship with these systems is a matter of public record.
             </p>
           </Reveal>
+        </div>
+
+        <div className="mk-lineage-scroller">
+          {LINEAGE.map((figure, i) => (
+            <article key={figure.name} className="mk-lineage-card" data-index={i + 1}>
+              <div className="mk-lineage-card-index">{String(i + 1).padStart(2, '0')} / 10</div>
+              <div className="mk-lineage-card-name">{figure.name}</div>
+              <div className="mk-lineage-card-era">{figure.era}</div>
+              <blockquote className="mk-lineage-card-quote">{figure.quote}</blockquote>
+              <div className="mk-lineage-card-attrib">— {figure.attrib}</div>
+              <div className="mk-lineage-card-rule" />
+              <p className="mk-lineage-card-body">{figure.body}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mk-lineage-hint">
+          <span className="arrow">←</span>
+          <span>Drag or scroll horizontally</span>
+          <span className="arrow">→</span>
         </div>
       </section>
 
