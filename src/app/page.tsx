@@ -103,15 +103,56 @@ const QUOTES = [
 ] as const;
 
 const PRICING_PREVIEW = [
-  { name: 'The Glance', price: 'Free', tag: 'See the shape of you.' },
-  { name: 'The Reading', price: '$9 / mo', tag: 'Read the whole chart.' },
-  { name: 'The Depth', price: '$19 / mo', tag: 'Unlock every tradition.' },
+  {
+    name: 'The Glance',
+    price: 'Free',
+    alt: 'No card, forever',
+    tag: 'See the shape of you.',
+    bullets: ['Natal chart preview', 'Sun sign · Life Path · Chinese animal'],
+  },
+  {
+    name: 'The Reading',
+    price: 'A$14.98 / mo',
+    alt: 'or A$79 / year · save A$100',
+    tag: 'Read the whole chart.',
+    bullets: [
+      'All 8 traditions · full chart',
+      'Daily Guidance · Monthly Forecast',
+      '10 Oracle questions / day',
+      'Transit alerts on major aspects',
+    ],
+    featured: true,
+  },
+  {
+    name: 'The Depth',
+    price: 'A$29 / mo',
+    alt: 'or A$149 / year · save A$199',
+    tag: 'Unlock every tradition.',
+    bullets: [
+      'Everything in The Reading',
+      'Compatibility (synastry)',
+      'Wealth & career timing',
+      'Unlimited Oracle · email transit alerts',
+    ],
+  },
 ] as const;
 
 export default function LandingPage() {
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <Starfield />
+
+      {/* ── STICKY NAV ─────────────────────────────────────────────── */}
+      <nav className="mk-nav">
+        <Link href="/" className="mk-nav-brand">SYNASTRA</Link>
+        <div className="mk-nav-links">
+          <Link href="/how-it-works">How it works</Link>
+          <Link href="/pricing">Pricing</Link>
+          <Link href="/chart?demo=1">Sample chart</Link>
+          <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>
+          <Link href="/sign-up" className="mk-nav-cta">Begin your chart →</Link>
+        </div>
+      </nav>
 
       {/* ── 1. HERO ────────────────────────────────────────────────── */}
       <section
@@ -124,19 +165,32 @@ export default function LandingPage() {
           padding: '120px 24px 80px',
         }}
       >
-        <div style={{ maxWidth: 1080, margin: '0 auto', width: '100%' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <Reveal>
-            <div className="mk-eyebrow">§ Synastra</div>
+            <div className="mk-brand-eyebrow">EST · MMXXVI  ·  SYDNEY</div>
           </Reveal>
-          <Reveal delay={80}>
-            <h1 className="mk-hero-title">Eight traditions. One chart. Your chart.</h1>
+          <Reveal delay={60}>
+            <div className="mk-wordmark">
+              <span>SYNASTRA</span>
+              <span className="mk-wordmark-ornament"><Ornament kind="asterism" /></span>
+            </div>
           </Reveal>
           <Reveal delay={160}>
+            <div className="mk-hero-rule" />
+          </Reveal>
+          <Reveal delay={220}>
+            <h1 className="mk-hero-title">Eight traditions. One chart. Your chart.</h1>
+          </Reveal>
+          <Reveal delay={300}>
             <p className="mk-hero-sub">
               Personal intelligence, drawn from systems older than the calendar.
+              <br />
+              <span className="mk-hero-sub-dim">
+                Western · Vedic · Kabbalah · Numerology · Chinese BaZi · Human Design · Mayan · Astrocartography
+              </span>
             </p>
           </Reveal>
-          <Reveal delay={240}>
+          <Reveal delay={380}>
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
               <Link href="/sign-up" className="mk-cta-primary">
                 See your chart →
@@ -144,6 +198,12 @@ export default function LandingPage() {
               <Link href="/chart?demo=1" className="mk-cta-ghost">
                 Try a sample chart
               </Link>
+            </div>
+          </Reveal>
+          <Reveal delay={460}>
+            <div className="mk-hero-lineage">
+              <span className="mk-hero-lineage-label">§ The lineage &nbsp;</span>
+              J.P. Morgan · Queen Elizabeth I · Isaac Newton · Carl Jung · Ronald Reagan · Princess Diana · Nikola Tesla · Beyoncé · Madonna · Oprah Winfrey
             </div>
           </Reveal>
         </div>
@@ -289,10 +349,23 @@ export default function LandingPage() {
           <div className="mk-pricing-mini">
             {PRICING_PREVIEW.map((t, i) => (
               <Reveal key={t.name} delay={120 + i * 80}>
-                <div className="tier">
+                <div className={`tier ${('featured' in t && t.featured) ? 'tier-featured' : ''}`}>
+                  {('featured' in t && t.featured) && <div className="tier-ribbon">Most chosen</div>}
                   <div className="tname">{t.name}</div>
                   <div className="tprice">{t.price}</div>
+                  {t.alt && <div className="talt">{t.alt}</div>}
                   <p className="ttag">{t.tag}</p>
+                  <ul className="tbullets">
+                    {t.bullets.map((b) => (
+                      <li key={b}>{b}</li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={t.name === 'The Glance' ? '/sign-up' : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`}
+                    className="tier-cta"
+                  >
+                    {t.name === 'The Glance' ? 'Begin free' : t.name === 'The Reading' ? 'Start the reading' : 'Go deep'} →
+                  </Link>
                 </div>
               </Reveal>
             ))}
