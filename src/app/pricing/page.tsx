@@ -43,7 +43,7 @@ const TIERS: TierDef[] = [
     id: 'reader',
     name: 'The Reading',
     tagline: 'Read the whole chart.',
-    price: { monthly: '$9 / mo', onetime: '$49 once' },
+    price: { monthly: 'A$14.98 / mo', onetime: 'A$79 / year' },
     features: [
       'All eight traditions',
       'Daily Guidance',
@@ -58,7 +58,7 @@ const TIERS: TierDef[] = [
     id: 'depth',
     name: 'The Depth',
     tagline: 'Unlock every tradition.',
-    price: { monthly: '$19 / mo', onetime: '$99 once' },
+    price: { monthly: 'A$29 / mo', onetime: 'A$149 / year' },
     features: [
       'Everything in The Reading',
       'Compatibility (synastry)',
@@ -77,8 +77,8 @@ const FAQS = [
     a: 'A horoscope reads your Sun sign against today\'s sky. Synastra reads your entire chart across eight independent systems, cross-references where they agree, and writes a daily passage personal to the moment you were born. The Oracle answers in your voice, citing your placements.',
   },
   {
-    q: 'Monthly or one-time — which should I pick?',
-    a: 'Monthly if you want Daily Guidance, Transit Alerts, and the Oracle to stay live. One-time if you want the deep reading once (for yourself, or as a gift), exported as a PDF you keep forever. The one-time unlocks the same content but pauses the live features.',
+    q: 'Monthly or annual — which should I pick?',
+    a: 'Monthly keeps everything live — Daily Guidance, Transit Alerts, Oracle chat. Annual is a single payment that unlocks a full year of Synastra at roughly 55% off monthly; billing resets each year from your purchase date.',
   },
   {
     q: 'Do you need my exact birth time?',
@@ -195,7 +195,7 @@ export default function PricingPage() {
                   transition: 'background 0.2s, color 0.2s',
                 }}
               >
-                {c === 'monthly' ? 'Monthly' : 'One-time'}
+                {c === 'monthly' ? 'Monthly' : 'Annual'}
               </button>
             ))}
           </div>
