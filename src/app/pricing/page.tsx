@@ -59,9 +59,10 @@ const TIERS: TierDef[] = [
     featured: true,
     features: [
       '§ Everything in The Glance',
-      'All 8 traditions fully unlocked',
-      'Western · Vedic · Kabbalah · Numerology',
-      'Chinese BaZi · Human Design · Mayan · Astrocartography',
+      'All 12 traditions fully unlocked',
+      'Western · Vedic · Kabbalah · Numerology · Chinese BaZi',
+      'Human Design · Mayan · Astrocartography',
+      'Tarot · Enneagram · Gene Keys · Ayurveda',
       'Daily Guidance (AI-written each morning)',
       'Monthly Forecast (5-section arc report)',
       'Life Purpose deep reading (one-shot)',
@@ -99,7 +100,7 @@ const TIERS: TierDef[] = [
 const FAQS = [
   {
     q: 'What is actually different from a horoscope app?',
-    a: 'A horoscope reads your Sun sign against today\'s sky. Synastra reads your entire chart across eight independent systems, cross-references where they agree, and writes a daily passage personal to the moment you were born. The Oracle answers in your voice, citing your placements.',
+    a: 'A horoscope reads your Sun sign against today\'s sky. Synastra reads your entire chart across twelve independent systems, cross-references where they agree, and writes a daily passage personal to the moment you were born. The Oracle answers in your voice, citing your placements.',
   },
   {
     q: 'Monthly or annual — which should I pick?',
@@ -115,7 +116,7 @@ const FAQS = [
   },
   {
     q: 'Can I read someone else\'s chart?',
-    a: 'Yes — The Depth includes full compatibility (synastry). You can generate a chart for any person and run the same eight-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
+    a: 'Yes — The Depth includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
   },
   {
     q: 'Can I cancel anytime?',

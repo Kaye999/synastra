@@ -56,6 +56,30 @@ const TRADITIONS = [
     meta: 'Relocation lines',
     body: 'The planetary lines across the earth — where on the map you are most likely to love, work, and break open.',
   },
+  {
+    name: 'Tarot',
+    accent: 'var(--brass)',
+    meta: '78-card deck',
+    body: 'A daily card and a full spread cast for the question — Majors and Minors drawn against your chart.',
+  },
+  {
+    name: 'Enneagram',
+    accent: 'var(--ember)',
+    meta: 'Nine types',
+    body: 'Thirty-six questions, nine bodies, one centre of gravity — the portrait of the self you defend and the self you become.',
+  },
+  {
+    name: 'Gene Keys',
+    accent: 'var(--violet-deep)',
+    meta: 'Hologenetic profile',
+    body: "Richard Rudd's four Activation keys read through Shadow, Gift, and Siddhi — a contemplative path through the 64 I Ching gates.",
+  },
+  {
+    name: 'Ayurveda',
+    accent: 'var(--saffron)',
+    meta: 'Three doshas',
+    body: 'Vata, Pitta, Kapha — the constitution you were born into, and the regimen that brings it back into balance.',
+  },
 ] as const;
 
 const INTELLIGENCE = [
@@ -72,7 +96,7 @@ const INTELLIGENCE = [
   {
     title: 'AI Oracle',
     body:
-      'Ask anything. The Oracle has read your complete chart across all eight traditions and answers in your voice, with the evidence shown. No generic advice — every reply is grounded in your placements.',
+      'Ask anything. The Oracle has read your complete chart across all twelve traditions and answers in your voice, with the evidence shown. No generic advice — every reply is grounded in your placements.',
   },
   {
     title: 'Transit Alerts',
@@ -97,7 +121,7 @@ const QUOTES = [
     who: '— R.T., Brooklyn',
   },
   {
-    text: '"I finally understand what my Vedic chart was trying to say. Eight systems, one page."',
+    text: '"I finally understand what my Vedic chart was trying to say. Twelve systems, one page."',
     who: '— A.J., London',
   },
 ] as const;
@@ -259,7 +283,7 @@ export default function LandingPage() {
               Personal intelligence, drawn from systems older than the calendar.
               <br />
               <span className="mk-hero-sub-dim">
-                Western · Vedic · Kabbalah · Numerology · Chinese BaZi · Human Design · Mayan · Astrocartography
+                Western · Vedic · Kabbalah · Numerology · Chinese BaZi · Human Design · Mayan · Astrocartography · Tarot · Enneagram · Gene Keys · Ayurveda
               </span>
             </p>
           </Reveal>
@@ -326,10 +350,10 @@ export default function LandingPage() {
       <section style={{ position: 'relative', zIndex: 1, padding: '120px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Reveal>
-            <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ The Eight</div>
+            <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ The Twelve</div>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mk-section-title">One birth moment. Eight independent readings.</h2>
+            <h2 className="mk-section-title">One birth moment. Twelve independent readings.</h2>
           </Reveal>
           <Reveal delay={160}>
             <p className="mk-prose">
