@@ -5,6 +5,7 @@
 // Numerology, and Chinese sections via the engines + interp tables.
 
 import { useMemo, useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
 import Starfield from './Starfield';
 import PaywallBlur from './PaywallBlur';
 import ChatWidget from './ChatWidget';
@@ -69,6 +70,7 @@ export type DashboardProps = {
 
 export default function Dashboard({ user, tier, onReset }: DashboardProps) {
   const [mode, setMode] = useState<Mode>('astro');
+  const { userId } = useAuth();
 
   const firstName = user.name || user.fullName.split(' ')[0] || 'You';
 
@@ -132,6 +134,39 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
 
   const sunPlanet = tropical.planets.find((p) => planetKey(p.planet) === 'Sun');
   const moonPlanet = tropical.planets.find((p) => planetKey(p.planet) === 'Moon');
+
+  // Compact chart context for the oracle. Keep small — this goes in every
+  // system prompt. Drop the heavy derived-text fields; the model only needs
+  // placements + key numerology/bazi summaries to cite.
+  const chartContext = useMemo(() => ({
+    birth: {
+      name: user.fullName,
+      dob: user.dob,
+      time: user.timeUnknown ? null : user.time,
+      city: user.city,
+      gender: user.gender,
+    },
+    western: {
+      ascendant: tropical.ascendant,
+      planets: tropical.planets,
+    },
+    vedic: {
+      ascendant: sidereal.ascendant,
+      planets: sidereal.planets,
+      nakshatra: sidereal.nakshatra ?? null,
+    },
+    dashas: dashas ? { currentLord: dashas.currentLord, nextLord: dashas.nextLord } : null,
+    numerology: {
+      lifePath: numerology.lifePath,
+      expression: numerology.expression,
+      soulUrge: numerology.soulUrge,
+      personalYear: numerology.personalYear,
+    },
+    bazi: {
+      pillars: bazi.pillars.map((p) => ({ label: p.label, combined: p.combined, element: p.element, animal: p.animal })),
+      dayMaster: bazi.analysis.dayMaster,
+    },
+  }), [user, tropical, sidereal, dashas, numerology, bazi]);
 
   return (
     <div className={`page mode-${mode}`} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -356,7 +391,12 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         )}
       </div>
 
-      <ChatWidget />
+      <ChatWidget
+        chartContext={chartContext}
+        firstName={firstName}
+        tier={tier}
+        userId={userId ?? ''}
+      />
     </div>
   );
 }

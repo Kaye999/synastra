@@ -5,18 +5,37 @@ import Link from 'next/link';
 import Starfield from '@/components/Starfield';
 
 type Cadence = 'monthly' | 'onetime';
+type PaidTier = 'reader' | 'depth';
 
-const TIERS = [
+type TierDef =
+  | {
+      id: 'glance';
+      name: string;
+      tagline: string;
+      price: Record<Cadence, string>;
+      features: string[];
+      cta: { label: string; href: string; kind: 'link' };
+    }
+  | {
+      id: PaidTier;
+      name: string;
+      tagline: string;
+      price: Record<Cadence, string>;
+      features: string[];
+      cta: { label: string; kind: 'checkout'; tier: PaidTier };
+    };
+
+const TIERS: TierDef[] = [
   {
     id: 'glance',
     name: 'The Glance',
     tagline: 'See the shape of you',
     price: { monthly: '$0', onetime: '$0' },
     features: ['Sun sign essence', 'Life Path number', 'Chinese zodiac animal'],
-    cta: { label: 'Start free', href: '/sign-up' },
+    cta: { label: 'Start free', href: '/sign-up', kind: 'link' },
   },
   {
-    id: 'reading',
+    id: 'reader',
     name: 'The Reading',
     tagline: 'Read the whole chart',
     price: { monthly: '$9 AUD/mo', onetime: '$49 once' },
@@ -26,10 +45,7 @@ const TIERS = [
       'Chinese BaZi pillars',
       '10 AI questions/day',
     ],
-    cta: {
-      label: 'Start reading',
-      href: { monthly: '/api/stripe/checkout?tier=reader&cadence=monthly', onetime: '/api/stripe/checkout?tier=reader&cadence=onetime' },
-    },
+    cta: { label: 'Start reading', kind: 'checkout', tier: 'reader' },
   },
   {
     id: 'depth',
@@ -43,15 +59,41 @@ const TIERS = [
       'Unlimited AI questions',
       'PDF export',
     ],
-    cta: {
-      label: 'Go deep',
-      href: { monthly: '/api/stripe/checkout?tier=depth&cadence=monthly', onetime: '/api/stripe/checkout?tier=depth&cadence=onetime' },
-    },
+    cta: { label: 'Go deep', kind: 'checkout', tier: 'depth' },
   },
 ];
 
 export default function PricingPage() {
   const [cadence, setCadence] = useState<Cadence>('monthly');
+  const [loadingTier, setLoadingTier] = useState<PaidTier | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  async function startCheckout(tier: PaidTier, interval: Cadence) {
+    setErrorMsg(null);
+    setLoadingTier(tier);
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier, interval }),
+      });
+
+      if (res.status === 401) {
+        window.location.href = `/sign-in?redirect_url=${encodeURIComponent('/pricing')}`;
+        return;
+      }
+
+      const data = (await res.json().catch(() => ({}))) as { url?: string; error?: string };
+      if (!res.ok || !data.url) {
+        throw new Error(data.error || 'Unable to start checkout');
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unexpected error';
+      setErrorMsg(message);
+      setLoadingTier(null);
+    }
+  }
 
   return (
     <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -108,12 +150,29 @@ export default function PricingPage() {
           ))}
         </div>
 
+        {errorMsg ? (
+          <div
+            role="alert"
+            style={{
+              maxWidth: 520,
+              margin: '0 auto 24px',
+              padding: '10px 14px',
+              border: '1px solid var(--rule)',
+              background: 'rgba(255,80,80,0.08)',
+              color: 'var(--ink-dim)',
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 11,
+              letterSpacing: '0.1em',
+              textAlign: 'center',
+            }}
+          >
+            {errorMsg}
+          </div>
+        ) : null}
+
         <div className="pricing-grid">
           {TIERS.map((tier) => {
-            const href =
-              typeof tier.cta.href === 'string'
-                ? tier.cta.href
-                : tier.cta.href[cadence];
+            const cta = tier.cta;
             return (
               <div key={tier.id} className="pricing-card">
                 <div className="eyebrow">{tier.tagline}</div>
@@ -124,9 +183,20 @@ export default function PricingPage() {
                     <li key={f}>{f}</li>
                   ))}
                 </ul>
-                <Link href={href} className="cta">
-                  {tier.cta.label}
-                </Link>
+                {cta.kind === 'link' ? (
+                  <Link href={cta.href} className="cta">
+                    {cta.label}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className="cta"
+                    disabled={loadingTier !== null}
+                    onClick={() => startCheckout(cta.tier, cadence)}
+                  >
+                    {loadingTier === cta.tier ? 'Loading…' : cta.label}
+                  </button>
+                )}
               </div>
             );
           })}
