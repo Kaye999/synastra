@@ -6,8 +6,8 @@
 
 import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
 import Dashboard from '@/components/Dashboard';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { BirthData } from '@/lib/types';
 import type { Tier } from '@/lib/tiers';
 
@@ -30,9 +30,13 @@ const DEMO_PROFILE: Profile = {
 // Returns null if there's no row (→ caller should redirect to /onboarding).
 async function loadProfile(clerkUserId: string): Promise<Profile | null> {
   try {
-    const supabase = await createSupabaseServerClient();
+    // Service-role client bypasses RLS — safe because we only read by authenticated userId.
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { persistSession: false }, db: { schema: 'astral' } },
+    );
     const { data, error } = await supabase
-      .schema('astral')
       .from('profiles')
       .select('birth_data, tier')
       .eq('user_id', clerkUserId)

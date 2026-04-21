@@ -18,6 +18,7 @@ type TierDef =
       name: string;
       tagline: string;
       price: Record<Cadence, string>;
+      savingsPercent: number | null;
       features: string[];
       cta: { label: string; href: string; kind: 'link' };
     }
@@ -26,6 +27,8 @@ type TierDef =
       name: string;
       tagline: string;
       price: Record<Cadence, string>;
+      savingsPercent: number | null;
+      featured?: boolean;
       features: string[];
       cta: { label: string; kind: 'checkout'; tier: PaidTier };
     };
@@ -36,38 +39,67 @@ const TIERS: TierDef[] = [
     name: 'The Glance',
     tagline: 'See the shape of you.',
     price: { monthly: 'Free', onetime: 'Free' },
-    features: ['Chart preview', 'Sun sign essence', 'Life Path number', 'Chinese zodiac animal'],
-    cta: { label: 'Start free', href: '/sign-up', kind: 'link' },
+    savingsPercent: null,
+    features: [
+      'Full natal chart preview (Western)',
+      'Sun, Moon & Rising essence',
+      'Life Path numerology number',
+      'Chinese zodiac animal + element',
+      'Starfield chart view',
+      'Keep your chart forever',
+    ],
+    cta: { label: 'Start free →', href: '/sign-up', kind: 'link' },
   },
   {
     id: 'reader',
     name: 'The Reading',
     tagline: 'Read the whole chart.',
     price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
+    savingsPercent: 43, // ((228-129)/228)
+    featured: true,
     features: [
-      'All eight traditions',
-      'Daily Guidance',
-      'Monthly Forecast',
-      'Life Purpose reading',
-      'Shadow prompts',
-      '10 AI questions / day',
+      '§ Everything in The Glance',
+      'All 13 traditions fully unlocked',
+      'Western · Vedic · Kabbalah · Numerology · Chinese BaZi',
+      'Human Design · Mayan · Astrocartography',
+      'Tarot (daily card + 3-card spreads)',
+      'Enneagram full profile (type + wing + arrows)',
+      'I Ching daily hexagram oracle',
+      'Ayurveda dosha quiz + daily recommendations',
+      'Daily Guidance (AI-written each morning)',
+      'Monthly Forecast (5-section arc report)',
+      'Life Purpose deep reading (one-shot)',
+      'Shadow Work weekly prompts',
+      '10 Oracle AI questions / day',
+      'Email transit alerts for major aspects',
+      'Cancel anytime · readings export as PDF',
     ],
-    cta: { label: 'Start reading', kind: 'checkout', tier: 'reader' },
+    cta: { label: 'Start reading →', kind: 'checkout', tier: 'reader' },
   },
   {
     id: 'depth',
     name: 'The Depth',
-    tagline: 'Unlock every tradition.',
+    tagline: 'Unlock every tradition + synthesis.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
+    savingsPercent: 45, // ((468-259)/468)
     features: [
-      'Everything in The Reading',
-      'Compatibility (synastry)',
-      'Wealth Timing',
-      'Transit Alerts (email)',
-      'Unlimited AI questions',
-      'PDF export',
+      '§ Everything in The Reading',
+      '★ Cross-Tradition Synthesis — exclusive',
+      'Find where all 13 systems agree on you',
+      'Gene Keys Hologenetic Profile (Activation Sequence)',
+      'Compatibility (full synastry) for any two charts',
+      'Group synastry — up to 5 people at once',
+      'Wealth & Career Timing — electional windows',
+      'Solar Return annual chart (birthday report)',
+      'Lunar Return monthly chart (emotional arc)',
+      'Progressions (secondary progressed chart)',
+      'Full Astrocartography atlas with travel overlays',
+      'Unlimited Oracle AI chat (no daily cap)',
+      'Priority email alerts (eclipses, stations, returns)',
+      'Lifetime reading archive + exportable PDFs',
+      'Early access to new traditions we add',
     ],
-    cta: { label: 'Go deep', kind: 'checkout', tier: 'depth' },
+    cta: { label: 'Go deep →', kind: 'checkout', tier: 'depth' },
   },
 ];
 
@@ -231,21 +263,74 @@ export default function PricingPage() {
         >
           {TIERS.map((tier, i) => {
             const cta = tier.cta;
+            const isFeatured = 'featured' in tier && tier.featured;
+            const showSavings = cadence === 'onetime' && tier.savingsPercent !== null;
             return (
               <Reveal key={tier.id} delay={120 + i * 100}>
                 <article
+                  id={tier.id === 'reader' ? 'the-reading' : tier.id === 'depth' ? 'the-depth' : undefined}
                   style={{
-                    border: '1px solid var(--rule)',
+                    position: 'relative',
+                    border: isFeatured ? '1px solid var(--brass)' : '1px solid var(--rule)',
                     padding: '44px 36px',
-                    background: 'rgba(19, 24, 40, 0.45)',
+                    background: isFeatured ? 'rgba(200, 160, 82, 0.04)' : 'rgba(19, 24, 40, 0.45)',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                   }}
                 >
+                  {isFeatured && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: -11,
+                        left: 28,
+                        background: 'var(--brass)',
+                        color: 'var(--bg-base)',
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 9,
+                        letterSpacing: '0.24em',
+                        textTransform: 'uppercase',
+                        padding: '4px 12px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      Most chosen
+                    </div>
+                  )}
                   <h2 className="mk-pricing-tier-name">{tier.name}</h2>
                   <p className="mk-pricing-tier-tag">{tier.tagline}</p>
                   <div className="mk-pricing-tier-price">{tier.price[cadence]}</div>
+                  {showSavings && (
+                    <div
+                      style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 11,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--brass)',
+                        marginTop: -8,
+                        marginBottom: 24,
+                      }}
+                    >
+                      § Save {tier.savingsPercent}% vs monthly
+                    </div>
+                  )}
+                  {cadence === 'monthly' && tier.savingsPercent !== null && (
+                    <div
+                      style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.16em',
+                        textTransform: 'uppercase',
+                        color: 'var(--ink-faint)',
+                        marginTop: -8,
+                        marginBottom: 24,
+                      }}
+                    >
+                      annual available · save {tier.savingsPercent}%
+                    </div>
+                  )}
                   <ul className="mk-feat-list" style={{ flexGrow: 1 }}>
                     {tier.features.map((f) => (
                       <li key={f}>{f}</li>
@@ -261,7 +346,11 @@ export default function PricingPage() {
                       className="mk-cta-primary"
                       disabled={loadingTier !== null}
                       onClick={() => startCheckout(cta.tier, cadence)}
-                      style={{ textAlign: 'center', opacity: loadingTier !== null ? 0.6 : 1 }}
+                      style={{
+                        textAlign: 'center',
+                        opacity: loadingTier !== null ? 0.6 : 1,
+                        ...(isFeatured ? { background: 'var(--brass)', color: 'var(--bg-base)' } : {}),
+                      }}
                     >
                       {loadingTier === cta.tier ? 'Loading…' : cta.label}
                     </button>

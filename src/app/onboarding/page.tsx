@@ -12,7 +12,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Onboarding from '@/components/Onboarding';
-import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 import type { BirthData } from '@/lib/types';
 
 export default function OnboardingPage() {
@@ -35,32 +34,16 @@ export default function OnboardingPage() {
 
     setSaving(true);
     try {
-      const supabase = createSupabaseBrowserClient();
-      // Use an untyped client here: the astral schema isn't yet in Database types.
-      const { error } = await (supabase as unknown as {
-        schema: (s: string) => {
-          from: (t: string) => {
-            upsert: (
-              row: Record<string, unknown>,
-              opts?: { onConflict?: string },
-            ) => Promise<{ error: { message: string } | null }>;
-          };
-        };
-      })
-        .schema('astral')
-        .from('profiles')
-        .upsert(
-          {
-            user_id: user.id,
-            birth_data: birthData,
-            tier: 'free',
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id' },
-        );
+      // POST to server API — uses service role to upsert, bypasses Clerk<>Supabase JWT setup.
+      const res = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ birthData }),
+      });
 
-      if (error) {
-        console.error('[synastra] onboarding upsert error:', error.message);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.error('[synastra] /api/profile failed:', body);
         setErr('Could not save your chart. Please try again.');
         setSaving(false);
         return;
