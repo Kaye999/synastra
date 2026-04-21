@@ -10,6 +10,12 @@ import Starfield from './Starfield';
 import PaywallBlur from './PaywallBlur';
 import ChatWidget from './ChatWidget';
 import SettingsCog from './SettingsCog';
+import MorningCup from './MorningCup';
+import MonthlyForecast from './MonthlyForecast';
+import DeepReadTabs from './DeepReadTabs';
+import CompatibilityForm from './CompatibilityForm';
+import TransitAlerts from './TransitAlerts';
+import Ornament from './Ornament';
 
 import { computeTropicalChart, computeSiderealChart, computeMahadasha } from '@/lib/engines/astro';
 import { computeNumerology, NUM_MEANINGS } from '@/lib/engines/numerology';
@@ -176,10 +182,33 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         onSave={() => { /* persistence is the parent's job */ }}
         onReset={onReset}
       />
+      <TransitAlerts user={user} firstName={firstName} tier={tier} />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 980, margin: '0 auto', padding: '80px 24px 120px' }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '80px 24px 120px' }}>
+        {/* ─── Morning Cup + Monthly Forecast (two columns on desktop) ──── */}
+        <div
+          className="dash-top-grid"
+          style={{
+            display: 'grid',
+            gap: 48,
+            gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)',
+            marginBottom: 56,
+            alignItems: 'start',
+          }}
+        >
+          <div className="reveal" style={{ animationDelay: '120ms' }}>
+            <MorningCup user={user} firstName={firstName} />
+          </div>
+          <div className="reveal" style={{ animationDelay: '480ms' }}>
+            <MonthlyForecast user={user} firstName={firstName} />
+          </div>
+        </div>
+
         {/* Mode switcher */}
-        <nav className="mode-switch" style={{ display: 'flex', gap: 16, marginBottom: 48, flexWrap: 'wrap' }}>
+        <nav
+          className="mode-switch reveal"
+          style={{ display: 'flex', gap: 16, marginBottom: 48, flexWrap: 'wrap', animationDelay: '240ms' }}
+        >
           {(Object.keys(MODE_LABELS) as Mode[]).map((m) => (
             <button
               key={m}
@@ -205,7 +234,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         </nav>
 
         {/* Hero */}
-        <header style={{ marginBottom: 64 }}>
+        <header className="reveal" style={{ marginBottom: 64, animationDelay: '360ms' }}>
           <div
             style={{
               fontFamily: "'IBM Plex Mono', monospace",
@@ -389,6 +418,21 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
             )}
           </section>
         )}
+
+        {/* ─── Deep reads + compatibility (tier-gated within) ──────────── */}
+        <div style={{ marginTop: 96 }}>
+          <Ornament kind="rule" width={260} style={{ margin: '0 auto 56px' }} />
+
+          <div className="reveal" style={{ animationDelay: '600ms', marginBottom: 96 }}>
+            <DeepReadTabs user={user} firstName={firstName} tier={tier} />
+          </div>
+
+          <Ornament kind="constellation" width={160} style={{ margin: '0 auto 56px' }} />
+
+          <div className="reveal" style={{ animationDelay: '720ms' }}>
+            <CompatibilityForm user={user} firstName={firstName} tier={tier} />
+          </div>
+        </div>
       </div>
 
       <ChatWidget

@@ -16,6 +16,90 @@
   --saffron: #D4956B;
   --antique: #B8935A;
   --lacquer: #8E2C2C;
+  --violet-deep: #3B2F5C;
+  --violet-soft: rgba(59, 47, 92, 0.35);
+  --western: #C8A052;
+  --vedic: #D4956B;
+  --kabbalah: #B87333;
+  --numerology: #B8935A;
+  --bazi: #8E2C2C;
+  --humandesign: #6B7A99;
+  --mayan: #5A8A70;
+  --cartography: #7C6DB8;
+
+  /* Mystical-premium extension */
+  --violet-glow: rgba(155, 137, 212, 0.4);
+  --brass-glow: rgba(200, 160, 82, 0.35);
+  --ember-soft: rgba(168, 75, 62, 0.3);
+  --mist: rgba(252, 250, 246, 0.04);        /* faint card fills */
+  --veil: rgba(10, 14, 26, 0.72);           /* overlay blur base */
+}
+
+/* ─── Motion primitives (mystical-premium) ─────────────────────────────── */
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-halo {
+  0%, 100% { box-shadow: 0 0 0 0 var(--brass-glow); }
+  50%      { box-shadow: 0 0 40px 2px var(--brass-glow); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+/* Reveal helper — stagger delays on a per-instance basis via inline style */
+.reveal {
+  opacity: 0;
+  animation: reveal-rise 0.7s cubic-bezier(.2,.7,.3,1) both;
+}
+
+/* Shimmer placeholder skeleton for loading states */
+.shimmer-line {
+  background: linear-gradient(
+    90deg,
+    rgba(252, 250, 246, 0.04) 0%,
+    rgba(252, 250, 246, 0.10) 50%,
+    rgba(252, 250, 246, 0.04) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* MorningCup — gentle 8s breathing halo on the card */
+.morning-cup {
+  animation: pulse-halo 8s ease-in-out infinite;
+}
+
+/* Reading cards — halo on hover only */
+.reading-card {
+  transition: border-color 320ms ease, box-shadow 600ms ease;
+}
+.reading-card:hover {
+  border-color: var(--brass-soft);
+  animation: pulse-halo 3.2s ease-in-out infinite;
+}
+
+/* Monthly forecast — hide the subtitle on narrow screens */
+@media (max-width: 640px) {
+  .mf-sub { display: none !important; }
+}
+
+/* Dashboard top grid — stack Morning Cup + Monthly Forecast on mobile */
+@media (max-width: 960px) {
+  .dash-top-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 @theme inline {
@@ -303,3 +387,490 @@ body {
   transition: background .25s, color .25s;
 }
 .pricing-card .cta:hover { background: var(--brass); color: var(--bg-base); }
+
+/* ─── Marketing: hero + CTAs ──────────────────────────────────────── */
+.mk-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.mk-hero-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(52px, 10vw, 120px);
+  font-weight: 600;
+  letter-spacing: -0.032em;
+  line-height: 0.94;
+  margin: 18px 0 22px;
+  color: var(--ink);
+  max-width: 16ch;
+}
+.mk-hero-sub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--ink-dim);
+  max-width: 48ch;
+  line-height: 1.45;
+  margin: 0 0 40px;
+}
+.mk-section-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 96;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.02;
+  margin: 0 0 24px;
+  color: var(--ink);
+}
+.mk-block-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  margin: 16px 0 12px;
+  color: var(--ink);
+}
+.mk-prose {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  max-width: 62ch;
+}
+
+.mk-cta-primary {
+  position: relative;
+  display: inline-block;
+  padding: 16px 34px;
+  border: 1px solid var(--brass);
+  color: var(--brass);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: background 0.28s ease, color 0.28s ease, box-shadow 0.28s ease;
+  background: transparent;
+  cursor: pointer;
+}
+.mk-cta-primary:hover {
+  background: var(--brass);
+  color: var(--bg-base);
+  box-shadow: 0 0 0 1px var(--brass), 0 0 28px rgba(200, 160, 82, 0.35);
+  animation: mk-pulse 2.2s ease-in-out infinite;
+}
+@keyframes mk-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--brass), 0 0 24px rgba(200, 160, 82, 0.28); }
+  50%      { box-shadow: 0 0 0 1px var(--brass), 0 0 40px rgba(200, 160, 82, 0.5); }
+}
+.mk-cta-ghost {
+  display: inline-block;
+  padding: 16px 28px;
+  border: 1px solid var(--rule);
+  color: var(--ink-dim);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition: border-color 0.25s, color 0.25s;
+}
+.mk-cta-ghost:hover { border-color: var(--brass-soft); color: var(--brass); }
+
+.mk-cta-giant {
+  display: inline-block;
+  padding: 26px 64px;
+  border: 1px solid var(--brass);
+  color: var(--brass);
+  text-decoration: none;
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.mk-cta-giant:hover {
+  background: var(--brass);
+  color: var(--bg-base);
+  box-shadow: 0 0 0 1px var(--brass), 0 0 60px rgba(200, 160, 82, 0.4);
+}
+
+/* ─── Marketing: reveal-on-scroll ─────────────────────────────────── */
+.mk-reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.9s cubic-bezier(.2,.7,.3,1), transform 0.9s cubic-bezier(.2,.7,.3,1);
+}
+.mk-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ─── Marketing: J.P. Morgan panel ────────────────────────────────── */
+.mk-jpm-panel {
+  position: relative;
+  padding: 110px 24px;
+  background: linear-gradient(180deg, rgba(59, 47, 92, 0.18) 0%, rgba(59, 47, 92, 0.06) 50%, rgba(59, 47, 92, 0.18) 100%);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+}
+.mk-jpm-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.mk-jpm-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(34px, 4.5vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+  color: var(--ink);
+  margin: 0 0 30px;
+}
+.mk-jpm-attrib {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 38px;
+}
+.mk-jpm-context {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--ink-dim);
+  line-height: 1.65;
+  max-width: 58ch;
+  margin: 0 auto;
+}
+
+/* ─── Marketing: The Eight (tradition cards) ──────────────────────── */
+.mk-eight-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 36px;
+}
+.mk-trad-card {
+  border: 1px solid var(--rule);
+  padding: 28px 22px;
+  background: rgba(19, 24, 40, 0.35);
+  transition: border-color 0.3s, transform 0.3s, background 0.3s;
+  position: relative;
+}
+.mk-trad-card:hover {
+  border-color: var(--brass-soft);
+  transform: translateY(-3px);
+  background: rgba(19, 24, 40, 0.65);
+}
+.mk-trad-card .accent-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-bottom: 18px;
+}
+.mk-trad-card .trad-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.mk-trad-card .trad-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 12px;
+}
+.mk-trad-card .trad-body {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ─── Marketing: Intelligence 2x2 ─────────────────────────────────── */
+.mk-intel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 36px;
+}
+.mk-intel-cell {
+  padding: 44px 36px;
+  background: var(--bg-base);
+  position: relative;
+}
+.mk-intel-cell .ornament {
+  color: var(--brass);
+  opacity: 0.55;
+  margin-bottom: 6px;
+}
+
+/* ─── Marketing: personas ─────────────────────────────────────────── */
+.mk-personas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 28px;
+  margin-top: 36px;
+}
+.mk-persona {
+  padding: 28px 0;
+  border-top: 1px solid var(--rule);
+}
+.mk-persona .who {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 26px;
+  color: var(--brass);
+  margin: 0 0 8px;
+}
+.mk-persona .desc {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ─── Marketing: quote cards ──────────────────────────────────────── */
+.mk-quotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 36px;
+}
+.mk-quote {
+  border: 1px solid var(--rule);
+  padding: 32px 28px;
+  background: rgba(19, 24, 40, 0.35);
+}
+.mk-quote blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1.4;
+  color: var(--ink);
+  margin: 0 0 22px;
+}
+.mk-quote cite {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brass);
+  font-style: normal;
+}
+
+/* ─── Marketing: pricing preview ──────────────────────────────────── */
+.mk-pricing-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  border: 1px solid var(--rule);
+  margin-top: 36px;
+}
+.mk-pricing-mini .tier {
+  padding: 34px 28px;
+  border-right: 1px solid var(--rule);
+  background: rgba(19, 24, 40, 0.25);
+}
+.mk-pricing-mini .tier:last-child { border-right: 0; }
+.mk-pricing-mini .tname {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--ink);
+}
+.mk-pricing-mini .tprice {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--brass);
+  margin-bottom: 14px;
+}
+.mk-pricing-mini .ttag {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--ink-dim);
+  margin: 0;
+}
+
+/* ─── Marketing: footer ───────────────────────────────────────────── */
+.mk-footer {
+  border-top: 1px solid var(--rule);
+  padding: 60px 24px 48px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.mk-footer .wordmark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.mk-footer .tag {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-dim);
+  margin-bottom: 24px;
+}
+.mk-footer nav a {
+  color: var(--ink-faint);
+  text-decoration: none;
+  margin: 0 12px;
+  transition: color 0.2s;
+}
+.mk-footer nav a:hover { color: var(--brass); }
+
+/* ─── Marketing: pricing page tier card extras ────────────────────── */
+.mk-pricing-tier-name {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: 0 0 10px;
+  color: var(--ink);
+}
+.mk-pricing-tier-tag {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--ink-dim);
+  margin: 0 0 26px;
+  line-height: 1.4;
+}
+.mk-pricing-tier-price {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  letter-spacing: 0.18em;
+  color: var(--brass);
+  margin-bottom: 28px;
+}
+.mk-feat-list { list-style: none; padding: 0; margin: 0 0 32px; }
+.mk-feat-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink-dim);
+}
+.mk-feat-list li:first-child { border-top: 1px solid var(--rule); }
+
+/* ─── Marketing: FAQ accordion ────────────────────────────────────── */
+.mk-faq details {
+  border-bottom: 1px solid var(--rule);
+  padding: 22px 0;
+}
+.mk-faq summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  outline: none;
+}
+.mk-faq summary::-webkit-details-marker { display: none; }
+.mk-faq summary::after {
+  content: '+';
+  font-family: var(--font-display);
+  color: var(--brass);
+  font-size: 24px;
+  transition: transform 0.25s;
+}
+.mk-faq details[open] summary::after { content: '−'; }
+.mk-faq .answer {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+  margin: 14px 0 0;
+  max-width: 64ch;
+}
+
+/* ─── Marketing: editorial longread (how-it-works) ────────────────── */
+.mk-longread {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.mk-longread h2 {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 64px 0 18px;
+  color: var(--ink);
+}
+.mk-longread h3 {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 36px 0 10px;
+  color: var(--ink);
+}
+.mk-longread p {
+  font-family: var(--font-body);
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--ink-dim);
+  margin: 0 0 22px;
+}
+.mk-longread .act-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 10px;
+}
+.mk-chart-hero {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0 0;
+}
+.mk-chart-hero svg {
+  max-width: 420px;
+  width: 100%;
+  height: auto;
+  color: var(--brass);
+}
