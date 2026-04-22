@@ -112,8 +112,8 @@
 
 * { box-sizing: border-box; }
 html, body { background: var(--bg-base); color: var(--ink); }
-html { zoom: 0.8; }
-@supports (-moz-appearance: none) { html { zoom: unset; font-size: 12.8px; } body { transform-origin: top left; } }
+/* zoom: 0.8 removed — was intermittently blocking input focus on Safari.
+   If global scale is needed, reduce component sizes individually. */
 
 /* ─── Page-nav buttons (footer of pricing, how-it-works) ────────────── */
 .mk-page-nav-btn {
