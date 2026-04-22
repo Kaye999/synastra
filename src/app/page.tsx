@@ -325,24 +325,33 @@ export default function LandingPage() {
           </Reveal>
         </div>
 
-        <div className="mk-lineage-scroller">
-          {LINEAGE.map((figure, i) => (
-            <article key={figure.name} className="mk-lineage-card" data-index={i + 1}>
-              <div className="mk-lineage-card-index">{String(i + 1).padStart(2, '0')} / 10</div>
-              <div className="mk-lineage-card-name">{figure.name}</div>
-              <div className="mk-lineage-card-era">{figure.era}</div>
-              <blockquote className="mk-lineage-card-quote">{figure.quote}</blockquote>
-              <div className="mk-lineage-card-attrib">— {figure.attrib}</div>
-              <div className="mk-lineage-card-rule" />
-              <p className="mk-lineage-card-body">{figure.body}</p>
-            </article>
-          ))}
+        <div className="mk-lineage-scroller" tabIndex={0} aria-label="Lineage — hover to pause">
+          <div className="mk-lineage-track">
+            {/* Render twice back-to-back so the marquee loops seamlessly */}
+            {[...LINEAGE, ...LINEAGE].map((figure, i) => {
+              const pos = (i % LINEAGE.length) + 1;
+              return (
+                <article
+                  key={`${figure.name}-${i}`}
+                  className="mk-lineage-card"
+                  data-index={pos}
+                  aria-hidden={i >= LINEAGE.length}
+                >
+                  <div className="mk-lineage-card-index">{String(pos).padStart(2, '0')} / {LINEAGE.length}</div>
+                  <div className="mk-lineage-card-name">{figure.name}</div>
+                  <div className="mk-lineage-card-era">{figure.era}</div>
+                  <blockquote className="mk-lineage-card-quote">{figure.quote}</blockquote>
+                  <div className="mk-lineage-card-attrib">— {figure.attrib}</div>
+                  <div className="mk-lineage-card-rule" />
+                  <p className="mk-lineage-card-body">{figure.body}</p>
+                </article>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mk-lineage-hint">
-          <span className="arrow">←</span>
-          <span>Drag or scroll horizontally</span>
-          <span className="arrow">→</span>
+          <span>Hover to pause</span>
         </div>
       </section>
 

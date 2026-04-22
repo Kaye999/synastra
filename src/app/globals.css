@@ -588,27 +588,41 @@ body {
   margin: 0 auto;
   max-width: 52ch;
 }
+/* ── Infinite marquee wheel ──────────────────────────── */
 .mk-lineage-scroller {
+  overflow: hidden;
+  padding: 0 0 40px;
+  position: relative;
+  /* soft edge fade so cards dissolve into the page edges */
+  mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 8%, #000 92%, transparent 100%);
+}
+.mk-lineage-track {
   display: flex;
   gap: 32px;
-  padding: 0 10vw 40px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: var(--brass-soft) transparent;
-  -webkit-overflow-scrolling: touch;
+  width: max-content;
+  animation: lineage-marquee 140s linear infinite;
+  will-change: transform;
 }
-.mk-lineage-scroller::-webkit-scrollbar { height: 6px; }
-.mk-lineage-scroller::-webkit-scrollbar-track { background: transparent; }
-.mk-lineage-scroller::-webkit-scrollbar-thumb {
-  background: var(--brass-soft);
-  border-radius: 999px;
+.mk-lineage-scroller:hover .mk-lineage-track,
+.mk-lineage-scroller:focus-within .mk-lineage-track {
+  animation-play-state: paused;
+}
+@keyframes lineage-marquee {
+  from { transform: translateX(0); }
+  /* Translate by exactly one copy's width. Two copies render; after -50% - one gap, the second copy is positioned identically to where the first started, so the loop is seamless. */
+  to   { transform: translateX(calc(-50% - 16px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mk-lineage-track {
+    animation: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+  .mk-lineage-card { scroll-snap-align: center; }
 }
 .mk-lineage-card {
-  flex: 0 0 clamp(320px, 68vw, 720px);
-  scroll-snap-align: center;
+  flex: 0 0 clamp(320px, 48vw, 560px);
   background: rgba(19, 24, 40, 0.5);
   border: 1px solid var(--rule);
   padding: 48px 42px 44px;
