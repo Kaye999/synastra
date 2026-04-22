@@ -148,10 +148,19 @@ type PrakrutiLike = unknown;
 export type DashboardProps = {
   user: BirthData;
   tier: Tier;
-  onReset: () => void;
+  onReset?: () => void;
 };
 
 export default function Dashboard({ user, tier, onReset }: DashboardProps) {
+  // If no handler was passed (server-component case), fall back to clearing
+  // the profile and redirecting to onboarding from the client.
+  const effectiveOnReset = onReset || (() => {
+    if (typeof window !== 'undefined') {
+      fetch('/api/profile', { method: 'DELETE' }).finally(() => {
+        window.location.href = '/onboarding';
+      });
+    }
+  });
   const [mode, setMode] = useState<Mode>('astro');
   const { userId } = useAuth();
 
@@ -359,7 +368,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
       <SettingsCog
         user={user}
         onSave={() => { /* persistence is the parent's job */ }}
-        onReset={onReset}
+        onReset={effectiveOnReset}
       />
       <TransitAlerts user={user} firstName={firstName} tier={tier} />
 

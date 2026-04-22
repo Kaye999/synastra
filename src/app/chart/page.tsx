@@ -85,14 +85,8 @@ function ClientShell({ profile, upgraded }: { profile: Profile; upgraded: boolea
   return (
     <>
       {upgraded && <UpgradeBanner tier={profile.tier} />}
-      <Dashboard
-        user={profile.birthData}
-        tier={profile.tier}
-        // onReset is a client-side concern; for the server-component shell we just
-        // hand off a no-op prop. The real reset logic will be wired by the auth/UX
-        // agent when persistence lands.
-        onReset={() => { /* no-op */ }}
-      />
+      {/* No onReset from server component — Dashboard's SettingsCog handles reset via /api/profile DELETE + router.push */}
+      <Dashboard user={profile.birthData} tier={profile.tier} />
     </>
   );
 }
