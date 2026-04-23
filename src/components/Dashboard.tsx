@@ -237,26 +237,23 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
   useEffect(() => {
     let cancelled = false;
 
-    // While the sibling agent's engine files are in flight, static resolution
-    // would fail both the bundler and `tsc`. Indirecting the specifier through
-    // a string variable (and suppressing the checker with a localised comment)
-    // lets us attempt the import at runtime and cope gracefully when the
-    // module is absent.
-    async function safeImport<T>(path: string, key: string): Promise<T | null> {
+    // Lazy-load the heavy compute engines. Static imports let webpack split
+    // them into separate chunks that only download when the Dashboard mounts.
+    async function safeLoad<T>(loader: () => Promise<Record<string, unknown>>, key: string): Promise<T | null> {
       try {
-        const mod = (await import(/* webpackIgnore: true */ path).catch(() => null)) as Record<string, unknown> | null;
+        const mod = await loader();
         if (mod && typeof mod[key] === 'function') {
           return mod[key] as T;
         }
-      } catch { /* ignore */ }
+      } catch { /* swallow — widget falls back to "still resolving" */ }
       return null;
     }
 
     (async () => {
       const [hd, mayan, acg] = await Promise.all([
-        safeImport<ComputeHumanDesign>('@/lib/engines/hd', 'computeHumanDesign'),
-        safeImport<ComputeMayan>('@/lib/engines/mayan', 'computeMayan'),
-        safeImport<ComputeAstrocarto>('@/lib/engines/astrocarto', 'computeAstrocarto'),
+        safeLoad<ComputeHumanDesign>(() => import('@/lib/engines/hd') as Promise<Record<string, unknown>>, 'computeHumanDesign'),
+        safeLoad<ComputeMayan>(() => import('@/lib/engines/mayan') as Promise<Record<string, unknown>>, 'computeMayan'),
+        safeLoad<ComputeAstrocarto>(() => import('@/lib/engines/astrocarto') as Promise<Record<string, unknown>>, 'computeAstrocarto'),
       ]);
       if (cancelled) return;
       if (hd) setComputeHumanDesign(() => hd);
