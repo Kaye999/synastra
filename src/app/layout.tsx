@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
-import NavBar from '@/components/NavBar';
 import './globals.css';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://synastra-app.vercel.app';
@@ -70,7 +69,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html lang="en" className="font-body">
         <body>
-          <NavBar />
           {children}
         </body>
       </html>
