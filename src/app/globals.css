@@ -1155,7 +1155,8 @@ body {
   margin-bottom: 24px;
 }
 .mk-footer nav a {
-  color: var(--ink-faint);
+  /* #7B7361 on starfield failed WCAG AA (~3.5:1) — bumped to --ink-dim (#CFC5B1, ~11:1). */
+  color: var(--ink-dim);
   text-decoration: none;
   margin: 0 12px;
   transition: color 0.2s;
