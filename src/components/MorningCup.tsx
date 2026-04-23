@@ -64,17 +64,27 @@ async function readSse(
 ): Promise<string> {
   const res = await fetch(url, { method: 'GET', cache: 'no-store', signal });
   if (!res.ok) {
-    // 401 = unauthenticated (demo mode or signed-out) → show a sign-up CTA,
-    // not a raw technical error. Anything else keeps the existing generic copy.
-    if (res.status === 401) {
-      throw new Error('Sign up free to unlock your personalised daily reading.');
-    }
-    let msg = `The sky is quiet (${res.status}).`;
+    // Parse the error body once so we can branch on both status + payload.
+    let parsedError: string | null = null;
     try {
       const text = await res.text();
-      const parsed = JSON.parse(text);
-      if (parsed?.error) msg = `The sky is quiet — ${parsed.error}.`;
-    } catch { /* keep generic */ }
+      parsedError = JSON.parse(text)?.error ?? null;
+    } catch { /* keep null */ }
+
+    // 401 = unauthenticated. 404 + profile-not-found = demo or signed-in-
+    // but-no-profile-yet. Both cases: show the same friendly sign-up CTA
+    // instead of a raw technical error string.
+    const isAuthGate = res.status === 401
+      || res.status === 404
+      || parsedError === 'profile-not-found'
+      || parsedError === 'unauthorised';
+    if (isAuthGate) {
+      throw new Error('Sign up free to unlock your personalised daily reading.');
+    }
+
+    const msg = parsedError
+      ? `The sky is quiet — ${parsedError}.`
+      : `The sky is quiet (${res.status}).`;
     throw new Error(msg);
   }
   if (!res.body) throw new Error('No stream came through.');

@@ -82,15 +82,25 @@ async function readSse(
 ): Promise<string> {
   const res = await fetch(url, { method: 'GET', cache: 'no-store', signal });
   if (!res.ok) {
-    if (res.status === 401) {
-      throw new Error('Sign up to see the arc of your month.');
-    }
-    let msg = `The arc is hidden (${res.status}).`;
+    let parsedError: string | null = null;
     try {
       const text = await res.text();
-      const parsed = JSON.parse(text);
-      if (parsed?.error) msg = `The arc is hidden — ${parsed.error}.`;
-    } catch { /* keep generic */ }
+      parsedError = JSON.parse(text)?.error ?? null;
+    } catch { /* keep null */ }
+
+    // Same auth-gate pattern as MorningCup: 401/404/profile-not-found/
+    // unauthorised all map to the friendly sign-up CTA.
+    const isAuthGate = res.status === 401
+      || res.status === 404
+      || parsedError === 'profile-not-found'
+      || parsedError === 'unauthorised';
+    if (isAuthGate) {
+      throw new Error('Sign up to see the arc of your month.');
+    }
+
+    const msg = parsedError
+      ? `The arc is hidden — ${parsedError}.`
+      : `The arc is hidden (${res.status}).`;
     throw new Error(msg);
   }
   if (!res.body) throw new Error('No stream came through.');

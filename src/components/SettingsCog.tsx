@@ -71,27 +71,49 @@ export default function SettingsCog({ user, onSave, onReset }: SettingsCogProps)
             inset: 0,
             zIndex: 60,
             background: 'rgba(6, 9, 18, 0.82)',
+            // Allow the modal to scroll on narrow viewports by putting
+            // the flex + padding on the scroll container itself.
+            overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',       // anchor to top so long content starts at top, not clipped upward
             justifyContent: 'center',
-            padding: 24,
+            padding: '24px 24px 48px',
           }}
         >
-          <div onClick={(e) => e.stopPropagation()} style={{ position: 'relative', width: '100%', maxWidth: 540 }}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: 540,
+              // Modal breathes rather than being forced to fit viewport —
+              // parent overlay handles the scroll.
+              margin: '24px auto',
+            }}
+          >
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close"
               style={{
-                position: 'absolute',
+                position: 'sticky',          // stays reachable while scrolling the modal
                 top: 8,
-                right: 8,
+                float: 'right',
+                marginRight: 8,
                 zIndex: 2,
-                background: 'transparent',
-                border: 0,
+                background: 'rgba(10, 14, 26, 0.85)',
+                border: '1px solid rgba(252,250,246,0.18)',
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
                 color: 'var(--ink, #FCFAF6)',
-                fontSize: 22,
+                fontSize: 20,
                 cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1,
               }}
             >
               ×
