@@ -68,10 +68,13 @@ import {
   SIGN_ESSENCE,
   PLANET_IN_SIGN,
   PLANET_IN_HOUSE,
+  ELEMENT_BALANCE_NOTES,
+  MODALITY_BALANCE_NOTES,
   NAKSHATRA_ESSENCE,
   DASHA_PERIOD_MEANING,
   KABBALAH_SIGN_PATH_MEANING,
 } from '@/lib/interp/tables';
+import { computeChartBalance, formatBalanceSummary } from '@/lib/interp/helpers';
 
 import type { BirthData, Tier, Planet } from '@/lib/types';
 
@@ -442,52 +445,105 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         {/* ─── WESTERN ───────────────────────────────────────────────── */}
         {mode === 'astro' && (
           <section>
-            <PaywallBlur tier={tier} required="reader|depth">
-              <div style={{ marginBottom: 48 }}>
-                <NatalChartWheel chart={tropical} />
-              </div>
-              <ChartTable planets={tropical.planets} showHouses={!user.timeUnknown} />
-              {tropical.ascendant && (
-                <p className="chapter-body">
-                  <span className="drop-cap">A</span>scendant in{' '}
-                  <em>{tropical.ascendant.sign}</em> at {fmtDeg(tropical.ascendant.deg)}.{' '}
-                  {(SIGN_ESSENCE as Record<string, { body: string }>)[tropical.ascendant.sign]?.body}
-                </p>
-              )}
-              {sunPlanet && (
-                <EssayBlock
-                  title={`Sun in ${sunPlanet.sign}${sunPlanet.house ? ` · ${ordinal(sunPlanet.house)} House` : ''}`}
-                  body={
-                    (PLANET_IN_SIGN as Record<string, Record<string, string>>).Sun?.[sunPlanet.sign] || ''
-                  }
-                  footer={
-                    sunPlanet.house
-                      ? (PLANET_IN_HOUSE as Record<string, Record<number, string>>).Sun?.[sunPlanet.house]
-                      : undefined
-                  }
-                />
-              )}
-              {moonPlanet && (
-                <EssayBlock
-                  title={`Moon in ${moonPlanet.sign}${moonPlanet.house ? ` · ${ordinal(moonPlanet.house)} House` : ''}`}
-                  body={
-                    (PLANET_IN_SIGN as Record<string, Record<string, string>>).Moon?.[moonPlanet.sign] || ''
-                  }
-                  footer={
-                    moonPlanet.house
-                      ? (PLANET_IN_HOUSE as Record<string, Record<number, string>>).Moon?.[moonPlanet.house]
-                      : undefined
-                  }
-                />
-              )}
-            </PaywallBlur>
+            {/* Chart signature — renders for every tier. This is the "feel like
+                it's yours" line built from Asc / Sun / Moon archetype titles. */}
+            <ChartSignature
+              ascendant={tropical.ascendant}
+              sunPlanet={sunPlanet}
+              moonPlanet={moonPlanet}
+            />
 
-            {tier === 'free' && sunPlanet && (
+            {/* Chart wheel + planet table — visible to everyone (paid UX then
+                layers deeper interpretation, aspects, and other traditions). */}
+            <div style={{ marginBottom: 40 }}>
+              <NatalChartWheel chart={tropical} />
+            </div>
+
+            {/* ── Free-tier reading: Rising / Sun / Moon with shadow + gift,
+                plus the chart-weather balance paragraph. Enough to prove
+                quality; Mercury/Venus/Mars + houses + aspects + other 11
+                traditions live behind the paywall below. */}
+            {tropical.ascendant && (
               <EssayBlock
-                title={`A glance: Sun in ${sunPlanet.sign}`}
-                body={(SIGN_ESSENCE as Record<string, { body: string }>)[sunPlanet.sign]?.body || ''}
+                eyebrow={`Rising · ${tropical.ascendant.sign} at ${fmtDeg(tropical.ascendant.deg)}`}
+                title={`${getSignTitle(tropical.ascendant.sign)} — the mask you wear into the room`}
+                body={getSignField(tropical.ascendant.sign, 'body')}
+                shadow={getSignField(tropical.ascendant.sign, 'shadow')}
+                gift={getSignField(tropical.ascendant.sign, 'gift')}
               />
             )}
+            {sunPlanet && (
+              <EssayBlock
+                eyebrow={`Sun · ${sunPlanet.sign}${sunPlanet.house ? ` · ${ordinal(sunPlanet.house)} House` : ''}`}
+                title={`${getSignTitle(sunPlanet.sign)} — your core solar note`}
+                body={getPlanetInSign('Sun', sunPlanet.sign)}
+                shadow={getSignField(sunPlanet.sign, 'shadow')}
+                gift={getSignField(sunPlanet.sign, 'gift')}
+                footer={
+                  sunPlanet.house
+                    ? getPlanetInHouse('Sun', sunPlanet.house)
+                    : undefined
+                }
+              />
+            )}
+            {moonPlanet && (
+              <EssayBlock
+                eyebrow={`Moon · ${moonPlanet.sign}${moonPlanet.house ? ` · ${ordinal(moonPlanet.house)} House` : ''}`}
+                title={`${getSignTitle(moonPlanet.sign)} — the inner weather`}
+                body={getPlanetInSign('Moon', moonPlanet.sign)}
+                shadow={getSignField(moonPlanet.sign, 'shadow')}
+                gift={getSignField(moonPlanet.sign, 'gift')}
+                footer={
+                  moonPlanet.house
+                    ? getPlanetInHouse('Moon', moonPlanet.house)
+                    : undefined
+                }
+              />
+            )}
+
+            {/* Element + modality balance — synthesized from *their* chart.
+                Works for every tier; it's what makes the reading feel personal. */}
+            <ChartWeather
+              planets={tropical.planets}
+              ascendantSign={tropical.ascendant?.sign}
+            />
+
+            {/* ── Paid-tier depth: personal planets (Mercury / Venus / Mars),
+                the full planet table with houses, and deeper commentary. */}
+            <PaywallBlur tier={tier} required="reader|depth">
+              <div style={{ marginTop: 24, marginBottom: 24 }}>
+                <h2
+                  style={{
+                    fontFamily: "'Fraunces', serif",
+                    fontSize: 'clamp(28px, 3vw, 40px)',
+                    fontWeight: 500,
+                    letterSpacing: '-0.02em',
+                    margin: '0 0 6px',
+                  }}
+                >
+                  The inner instruments
+                </h2>
+                <p style={{ color: 'var(--ink-dim)', fontStyle: 'italic', margin: '0 0 28px' }}>
+                  Mercury, Venus, Mars — how you think, love, and move.
+                </p>
+              </div>
+              {(['Mercury', 'Venus', 'Mars'] as const).map((planetName) => {
+                const p = tropical.planets.find((x) => planetKey(x.planet) === planetName);
+                if (!p) return null;
+                return (
+                  <EssayBlock
+                    key={planetName}
+                    eyebrow={`${planetName} · ${p.sign}${p.house ? ` · ${ordinal(p.house)} House` : ''}`}
+                    title={`${planetName} in ${p.sign}`}
+                    body={getPlanetInSign(planetName, p.sign)}
+                    footer={p.house ? getPlanetInHouse(planetName, p.house) : undefined}
+                  />
+                );
+              })}
+              <div style={{ marginTop: 32 }}>
+                <ChartTable planets={tropical.planets} showHouses={!user.timeUnknown} />
+              </div>
+            </PaywallBlur>
           </section>
         )}
 
@@ -945,10 +1001,195 @@ function ChartTable({ planets, showHouses }: { planets: Planet[]; showHouses: bo
   );
 }
 
-function EssayBlock({ title, body, footer }: { title: string; body: string; footer?: string }) {
+// ─── Interp helpers for the Western reading ──────────────────────────
+// Shape-coercers so TypeScript stops yelling at the looked-up-by-key style.
+function getSignField(sign: string | undefined, field: 'title' | 'body' | 'shadow' | 'gift' | 'element' | 'ruler'): string {
+  if (!sign) return '';
+  const rec = (SIGN_ESSENCE as Record<string, Record<string, string>>)[sign];
+  return rec?.[field] ?? '';
+}
+function getSignTitle(sign: string | undefined): string {
+  return getSignField(sign, 'title') || sign || '';
+}
+function getPlanetInSign(planet: string, sign: string | undefined): string {
+  if (!sign) return '';
+  const rec = (PLANET_IN_SIGN as Record<string, Record<string, string>>)[planet];
+  return rec?.[sign] ?? '';
+}
+function getPlanetInHouse(planet: string, house: number | null | undefined): string {
+  if (!house) return '';
+  const rec = (PLANET_IN_HOUSE as Record<string, Record<number, string>>)[planet];
+  return rec?.[house] ?? '';
+}
+
+// Chart signature — the 3-word archetype that opens the Western reading.
+// "THE TENDER · THE SOVEREIGN · THE DIPLOMAT" + a small subtitle of the
+// actual sign names. Feels uniquely theirs immediately.
+function ChartSignature({
+  ascendant,
+  sunPlanet,
+  moonPlanet,
+}: {
+  ascendant: { sign: string } | null | undefined;
+  sunPlanet: Planet | undefined;
+  moonPlanet: Planet | undefined;
+}) {
+  const ascTitle = getSignTitle(ascendant?.sign);
+  const sunTitle = getSignTitle(sunPlanet?.sign);
+  const moonTitle = getSignTitle(moonPlanet?.sign);
+  if (!ascTitle && !sunTitle && !moonTitle) return null;
+  const triple = [ascTitle, sunTitle, moonTitle].filter(Boolean).join(' · ');
+  const subtitle = [
+    ascendant?.sign && `${ascendant.sign} rising`,
+    sunPlanet?.sign && `${sunPlanet.sign} sun`,
+    moonPlanet?.sign && `${moonPlanet.sign} moon`,
+  ].filter(Boolean).join(' · ');
+  return (
+    <div
+      style={{
+        padding: '28px 0 36px',
+        marginBottom: 32,
+        borderBottom: '1px solid var(--rule)',
+        textAlign: 'center',
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 10,
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: 'var(--brass)',
+          marginBottom: 14,
+        }}
+      >
+        § Your signature
+      </div>
+      <h2
+        style={{
+          fontFamily: "'Fraunces', serif",
+          fontSize: 'clamp(24px, 3.2vw, 36px)',
+          fontWeight: 500,
+          letterSpacing: '-0.01em',
+          textTransform: 'uppercase',
+          color: 'var(--ink)',
+          margin: '0 0 10px',
+        }}
+      >
+        {triple}
+      </h2>
+      <p
+        style={{
+          fontFamily: "'Crimson Pro', serif",
+          fontStyle: 'italic',
+          fontSize: 15,
+          color: 'var(--ink-dim)',
+          margin: 0,
+        }}
+      >
+        {subtitle}
+      </p>
+    </div>
+  );
+}
+
+// Chart weather — element + modality balance synthesised from the
+// user's personal planets + ascendant. Makes the reading feel computed
+// for *them*, not templated.
+function ChartWeather({
+  planets,
+  ascendantSign,
+}: {
+  planets: Planet[];
+  ascendantSign?: string;
+}) {
+  const balance = computeChartBalance(planets, ascendantSign);
+  // Each element/modality entry is { low, balanced, high } — pick based on
+  // how many planets we counted in that bucket. 0–1 = low, 2–3 = balanced, 4+ = high.
+  const tier = (n: number): 'low' | 'balanced' | 'high' =>
+    n >= 4 ? 'high' : n >= 2 ? 'balanced' : 'low';
+  const elementBlock =
+    (ELEMENT_BALANCE_NOTES as Record<string, Record<'low' | 'balanced' | 'high', string>>)[balance.dominantElement];
+  const modalityBlock =
+    (MODALITY_BALANCE_NOTES as Record<string, Record<'low' | 'balanced' | 'high', string>>)[balance.dominantModality];
+  const elementNote = elementBlock?.[tier(balance.elements[balance.dominantElement])] ?? '';
+  const modalityNote = modalityBlock?.[tier(balance.modalities[balance.dominantModality])] ?? '';
+  const elementSummary = formatBalanceSummary(balance.elements);
+  const modalitySummary = formatBalanceSummary(balance.modalities);
+  return (
+    <article style={{ marginTop: 48, marginBottom: 40 }}>
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 10,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: 'var(--brass)',
+          marginBottom: 8,
+        }}
+      >
+        § Weather
+      </div>
+      <h3
+        style={{
+          fontFamily: "'Fraunces', serif",
+          fontSize: 22,
+          fontWeight: 500,
+          letterSpacing: '-0.01em',
+          margin: '0 0 14px',
+        }}
+      >
+        {balance.dominantElement}-dominant {balance.dominantModality}
+      </h3>
+      <p
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 11,
+          letterSpacing: '0.08em',
+          color: 'var(--ink-faint)',
+          margin: '0 0 14px',
+        }}
+      >
+        elements: {elementSummary} &nbsp;·&nbsp; modalities: {modalitySummary}
+      </p>
+      {elementNote && <p className="chapter-body" style={{ margin: '0 0 10px' }}>{elementNote}</p>}
+      {modalityNote && <p className="chapter-body" style={{ margin: 0 }}>{modalityNote}</p>}
+    </article>
+  );
+}
+
+function EssayBlock({
+  title,
+  body,
+  shadow,
+  gift,
+  footer,
+  eyebrow,
+}: {
+  title: string;
+  body: string;
+  shadow?: string;
+  gift?: string;
+  footer?: string;
+  eyebrow?: string;
+}) {
   if (!body) return null;
   return (
-    <article style={{ marginBottom: 32 }}>
+    <article style={{ marginBottom: 40 }}>
+      {eyebrow && (
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--brass)',
+            marginBottom: 6,
+          }}
+        >
+          {eyebrow}
+        </div>
+      )}
       <h3
         style={{
           fontFamily: "'Fraunces', serif",
@@ -963,8 +1204,44 @@ function EssayBlock({ title, body, footer }: { title: string; body: string; foot
       <p className="chapter-body" style={{ margin: 0 }}>
         {body}
       </p>
+      {(shadow || gift) && (
+        <div style={{ marginTop: 14, display: 'grid', gap: 8 }}>
+          {shadow && (
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: 'var(--ink-dim)' }}>
+              <span
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  color: 'var(--ember)',
+                  marginRight: 10,
+                }}
+              >
+                SHADOW
+              </span>
+              {shadow}
+            </p>
+          )}
+          {gift && (
+            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: 'var(--ink-dim)' }}>
+              <span
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  color: 'var(--brass)',
+                  marginRight: 10,
+                }}
+              >
+                GIFT
+              </span>
+              {gift}
+            </p>
+          )}
+        </div>
+      )}
       {footer && (
-        <p style={{ marginTop: 8, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--ink-faint)' }}>
+        <p style={{ marginTop: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--ink-faint)' }}>
           {footer}
         </p>
       )}
