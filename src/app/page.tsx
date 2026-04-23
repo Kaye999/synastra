@@ -301,7 +301,7 @@ export default function LandingPage() {
           <Reveal delay={460}>
             <div className="mk-hero-lineage">
               <span className="mk-hero-lineage-label">§ The lineage &nbsp;</span>
-              J.P. Morgan · Queen Elizabeth I · Isaac Newton · Carl Jung · Ronald Reagan · Princess Diana · Nikola Tesla · Beyoncé · Madonna · Oprah Winfrey
+              J.P. Morgan · Queen Elizabeth I · Isaac Newton · Carl Jung · Ronald Reagan · Nikola Tesla · Beyoncé · Madonna
             </div>
           </Reveal>
         </div>
