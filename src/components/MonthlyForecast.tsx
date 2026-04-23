@@ -82,6 +82,9 @@ async function readSse(
 ): Promise<string> {
   const res = await fetch(url, { method: 'GET', cache: 'no-store', signal });
   if (!res.ok) {
+    if (res.status === 401) {
+      throw new Error('Sign up to see the arc of your month.');
+    }
     let msg = `The arc is hidden (${res.status}).`;
     try {
       const text = await res.text();

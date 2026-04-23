@@ -64,6 +64,11 @@ async function readSse(
 ): Promise<string> {
   const res = await fetch(url, { method: 'GET', cache: 'no-store', signal });
   if (!res.ok) {
+    // 401 = unauthenticated (demo mode or signed-out) → show a sign-up CTA,
+    // not a raw technical error. Anything else keeps the existing generic copy.
+    if (res.status === 401) {
+      throw new Error('Sign up free to unlock your personalised daily reading.');
+    }
     let msg = `The sky is quiet (${res.status}).`;
     try {
       const text = await res.text();

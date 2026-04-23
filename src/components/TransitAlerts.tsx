@@ -118,7 +118,10 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
     setError(null);
     try {
       const res = await fetch('/api/reading/transit-alerts', { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Alerts unavailable (${res.status}).`);
+      if (!res.ok) {
+        if (res.status === 401) throw new Error('Sign up to unlock real-time transit alerts.');
+        throw new Error(`Alerts unavailable (${res.status}).`);
+      }
       const text = await res.text();
       let payload: { alerts?: RawAlert[] } = {};
       try {
