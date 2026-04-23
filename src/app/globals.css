@@ -439,12 +439,13 @@ body {
   line-height: 1.02;
   margin: 18px 0 22px;
   color: var(--ink);
-  max-width: none;
-  white-space: nowrap;
+  max-width: 20ch;
+  /* Wrap naturally — at ~62px the headline is ~1700px wide, wider than
+     any sensible content container. Previously forced to one line via
+     white-space: nowrap which cut off "archetype" on standard monitors. */
 }
 @media (max-width: 980px) {
   .mk-hero-title {
-    white-space: normal;
     font-size: clamp(36px, 7vw, 60px);
     max-width: 16ch;
   }
