@@ -231,42 +231,62 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
         style={{
           position: 'fixed',
           top: 18,
-          right: 66,
+          right: 140,
           zIndex: 40,
-          background: 'transparent',
-          border: '1px solid var(--rule)',
+          background: 'rgba(200, 160, 82, 0.12)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1.5px solid rgba(200, 160, 82, 0.55)',
           color: 'var(--brass)',
-          width: 36,
-          height: 36,
-          borderRadius: '50%',
+          height: 40,
+          padding: '0 16px',
+          borderRadius: 20,
           cursor: 'pointer',
           display: 'inline-flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          gap: 8,
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 11,
+          fontWeight: 500,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          boxShadow: '0 2px 12px rgba(200, 160, 82, 0.18)',
+          transition: 'all 0.18s ease',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(200, 160, 82, 0.22)';
+          e.currentTarget.style.borderColor = 'rgba(200, 160, 82, 0.85)';
+          e.currentTarget.style.boxShadow = '0 2px 18px rgba(200, 160, 82, 0.35)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(200, 160, 82, 0.12)';
+          e.currentTarget.style.borderColor = 'rgba(200, 160, 82, 0.55)';
+          e.currentTarget.style.boxShadow = '0 2px 12px rgba(200, 160, 82, 0.18)';
         }}
       >
-        <BellGlyph />
+        <span style={{ display: 'inline-flex', fontSize: 14, lineHeight: 1 }}>
+          <BellGlyph />
+        </span>
+        <span>Alerts</span>
         {badgeCount > 0 && (
           <span
             aria-hidden="true"
             style={{
-              position: 'absolute',
-              top: -4,
-              right: -4,
-              minWidth: 18,
-              height: 18,
-              padding: '0 5px',
-              borderRadius: 9,
-              background: 'var(--ember)',
-              color: 'var(--ink)',
+              minWidth: 20,
+              height: 20,
+              padding: '0 6px',
+              borderRadius: 10,
+              background: 'var(--ember, #D4502C)',
+              color: 'var(--ink, #FCFAF6)',
               fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
-              fontWeight: 500,
-              letterSpacing: '0.04em',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.02em',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               lineHeight: 1,
+              marginLeft: 2,
             }}
           >
             {badgeCount}
