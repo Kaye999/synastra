@@ -367,38 +367,44 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
     <div className={`page mode-${mode}`} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
 
-      {/* Dashboard top-left: link home to the marketing site. */}
-      <Link
-        href="/"
-        aria-label="Synastra home"
+      {/* Top-left identity cluster: home link + avatar, in one row so they
+          can never collide with each other or with the top-right controls
+          (Alerts pill, Settings cog). */}
+      <div
         style={{
           position: 'fixed',
-          top: 18,
-          left: 18,
+          top: 14,
+          left: 14,
           zIndex: 40,
-          padding: '0 14px',
-          height: 40,
-          display: 'inline-flex',
+          display: 'flex',
           alignItems: 'center',
-          fontFamily: "'Fraunces', serif",
-          fontSize: 16,
-          fontWeight: 500,
-          letterSpacing: '0.14em',
-          color: 'var(--ink)',
-          textDecoration: 'none',
-          background: 'rgba(10, 14, 26, 0.72)',
-          border: '1px solid rgba(252, 250, 246, 0.10)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          borderRadius: 20,
+          gap: 10,
         }}
       >
-        ← SYNASTRA
-      </Link>
-
-      {/* Clerk UserButton: avatar with Account + Sign out menu. */}
-      <div style={{ position: 'fixed', top: 22, right: 82, zIndex: 41 }}>
-        <UserButton appearance={{ elements: { avatarBox: { width: 32, height: 32 } } }} />
+        <Link
+          href="/"
+          aria-label="Synastra home"
+          style={{
+            padding: '0 14px',
+            height: 40,
+            display: 'inline-flex',
+            alignItems: 'center',
+            fontFamily: "'Fraunces', serif",
+            fontSize: 16,
+            fontWeight: 500,
+            letterSpacing: '0.14em',
+            color: 'var(--ink)',
+            textDecoration: 'none',
+            background: 'rgba(10, 14, 26, 0.72)',
+            border: '1px solid rgba(252, 250, 246, 0.10)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderRadius: 20,
+          }}
+        >
+          ← SYNASTRA
+        </Link>
+        <UserButton appearance={{ elements: { avatarBox: { width: 36, height: 36 } } }} />
       </div>
 
       <SettingsCog
