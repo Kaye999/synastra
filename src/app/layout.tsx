@@ -4,7 +4,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import './globals.css';
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://synastra-app.vercel.app';
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getsynastra.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
