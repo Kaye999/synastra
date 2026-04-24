@@ -8,12 +8,17 @@ export const dynamic = 'force-dynamic';
 // Service-role server client that bypasses RLS.
 // Safe because we authenticate via Clerk before every write and only allow
 // the caller to write THEIR OWN user_id row. No cross-user writes possible.
+//
+// Note: do NOT set db.schema in the client config. Some supabase-js versions
+// don't propagate the default schema into write headers (Content-Profile),
+// which produces "Invalid path specified in request URL" on upsert. Instead
+// we chain `.schema('astral')` explicitly on every query below — same pattern
+// used in the cron + transit-alerts routes.
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
-    db: { schema: 'astral' },
   });
 }
 
@@ -38,13 +43,18 @@ export async function POST(req: Request) {
 
   const supabase = createServiceClient();
   const { error } = await supabase
+    .schema('astral')
     .from('profiles')
     .upsert(
       {
         user_id: userId,
         birth_data: birthData,
         first_name: firstName,
-        tier: 'free',
+        // Only seed tier on INSERT. Upsert with a literal 'free' would
+        // downgrade paying users every time they edit their birth data.
+        // (Postgres on_conflict by default updates every provided column;
+        // we exclude `tier` from conflict updates via ignoreDuplicates:false
+        // + a separate safeguard below.)
         updated_at: new Date().toISOString(),
       },
       { onConflict: 'user_id' },
@@ -55,6 +65,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'upsert-failed', detail: error.message }, { status: 500 });
   }
 
+  // If this was an INSERT (no prior row), tier will still be null — set it
+  // to 'free' once, but never overwrite an existing tier value.
+  await supabase
+    .schema('astral')
+    .from('profiles')
+    .update({ tier: 'free' })
+    .eq('user_id', userId)
+    .is('tier', null);
+
   return NextResponse.json({ ok: true });
 }
 
@@ -64,6 +83,7 @@ export async function GET() {
 
   const supabase = createServiceClient();
   const { data, error } = await supabase
+    .schema('astral')
     .from('profiles')
     .select('birth_data, tier, first_name')
     .eq('user_id', userId)

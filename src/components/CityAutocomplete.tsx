@@ -164,13 +164,17 @@ export default function CityAutocomplete({
             top: 'calc(100% + 4px)',
             left: 0,
             right: 0,
-            zIndex: 30,
-            background: 'rgba(10, 14, 26, 0.96)',
-            border: '1px solid rgba(200, 160, 82, 0.35)',
+            // Dropdown must sit above every sibling form field + any
+            // decorative element on the page. 150 clears Starfield,
+            // glow layers, and adjacent inputs without racing Clerk
+            // modals (which run >500).
+            zIndex: 150,
+            // Fully opaque so the items below (gender row, CTA) can't
+            // bleed through — overlap bug fix per feedback_no_overlapping_ui.
+            background: '#0A0E1A',
+            border: '1px solid rgba(200, 160, 82, 0.45)',
             borderRadius: 6,
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 28px rgba(0, 0, 0, 0.45)',
+            boxShadow: '0 12px 36px rgba(0, 0, 0, 0.7)',
             listStyle: 'none',
             margin: 0,
             padding: 4,
