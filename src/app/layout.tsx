@@ -9,7 +9,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getsynastra.com';
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: 'Synastra — Twelve traditions. One chart. Your archetype.',
+    default: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
     template: '%s · Synastra',
   },
   description:
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     type: 'website',
     url: APP_URL,
     siteName: 'Synastra',
-    title: 'Synastra — Twelve traditions. One chart. Your archetype.',
+    title: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
     description:
       'Western astrology, Vedic, Kabbalah, Numerology, Chinese BaZi, Human Design, Mayan Tzolk\u2019in, Astrocartography, Tarot, Enneagram, Gene Keys, and Ayurveda — pulled from the same birth data and read through one AI atlas.',
     locale: 'en_AU',
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Synastra — Twelve traditions. One chart.',
+    title: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
     description:
       'Your birth data read through twelve ancient traditions, one AI atlas. Kept by operators since J.P. Morgan.',
     images: ['/opengraph-image.png'],
