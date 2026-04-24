@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
 import Reveal from '../../_marketing/Reveal';
@@ -65,7 +66,11 @@ const FAQS = [
   },
 ];
 
-export default function HowItWorksPage() {
+export default async function HowItWorksPage() {
+  const { userId } = await auth();
+  const isSignedIn = Boolean(userId);
+  const primaryHref = isSignedIn ? '/chart' : '/sign-up';
+  const primaryLabel = isSignedIn ? 'Open your chart →' : 'Begin your chart →';
   return (
     <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
@@ -234,8 +239,8 @@ export default function HowItWorksPage() {
           <Reveal>
             <div style={{ textAlign: 'center', margin: '100px 0 40px' }}>
               <Ornament kind="rule" width={240} style={{ marginBottom: 36 }} />
-              <Link href="/sign-up" className="mk-cta-giant">
-                Begin your chart →
+              <Link href={primaryHref} className="mk-cta-giant">
+                {primaryLabel}
               </Link>
             </div>
           </Reveal>

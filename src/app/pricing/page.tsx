@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@clerk/nextjs';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
 import Reveal from '../_marketing/Reveal';
@@ -126,6 +127,7 @@ export default function PricingPage() {
   const [cadence, setCadence] = useState<Cadence>('monthly');
   const [loadingTier, setLoadingTier] = useState<PaidTier | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const { isSignedIn } = useAuth();
 
   async function startCheckout(tier: PaidTier, interval: Cadence) {
     setErrorMsg(null);
@@ -329,8 +331,12 @@ export default function PricingPage() {
                     ))}
                   </ul>
                   {cta.kind === 'link' ? (
-                    <Link href={cta.href} className="mk-cta-primary" style={{ textAlign: 'center' }}>
-                      {cta.label}
+                    <Link
+                      href={isSignedIn ? '/chart' : cta.href}
+                      className="mk-cta-primary"
+                      style={{ textAlign: 'center' }}
+                    >
+                      {isSignedIn ? 'Open your chart →' : cta.label}
                     </Link>
                   ) : (
                     <button

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
 import Reveal from './_marketing/Reveal';
@@ -7,6 +8,12 @@ import LineageScroller from './_marketing/LineageScroller';
 // ─── Landing page ────────────────────────────────────────────────────
 // Synastra marketing home. Server component; the Reveal wrapper is the
 // only client-side component, used for scroll-in animations.
+//
+// Auth-aware CTAs: Clerk's <SignUp /> redirects signed-in users back to
+// "/" if they land on /sign-up, which made every hero CTA appear broken
+// for returning users. Resolve the target once per request: signed-in
+// users get "Open your chart" → /chart; signed-out users get
+// "Begin your chart" → /sign-up.
 
 const TRADITIONS = [
   {
@@ -221,7 +228,14 @@ const LINEAGE = [
   },
 ] as const;
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const { userId } = await auth();
+  const isSignedIn = Boolean(userId);
+  const primaryHref = isSignedIn ? '/chart' : '/sign-up';
+  const primaryNavLabel = isSignedIn ? 'Your chart →' : 'Begin your chart →';
+  const primaryHeroLabel = isSignedIn ? 'Open your chart →' : 'See your chart →';
+  const primaryFooterLabel = isSignedIn ? 'Open your chart →' : 'Begin your chart →';
+
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
       <Starfield />
@@ -233,8 +247,8 @@ export default function LandingPage() {
           <Link href="/how-it-works">How it works</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/chart?demo=1">Sample chart</Link>
-          <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>
-          <Link href="/sign-up" className="mk-nav-cta">Begin your chart →</Link>
+          {!isSignedIn && <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>}
+          <Link href={primaryHref} className="mk-nav-cta">{primaryNavLabel}</Link>
         </div>
       </nav>
 
@@ -276,8 +290,8 @@ export default function LandingPage() {
           </Reveal>
           <Reveal delay={380}>
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
-              <Link href="/sign-up" className="mk-cta-primary">
-                See your chart →
+              <Link href={primaryHref} className="mk-cta-primary">
+                {primaryHeroLabel}
               </Link>
               <Link href="/chart?demo=1" className="mk-cta-ghost">
                 Try a sample chart
@@ -445,10 +459,18 @@ export default function LandingPage() {
                     ))}
                   </ul>
                   <Link
-                    href={t.name === 'The Three' ? '/sign-up' : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`}
+                    href={
+                      t.name === 'The Three'
+                        ? primaryHref
+                        : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`
+                    }
                     className="tier-cta"
                   >
-                    {t.name === 'The Three' ? 'Begin free' : t.name === 'The Six' ? 'Start the reading' : 'Go deep'} →
+                    {t.name === 'The Three'
+                      ? isSignedIn ? 'Open your chart' : 'Begin free'
+                      : t.name === 'The Six'
+                      ? 'Start the reading'
+                      : 'Go deep'} →
                   </Link>
                 </div>
               </Reveal>
@@ -481,8 +503,8 @@ export default function LandingPage() {
           <Ornament kind="rule" width={260} style={{ marginBottom: 44 }} />
         </Reveal>
         <Reveal delay={120}>
-          <Link href="/sign-up" className="mk-cta-giant">
-            Begin your chart →
+          <Link href={primaryHref} className="mk-cta-giant">
+            {primaryFooterLabel}
           </Link>
         </Reveal>
       </section>
