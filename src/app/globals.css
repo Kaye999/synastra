@@ -425,10 +425,14 @@ body {
 /* ─── Marketing: hero + CTAs ──────────────────────────────────────── */
 .mk-eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.28em;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--brass);
+  /* Subtle brass glow so the label reads against starfields without
+     competing with the display headline underneath. */
+  text-shadow: 0 0 14px rgba(200, 160, 82, 0.28);
 }
 .mk-hero-title {
   font-family: var(--font-display);
