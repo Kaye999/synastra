@@ -879,6 +879,10 @@ body {
 .mk-pricing-mini .tier-featured {
   border-color: var(--brass);
   background: rgba(200, 160, 82, 0.04);
+  /* Sit above neighbours so the full brass outline is visible — the grid
+     uses gap:0, and without this the adjacent --rule borders overpaint
+     the right/left edges of the featured card. */
+  z-index: 1;
 }
 .mk-pricing-mini .tier-ribbon {
   position: absolute;
