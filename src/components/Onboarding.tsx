@@ -4,6 +4,7 @@
 
 import { useState, type FormEvent } from 'react';
 import type { BirthData, Gender } from '@/lib/types';
+import CityAutocomplete, { type CityHit } from './CityAutocomplete';
 
 export type OnboardingProps = {
   onSave: (user: BirthData) => void;
@@ -27,6 +28,7 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
   const [timeStr, setTimeStr] = useState<string>(initTimeStr);
   const [timeUnknown, setTimeUnknown] = useState<boolean>(!!init.timeUnknown);
   const [city, setCity] = useState<string>(init.city || '');
+  const [cityCoords, setCityCoords] = useState<BirthData['coords']>(init.coords);
   const [gender, setGender] = useState<Gender>(init.gender || 'male');
   const [err, setErr] = useState<string>('');
 
@@ -60,8 +62,13 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
       time: timeUnknown ? { h: 12, m: 0 } : { h: hh, m: mm },
       timeUnknown,
       city: city.trim(),
+      coords: cityCoords,
       gender,
     });
+  };
+
+  const handleCitySelect = (hit: CityHit) => {
+    setCityCoords({ lat: hit.lat, lon: hit.lon, tzOffset: hit.tzOffset });
   };
 
   // J.P. Morgan — the brand's canonical demo chart.
@@ -152,13 +159,20 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
 
         <div className="onboard-field">
           <label htmlFor="ob-city">Birth place</label>
-          <input
+          <CityAutocomplete
             id="ob-city"
             className="onboard-input"
-            type="text"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
-            placeholder="City, country"
+            onChange={(v) => {
+              setCity(v);
+              // If the user edits the field after picking, invalidate the
+              // cached coords — they'll need to pick again for us to
+              // persist accurate lat/lon/tz.
+              if (cityCoords) setCityCoords(undefined);
+            }}
+            onSelect={handleCitySelect}
+            placeholder="Start typing a city…"
+            ariaLabel="Birth place"
           />
         </div>
 

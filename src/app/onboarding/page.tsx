@@ -44,7 +44,13 @@ export default function OnboardingPage() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         console.error('[synastra] /api/profile failed:', body);
-        setErr('Could not save your chart. Please try again.');
+        const detail =
+          typeof (body as { detail?: unknown }).detail === 'string'
+            ? (body as { detail: string }).detail
+            : typeof (body as { error?: unknown }).error === 'string'
+              ? (body as { error: string }).error
+              : 'unknown';
+        setErr(`Could not save your chart. (${detail})`);
         setSaving(false);
         return;
       }

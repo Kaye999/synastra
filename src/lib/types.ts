@@ -7,6 +7,12 @@ export type BirthData = {
   time: { h: number; m: number };
   timeUnknown: boolean;
   city: string;
+  /**
+   * Geocode resolved from the city autocomplete. When present the chart
+   * engines read directly from here; when absent we fall back to the
+   * bundled CITY_COORDS gazetteer in /lib/constants/cities.ts.
+   */
+  coords?: { lat: number; lon: number; tzOffset: number };
   gender: Gender;
   fullName: string;
   name: string;
