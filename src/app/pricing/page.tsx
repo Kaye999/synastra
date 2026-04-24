@@ -36,39 +36,37 @@ type TierDef =
 const TIERS: TierDef[] = [
   {
     id: 'glance',
-    name: 'The Glance',
-    tagline: 'See the shape of you.',
+    name: 'The Three',
+    tagline: 'Start with the classics — no card.',
     price: { monthly: 'Free', onetime: 'Free' },
     savingsPercent: null,
     features: [
-      'Full natal chart preview (Western)',
-      'Sun, Moon & Rising essence',
-      'Life Path numerology number',
-      'Chinese zodiac animal + element',
-      'Starfield chart view',
+      'Western astrology — Sun, Moon & Rising preview',
+      'Vedic — Moon nakshatra preview',
+      'Numerology — Life Path number',
+      'Full natal chart + starfield view',
       'Keep your chart forever',
     ],
     cta: { label: 'Start free →', href: '/sign-up', kind: 'link' },
   },
   {
     id: 'reader',
-    name: 'The Reading',
-    tagline: 'Read the whole chart.',
+    name: 'The Six',
+    tagline: 'Six traditions, fully unlocked.',
     price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
     savingsPercent: 43, // ((228-129)/228)
     featured: true,
     features: [
-      '§ Everything in The Glance',
-      'All 12 traditions fully unlocked',
-      'Western · Vedic · Kabbalah · Numerology · Chinese BaZi',
-      'Human Design · Mayan · Astrocartography',
-      'Tarot · Enneagram · Gene Keys · Ayurveda',
+      '§ Everything in The Three',
+      'Full Western chart — houses, aspects, personal planets',
+      'Full Vedic — nakshatras, pada, current mahadasha',
+      'Full Numerology — Expression, Soul Urge, Personal Year',
+      'Kabbalah — Hebrew letters, sefirot, tarot paths',
+      'Chinese BaZi — four pillars, day master, Nine Star Ki',
+      'Human Design — type, strategy, authority, BodyGraph',
       'Daily Guidance (AI-written each morning)',
-      'Monthly Forecast (5-section arc report)',
-      'Life Purpose deep reading (one-shot)',
-      'Shadow Work weekly prompts',
+      'Monthly Forecast (5-section arc)',
       '10 Oracle AI questions / day',
-      'Email transit alerts for major aspects',
       'Cancel anytime · readings export as PDF',
     ],
     cta: { label: 'Start reading →', kind: 'checkout', tier: 'reader' },
@@ -76,22 +74,22 @@ const TIERS: TierDef[] = [
   {
     id: 'depth',
     name: 'The Depth',
-    tagline: 'Unlock every tradition.',
+    tagline: 'All twelve. Cross-woven.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     savingsPercent: 45, // ((468-259)/468)
     features: [
-      '§ Everything in The Reading',
+      '§ Everything in The Six',
+      'Mayan Tzolk’in — kin, day-sign, galactic tone',
+      'Astrocartography — planetary lines across the earth',
+      'Tarot — daily card + three-card + celtic cross',
+      'Enneagram — 9-type profile + arrows',
+      'Gene Keys — hologenetic profile, activation sequence',
+      'Ayurveda — prakruti, dosha balance',
+      'Transit Alerts — email on major aspects',
       'Compatibility (full synastry) for any two charts',
-      'Group synastry — up to 5 people at once',
       'Wealth & Career Timing — electional windows',
-      'Solar Return annual chart (birthday report)',
-      'Lunar Return monthly chart (emotional arc)',
-      'Progressions (secondary progressed chart)',
-      'Full Astrocartography atlas with travel overlays',
+      'Cross-Tradition Synthesis essays',
       'Unlimited Oracle AI chat (no daily cap)',
-      'Priority email alerts (eclipses, stations, returns)',
-      'Lifetime reading archive + exportable PDFs',
-      'Early access to new traditions we add',
     ],
     cta: { label: 'Go deep →', kind: 'checkout', tier: 'depth' },
   },
@@ -379,11 +377,12 @@ export default function PricingPage() {
                 margin: 0,
               }}
             >
-              The Reading gives you a complete chart across every system we support. The Depth adds the
-              live layer — Transit Alerts that ping you when the sky moves through your chart, Wealth
-              Timing that watches Jupiter and the second house, and compatibility so you can read another
-              person alongside yourself. Monthly is right when you want the sky watched for you.
-              One-time is right when you want the reading as a keepsake — exported, portable, yours.
+              The Six gives you full Western, Vedic, Numerology, Kabbalah, BaZi and Human Design —
+              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Depth
+              adds six more — Mayan, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — plus
+              the live layer: transit alerts, compatibility, wealth timing, and unlimited Oracle chat.
+              Monthly is right when you want the sky watched for you. One-time is right when you
+              want the reading as a keepsake — exported, portable, yours.
             </p>
           </div>
         </Reveal>

@@ -508,9 +508,10 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
               ascendantSign={tropical.ascendant?.sign}
             />
 
-            {/* ── Paid-tier depth: personal planets (Mercury / Venus / Mars),
-                the full planet table with houses, and deeper commentary. */}
-            <PaywallBlur tier={tier} required="reader|depth">
+            {/* ── Reader+ depth: personal planets (Mercury / Venus / Mars),
+                the full planet table with houses, and deeper commentary.
+                Free tier previews Western via ChartWeather above. */}
+            <PaywallBlur tier={tier} required="reader">
               <div style={{ marginTop: 24, marginBottom: 24 }}>
                 <h2
                   style={{
@@ -547,10 +548,19 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </section>
         )}
 
-        {/* ─── VEDIC (depth only) ─────────────────────────────────────── */}
+        {/* ─── VEDIC (reader+; free tier gets Moon-nakshatra preview) ──── */}
         {mode === 'vedic' && (
-          <PaywallBlur tier={tier} required="depth">
-            <section>
+          <section>
+            {tier === 'free' && sidereal.nakshatra && (
+              <EssayBlock
+                title={`A glance: Moon · ${sidereal.nakshatra.name} nakshatra`}
+                body={
+                  (NAKSHATRA_ESSENCE as Record<string, { forMoon: string; body: string }>)[sidereal.nakshatra.name]
+                    ?.forMoon || ''
+                }
+              />
+            )}
+            <PaywallBlur tier={tier} required="reader">
               <ChartTable planets={sidereal.planets} showHouses={!user.timeUnknown} />
               {sidereal.nakshatra && (
                 <EssayBlock
@@ -570,14 +580,14 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
                   }
                 />
               )}
-            </section>
-          </PaywallBlur>
+            </PaywallBlur>
+          </section>
         )}
 
-        {/* ─── CHINESE / BaZi (reader|depth) ─────────────────────────── */}
+        {/* ─── CHINESE / BaZi (reader+) ───────────────────────────────── */}
         {mode === 'chinese' && (
           <section>
-            <PaywallBlur tier={tier} required="reader|depth">
+            <PaywallBlur tier={tier} required="reader">
               <div className="pillars-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20, marginBottom: 32 }}>
                 {bazi.pillars.map((p) => (
                   <div key={p.key} style={{ padding: 16, border: '1px solid var(--rule)' }}>
@@ -602,27 +612,21 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
               <EssayBlock title={`Nine Star Ki · ${bazi.nineStar.mainName}`} body={bazi.nineStar.forYou} footer={bazi.nineStar.calc} />
             </PaywallBlur>
 
-            {tier === 'free' && (
-              <EssayBlock
-                title={`A glance: ${bazi.year.animal} (year pillar)`}
-                body={`${bazi.animalTraits.careerAffinity} Strengths: ${bazi.animalTraits.strengths.slice(0, 3).join(', ')}.`}
-              />
-            )}
           </section>
         )}
 
-        {/* ─── MAYAN (reader|depth) ──────────────────────────────────── */}
+        {/* ─── MAYAN (depth only) ────────────────────────────────────── */}
         {mode === 'mayan' && (
-          <PaywallBlur tier={tier} required="reader|depth">
+          <PaywallBlur tier={tier} required="depth">
             <MayanPanel data={mayanResult as MayanData} />
           </PaywallBlur>
         )}
 
         {/* ═══════════ SYMBOLIC ═══════════════════════════════════════════ */}
 
-        {/* ─── KABBALAH (depth only) ─────────────────────────────────── */}
+        {/* ─── KABBALAH (reader+) ───────────────────────────────────── */}
         {mode === 'kab' && (
-          <PaywallBlur tier={tier} required="depth">
+          <PaywallBlur tier={tier} required="reader">
             <section>
               <div style={{ marginBottom: 48 }}>
                 <TreeOfLife />
@@ -645,10 +649,10 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </PaywallBlur>
         )}
 
-        {/* ─── NUMEROLOGY (reader|depth) ─────────────────────────────── */}
+        {/* ─── NUMEROLOGY (reader+; free tier gets Life Path preview) ── */}
         {mode === 'numerology' && (
           <section>
-            <PaywallBlur tier={tier} required="reader|depth">
+            <PaywallBlur tier={tier} required="reader">
               <EssayBlock title={`Life Path ${numerology.lifePath} — ${numerology.lifePathObj.title}`} body={numerology.lifePathObj.forYou} footer={numerology.lifePathObj.calc} />
               <EssayBlock title={`Expression ${numerology.expression} — ${numerology.expressionObj.title}`} body={numerology.expressionObj.forYou} footer={numerology.expressionObj.calc} />
               <EssayBlock title={`Soul Urge ${numerology.soulUrge} — ${numerology.soulUrgeObj.title}`} body={numerology.soulUrgeObj.forYou} />
@@ -664,10 +668,10 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </section>
         )}
 
-        {/* ─── TAROT (reader|depth; celtic-cross gated inside TarotSpread) ─ */}
+        {/* ─── TAROT (depth only) ──────────────────────────────────── */}
         {mode === 'tarot' && (
           <section>
-            <PaywallBlur tier={tier} required="reader|depth">
+            <PaywallBlur tier={tier} required="depth">
               <div style={{ marginBottom: 48 }}>
                 <TarotDailyCard
                   userId={userId ?? 'anonymous'}
@@ -696,9 +700,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
 
         {/* ═══════════ PSYCHOLOGICAL ══════════════════════════════════════ */}
 
-        {/* ─── HUMAN DESIGN (reader|depth) ─────────────────────────── */}
+        {/* ─── HUMAN DESIGN (reader+) ─────────────────────────────── */}
         {mode === 'hd' && (
-          <PaywallBlur tier={tier} required="reader|depth">
+          <PaywallBlur tier={tier} required="reader">
             {hdResult ? (
               <BodyGraphInteractive hdResult={hdResult as { activatedGates: number[] }} />
             ) : (
@@ -710,9 +714,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </PaywallBlur>
         )}
 
-        {/* ─── ENNEAGRAM (reader|depth) ────────────────────────────── */}
+        {/* ─── ENNEAGRAM (depth only) ─────────────────────────────── */}
         {mode === 'enneagram' && (
-          <PaywallBlur tier={tier} required="reader|depth">
+          <PaywallBlur tier={tier} required="depth">
             {enneagramResult ? (
               <EnneagramProfile result={enneagramResult as never} />
             ) : (
@@ -735,9 +739,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </PaywallBlur>
         )}
 
-        {/* ─── AYURVEDA (reader|depth) ─────────────────────────────── */}
+        {/* ─── AYURVEDA (depth only) ──────────────────────────────── */}
         {mode === 'ayurveda' && (
-          <PaywallBlur tier={tier} required="reader|depth">
+          <PaywallBlur tier={tier} required="depth">
             {ayurvedaResult ? (
               <AyurvedaProfile prakruti={ayurvedaResult as never} firstName={firstName} />
             ) : (

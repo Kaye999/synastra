@@ -1,32 +1,18 @@
 // Tier definitions, access helpers, and editorial copy for paywall overlays.
 //
-// Synastra has three tiers:
-//   - free   → landing glimpse (sun sign + one-line teasers)
-//   - reader → Western + Numerology + BaZi long readings ($9/mo)
-//   - depth  → everything, including Vedic + Kabbalah ($19/mo)
+// Synastra has three tiers (2026-04 refresh):
+//   - free   → The Three: preview of Western + Vedic + Numerology
+//   - reader → The Six: full Western + Vedic + Numerology + Kabbalah + BaZi
+//              + Human Design. Daily, Monthly, 10 AI/day.
+//   - depth  → The Depth: full all 12 traditions + Mayan, Astrocartography,
+//              Tarot, Enneagram, Gene Keys, Ayurveda. Transit alerts,
+//              compatibility, unlimited AI, cross-tradition synthesis.
 //
-// `canAccess` is the single source of truth. Higher tiers satisfy lower
-// tier requirements (a `depth` user passes `required: 'reader'` checks).
+// `canAccess` gates by tier rank. `canAccessTradition` gates by per-tradition
+// minimum tier using TRADITION_MIN_TIER as the single source of truth.
 //
 // TIER_COPY provides the editorial overlay text rendered by <PaywallBlur>
 // when the user doesn't yet have access.
-
-/*
-  SUPABASE RLS (add to dashboard):
-    alter table astral.profiles enable row level security;
-    create policy "own profile read" on astral.profiles for select using (auth.uid()::text = user_id);
-    create policy "own profile insert" on astral.profiles for insert with check (auth.uid()::text = user_id);
-    create policy "own profile update" on astral.profiles for update using (auth.uid()::text = user_id);
-    -- service role bypasses RLS for the Stripe webhook
-*/
-
-// NOTE — expected wiring inside Dashboard.tsx (already in place at time of
-// writing; re-verify if the Dashboard agent edits it):
-//   <PaywallBlur tier={tier} required="reader"> ... Western  ... </PaywallBlur>
-//   <PaywallBlur tier={tier} required="reader"> ... Numerology ... </PaywallBlur>
-//   <PaywallBlur tier={tier} required="reader"> ... BaZi     ... </PaywallBlur>
-//   <PaywallBlur tier={tier} required="depth">  ... Vedic    ... </PaywallBlur>
-//   <PaywallBlur tier={tier} required="depth">  ... Kabbalah ... </PaywallBlur>
 
 export type Tier = 'free' | 'reader' | 'depth';
 
@@ -40,6 +26,46 @@ export function canAccess(userTier: Tier, required: Tier): boolean {
   return TIER_ORDER[userTier] >= TIER_ORDER[required];
 }
 
+export type Tradition =
+  | 'western'
+  | 'vedic'
+  | 'numerology'
+  | 'kabbalah'
+  | 'bazi'
+  | 'humanDesign'
+  | 'mayan'
+  | 'astrocartography'
+  | 'tarot'
+  | 'enneagram'
+  | 'geneKeys'
+  | 'ayurveda';
+
+// Per-tradition minimum tier. For free-tier traditions, full content is
+// rendered as a *preview* — the <PaywallBlur required="reader"> wrapper
+// around the deeper slabs inside each tradition section still gates the
+// full reading behind the upgrade.
+export const TRADITION_MIN_TIER: Record<Tradition, Tier> = {
+  // Free: preview (three biggest-name traditions)
+  western: 'free',
+  vedic: 'free',
+  numerology: 'free',
+  // Reader: three more
+  kabbalah: 'reader',
+  bazi: 'reader',
+  humanDesign: 'reader',
+  // Depth: the esoteric / advanced cluster
+  mayan: 'depth',
+  astrocartography: 'depth',
+  tarot: 'depth',
+  enneagram: 'depth',
+  geneKeys: 'depth',
+  ayurveda: 'depth',
+};
+
+export function canAccessTradition(userTier: Tier, tradition: Tradition): boolean {
+  return canAccess(userTier, TRADITION_MIN_TIER[tradition]);
+}
+
 export type TierCopy = {
   headline: string;
   bullets: string[];
@@ -51,41 +77,45 @@ export type TierCopy = {
 
 export const TIER_COPY: Record<Tier, TierCopy> = {
   free: {
-    headline: 'The First Glimpse',
+    headline: 'The Three',
     bullets: [
-      'Sun sign essence',
-      'Life path number, at a glance',
-      'Year pillar animal',
+      'Western astrology — Sun, Moon & Rising essence',
+      'Vedic — Lagna, Nakshatra & day-star preview',
+      'Numerology — Life Path at a glance',
     ],
     ctaLabel: 'Create your chart',
     ctaHref: '/onboarding',
     priceNote: 'Free · no card required',
-    fineprint: 'Five traditions, one birth — the atlas begins.',
+    fineprint: 'Three traditions, one birth — the atlas begins.',
   },
   reader: {
-    headline: 'Unlock The Reading',
+    headline: 'Unlock The Six',
     bullets: [
-      'Full Western chart with houses and transits',
-      'Numerology — Life Path, Expression, Soul Urge, Personal Year',
-      'Chinese BaZi — four pillars, day master, Nine Star Ki',
-      'AI-guided chat with your chart',
+      'Full Western, Vedic & Numerology readings',
+      'Kabbalah — letters, sefirot, paths',
+      'Chinese BaZi — four pillars, day master',
+      'Human Design — type, strategy, authority',
+      'Daily Guidance + Monthly Forecast',
+      '10 Oracle AI questions every day',
     ],
-    ctaLabel: 'Upgrade — $9/mo',
+    ctaLabel: 'Upgrade — A$19/mo',
     ctaHref: '/pricing#reader',
     priceNote: 'Monthly · cancel anytime',
-    fineprint: 'One price. Three traditions. Read for you.',
+    fineprint: 'Six traditions, fully unlocked.',
   },
   depth: {
     headline: 'Unlock The Depth',
     bullets: [
-      'Everything in Reader',
-      'Vedic sidereal chart, nakshatras, mahadasha',
-      'Kabbalistic paths — letters, Sefirot, Tarot arcana',
-      'Full cross-tradition synthesis essays',
+      'Everything in The Six',
+      'Mayan Tzolk’in, Astrocartography, Tarot',
+      'Enneagram, Gene Keys, Ayurveda',
+      'Transit alerts + Compatibility + Wealth timing',
+      'Cross-tradition synthesis essays',
+      'Unlimited Oracle AI',
     ],
-    ctaLabel: 'Upgrade — $19/mo',
+    ctaLabel: 'Upgrade — A$39/mo',
     ctaHref: '/pricing#depth',
     priceNote: 'Monthly · cancel anytime',
-    fineprint: 'The full atlas — where East, West, and Tree meet.',
+    fineprint: 'The full atlas — twelve threads, one mirror.',
   },
 };

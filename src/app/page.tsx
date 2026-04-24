@@ -129,22 +129,22 @@ const QUOTES = [
 
 const PRICING_PREVIEW = [
   {
-    name: 'The Glance',
+    name: 'The Three',
     price: 'Free',
     alt: 'No card, forever',
-    tag: 'See the shape of you.',
-    bullets: ['Natal chart preview', 'Sun sign · Life Path · Chinese animal'],
+    tag: 'Start with the classics.',
+    bullets: ['Western · Vedic · Numerology (preview)', 'Full natal chart view', 'Keep your chart forever'],
   },
   {
-    name: 'The Reading',
+    name: 'The Six',
     price: 'A$19 / mo',
     alt: 'or A$129 / year · save A$99',
-    tag: 'Read the whole chart.',
+    tag: 'Six traditions, fully unlocked.',
     bullets: [
-      'All 12 traditions · full chart',
+      'Full Western · Vedic · Numerology',
+      'Kabbalah · Chinese BaZi · Human Design',
       'Daily Guidance · Monthly Forecast',
-      'Tarot · Enneagram · Gene Keys · Ayurveda',
-      'Life Purpose · Shadow prompts · 10 Oracle / day',
+      '10 Oracle AI questions / day',
     ],
     featured: true,
   },
@@ -152,12 +152,12 @@ const PRICING_PREVIEW = [
     name: 'The Depth',
     price: 'A$39 / mo',
     alt: 'or A$259 / year · save A$209',
-    tag: 'Unlock every tradition.',
+    tag: 'All twelve. Cross-woven.',
     bullets: [
-      'Everything in The Reading',
-      'Compatibility (synastry) · Wealth Timing',
-      'Unlimited Oracle · email transit alerts',
-      'Priority access to new traditions',
+      'Everything in The Six',
+      '+ Mayan · Astrocartography · Tarot',
+      '+ Enneagram · Gene Keys · Ayurveda',
+      'Transit alerts · Compatibility · Unlimited Oracle',
     ],
   },
 ] as const;
@@ -445,10 +445,10 @@ export default function LandingPage() {
                     ))}
                   </ul>
                   <Link
-                    href={t.name === 'The Glance' ? '/sign-up' : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`}
+                    href={t.name === 'The Three' ? '/sign-up' : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`}
                     className="tier-cta"
                   >
-                    {t.name === 'The Glance' ? 'Begin free' : t.name === 'The Reading' ? 'Start the reading' : 'Go deep'} →
+                    {t.name === 'The Three' ? 'Begin free' : t.name === 'The Six' ? 'Start the reading' : 'Go deep'} →
                   </Link>
                 </div>
               </Reveal>
