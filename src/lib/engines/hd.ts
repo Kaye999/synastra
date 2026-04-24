@@ -5,7 +5,7 @@
  * all 64 gate interpretations, 36 channels, 9 centres, type/authority/profile
  * derivation. UI (React.createElement panel) omitted.
  *
- * SELF-TEST — Ethan: dob 2004-07-23, 06:30 AEST, Sydney (lat -33.87 lon
+ * SELF-TEST — Sydney-born chart: dob 2004-07-23, 06:30 AEST, Sydney (lat -33.87 lon
  * +151.21 tz +10). Sun tropical longitude ~120°29' → lands in Gate 31.
  * Personality Sun line ≈ 3 (Sun is about 42% of the way through the gate).
  * Expected: Generator or Manifesting Generator with Emotional or Sacral

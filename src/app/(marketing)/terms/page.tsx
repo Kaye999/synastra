@@ -59,7 +59,7 @@ export default function TermsPage() {
         </p>
         <p style={{ marginTop: 48, fontSize: 14, color: 'var(--ink-faint)' }}>
           This is a stub ToS. A full jurisdiction-specific version will ship before live payments launch.
-          Contact: <a href="mailto:ethankay2307@gmail.com" style={{ color: 'var(--brass)' }}>ethankay2307@gmail.com</a>.
+          Contact: <a href="mailto:hello@getsynastra.com" style={{ color: 'var(--brass)' }}>hello@getsynastra.com</a>.
         </p>
 
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 56, flexWrap: 'wrap' }}>

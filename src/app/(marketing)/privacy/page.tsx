@@ -50,7 +50,7 @@ export default function PrivacyPage() {
         <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Your rights</h2>
         <p>
           You can export, edit, or delete your data at any time from Settings. Email
-          <a href="mailto:ethankay2307@gmail.com" style={{ color: 'var(--brass)' }}> ethankay2307@gmail.com</a>
+          <a href="mailto:hello@getsynastra.com" style={{ color: 'var(--brass)' }}> hello@getsynastra.com</a>
           {' '}for any privacy questions.
         </p>
         <p style={{ marginTop: 48, fontSize: 14, color: 'var(--ink-faint)' }}>

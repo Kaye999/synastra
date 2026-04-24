@@ -64,14 +64,15 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
     });
   };
 
+  // J.P. Morgan — the brand's canonical demo chart.
   const loadDemo = () => {
     onSave({
-      name: 'Ethan',
-      fullName: 'Ethan Joshua Kay',
-      dob: { y: 2004, m: 7, d: 23 },
-      time: { h: 6, m: 30 },
+      name: 'John',
+      fullName: 'John Pierpont Morgan',
+      dob: { y: 1837, m: 4, d: 17 },
+      time: { h: 3, m: 0 },
       timeUnknown: false,
-      city: 'Sydney',
+      city: 'Hartford',
       gender: 'male',
     });
   };
@@ -81,9 +82,9 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
       <form className="onboard-card" onSubmit={handleSubmit}>
         <div className="onboard-symbol">☉ ☽ ↑</div>
         <div className="onboard-eyebrow">An Astral Atlas — Volume I</div>
-        <h1 className="onboard-title">Five readings, one birth.</h1>
+        <h1 className="onboard-title">Twelve traditions. One birth.</h1>
         <p className="onboard-sub">
-          Western, Vedic, Kabbalah, Numerology, Chinese BaZi — all pulled from the same date, time, and place.
+          Western, Vedic, Kabbalah, Numerology, Chinese BaZi, Human Design, Mayan Tzolk&rsquo;in, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — all pulled from the same date, time, and place.
         </p>
         <hr className="brass-rule" />
 

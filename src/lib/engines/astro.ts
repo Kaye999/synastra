@@ -1,7 +1,7 @@
 /*
  * astro.ts — typed port of engine-astro.js (astronomy compute module).
  *
- * SELF-TEST — verify against Ethan's known chart:
+ * SELF-TEST — verified against a known Sydney-born chart:
  *   dob: 2004-07-23, time: 06:30 AEST (lat -33.87, lon +151.21, tz +10)
  *   Expected tropical:
  *     Sun: Leo ~0°29'

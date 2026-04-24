@@ -246,7 +246,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName }: 
           color: 'var(--ink)',
         }}
       >
-        Five threads, one month
+        Twelve threads, one month
       </h2>
 
       <p

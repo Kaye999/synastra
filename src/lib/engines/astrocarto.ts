@@ -14,7 +14,7 @@
  *   AC (Ascendant)     — a curve of longitudes where the planet was rising.
  *   DC (Descendant)    — a curve where the planet was setting.
  *
- * SELF-TEST — Ethan, 2004-07-23 06:30 AEST (Sydney lat -33.87 lon +151.21 tz +10).
+ * SELF-TEST — Sydney-born chart:30 AEST (Sydney lat -33.87 lon +151.21 tz +10).
  * Sun natal ecliptic longitude ≈ 120°29' (0° Leo). Sun was rising at Sydney,
  * so the Sun AC curve passes ≈ +151° E at latitude -33.87°. By construction:
  *   Expected Sun MC longitude : ≈ +60°  (Indian Ocean)

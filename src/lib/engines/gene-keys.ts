@@ -31,7 +31,7 @@
  * to find the exact UT of the 88° pre-birth sun and recompute bodies.
  *
  * ============================================================================
- * Self-test (Ethan, 2004-07-23 06:30 AEST, Sydney)
+ * Self-test (Sydney-born chart)
  * ============================================================================
  * Sun tropical longitude ≈ 120.48° (Leo 0°29').
  * offset = (120.48 - 302 + 360) mod 360 = 178.48°

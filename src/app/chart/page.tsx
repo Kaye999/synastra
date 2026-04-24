@@ -1,7 +1,8 @@
 // Chart dashboard — server component. Loads the user's profile from Supabase
 // (astral.profiles keyed by Clerk userId) and renders the client-side
 // <Dashboard>. Supports:
-//   - ?demo=1   → no auth, tier='depth', Ethan's demo data
+//   - ?demo=1   → no auth, tier='depth', J.P. Morgan's birth data as the
+//                 canonical demo (ties to the brand hero quote)
 //   - ?upgraded=1 → show "Welcome to Depth" success banner
 
 import { redirect } from 'next/navigation';
@@ -13,15 +14,18 @@ import type { Tier } from '@/lib/tiers';
 
 type Profile = { birthData: BirthData; tier: Tier };
 
+// J.P. Morgan — Apr 17 1837, 03:00 LMT, Hartford, Connecticut.
+// Canonical demo chart: ties to the brand hero quote ("Millionaires don't
+// use astrology — billionaires do"). Historical fact, no personal data.
 const DEMO_PROFILE: Profile = {
   tier: 'depth',
   birthData: {
-    name: 'Ethan',
-    fullName: 'Ethan Joshua Kay',
-    dob: { y: 2004, m: 7, d: 23 },
-    time: { h: 6, m: 30 },
+    name: 'John',
+    fullName: 'John Pierpont Morgan',
+    dob: { y: 1837, m: 4, d: 17 },
+    time: { h: 3, m: 0 },
     timeUnknown: false,
-    city: 'Sydney',
+    city: 'Hartford',
     gender: 'male',
   },
 };

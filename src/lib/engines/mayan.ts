@@ -10,7 +10,7 @@
  *   tone  = ((207 - 1) mod 13) + 1 = 12  → Crystal
  *   sign  = ((207 - 1) mod 20) + 1 = 7   → Hand (Manik)
  *
- * SELF-TEST — Ethan: 23 July 2004.
+ * SELF-TEST — Sydney-born chart: 23 July 2004.
  *   Days 2004-07-23 → 2012-12-21 = 3073
  *   Kin = (((207 - 1) - 3073) mod 260 + 260) mod 260 + 1 = 254
  *   Tone = ((254 - 1) mod 13) + 1 = 7   → Resonant
