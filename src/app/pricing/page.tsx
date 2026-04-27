@@ -74,7 +74,7 @@ const TIERS: TierDef[] = [
   },
   {
     id: 'depth',
-    name: 'The Depth',
+    name: 'The Nine',
     tagline: 'All twelve. Cross-woven.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     savingsPercent: 45, // ((468-259)/468)
@@ -115,7 +115,7 @@ const FAQS = [
   },
   {
     q: 'Can I read someone else\'s chart?',
-    a: 'Yes — The Depth includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
+    a: 'Yes — The Nine includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -262,7 +262,7 @@ export default function PricingPage() {
             return (
               <Reveal key={tier.id} delay={120 + i * 100}>
                 <article
-                  id={tier.id === 'reader' ? 'the-reading' : tier.id === 'depth' ? 'the-depth' : undefined}
+                  id={tier.id === 'reader' ? 'the-six' : tier.id === 'depth' ? 'the-nine' : 'the-three'}
                   style={{
                     position: 'relative',
                     border: isFeatured ? '1px solid var(--brass)' : '1px solid var(--rule)',
@@ -372,7 +372,7 @@ export default function PricingPage() {
                 margin: '0 0 20px',
               }}
             >
-              Why Depth?
+              Why go deeper?
             </h3>
             <p
               style={{
@@ -384,7 +384,7 @@ export default function PricingPage() {
               }}
             >
               The Six gives you full Western, Vedic, Numerology, Kabbalah, BaZi and Human Design —
-              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Depth
+              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Nine
               adds six more — Mayan, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — plus
               the live layer: transit alerts, compatibility, wealth timing, and unlimited Oracle chat.
               Monthly is right when you want the sky watched for you. One-time is right when you

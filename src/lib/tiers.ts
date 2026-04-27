@@ -4,7 +4,7 @@
 //   - free   → The Three: preview of Western + Vedic + Numerology
 //   - reader → The Six: full Western + Vedic + Numerology + Kabbalah + BaZi
 //              + Human Design. Daily, Monthly, 10 AI/day.
-//   - depth  → The Depth: full all 12 traditions + Mayan, Astrocartography,
+//   - depth  → The Nine: full all 12 traditions + Mayan, Astrocartography,
 //              Tarot, Enneagram, Gene Keys, Ayurveda. Transit alerts,
 //              compatibility, unlimited AI, cross-tradition synthesis.
 //
@@ -104,7 +104,7 @@ export const TIER_COPY: Record<Tier, TierCopy> = {
     fineprint: 'Six traditions, fully unlocked.',
   },
   depth: {
-    headline: 'Unlock The Depth',
+    headline: 'Unlock The Nine',
     bullets: [
       'Everything in The Six',
       'Mayan Tzolk’in, Astrocartography, Tarot',

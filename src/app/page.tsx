@@ -156,7 +156,7 @@ const PRICING_PREVIEW = [
     featured: true,
   },
   {
-    name: 'The Depth',
+    name: 'The Nine',
     price: 'A$39 / mo',
     alt: 'or A$259 / year · save A$209',
     tag: 'All twelve. Cross-woven.',
@@ -441,7 +441,7 @@ export default async function LandingPage() {
             <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ Pricing</div>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mk-section-title">Three readings. Pick the depth.</h2>
+            <h2 className="mk-section-title">Three readings. Three, six, nine.</h2>
           </Reveal>
 
           <div className="mk-pricing-mini">
