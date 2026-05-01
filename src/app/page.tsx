@@ -245,6 +245,7 @@ export default async function LandingPage() {
         <Link href="/" className="mk-nav-brand">SYNASTRA</Link>
         <div className="mk-nav-links">
           <Link href="/how-it-works">How it works</Link>
+          <Link href="/now">Now</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/chart?demo=1">Sample chart</Link>
           {!isSignedIn && <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>}
@@ -515,6 +516,8 @@ export default async function LandingPage() {
         <div className="tag">12 traditions. One Chart. Your True Archetype.</div>
         <nav>
           <Link href="/how-it-works">How it works</Link>
+          <Link href="/now">Now</Link>
+          <Link href="/field-notes">Field notes</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy">Privacy</Link>

@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Scene } from '@/lib/ambient/scenes';
+import SceneEffects from './SceneEffects';
+import './scene-effects.css';
 
 interface AmbientSceneProps {
   scene: Scene;
@@ -65,7 +67,10 @@ export default function AmbientScene({ scene, className }: AmbientSceneProps) {
             <img
               src={s.poster}
               alt=""
-              className="h-full w-full select-none object-cover"
+              className={
+                'h-full w-full select-none object-cover ' +
+                (reducedMotion ? '' : 'ambient-kenburns')
+              }
               draggable={false}
             />
             {!reducedMotion && s.videos && s.videos.length > 0 && (
@@ -84,6 +89,7 @@ export default function AmbientScene({ scene, className }: AmbientSceneProps) {
                 ))}
               </video>
             )}
+            <SceneEffects effects={s.effects} reducedMotion={reducedMotion} />
             {/* Soft vignette + bottom gradient for legibility of overlaid UI. */}
             <div
               className="absolute inset-0"

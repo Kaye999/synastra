@@ -38,12 +38,26 @@ export interface VideoSource {
   type: 'video/mp4' | 'video/webm';
 }
 
+export type SceneEffectId =
+  | 'leaves-falling'
+  | 'snow-falling'
+  | 'frost-shimmer'
+  | 'stars-twinkle'
+  | 'stars-twinkle-dense'
+  | 'clouds-drift'
+  | 'clouds-drift-dark'
+  | 'sun-rays'
+  | 'moon-halo'
+  | 'fog-drift'
+  | 'rain-fall';
+
 export interface Scene {
   id: string;
   label: string;
   conditions: SceneConditions;
   poster: string;
   videos?: VideoSource[];
+  effects?: SceneEffectId[];   // CSS overlay particles/animations applied on top of poster/video
   attribution?: string;        // e.g. "Photo: Pexels / Jane Doe"
 }
 
@@ -59,6 +73,7 @@ export const SCENE_MANIFEST: Scene[] = [
       { src: '/scenes/autumn-day.mp4',  type: 'video/mp4' },
       { src: '/scenes/autumn-day.webm', type: 'video/webm' },
     ],
+    effects: ['leaves-falling', 'sun-rays'],
   },
   {
     id: 'autumn-dusk',
@@ -66,6 +81,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { broadSeason: 'autumn', timeOfDayGroup: 'dusk' },
     poster: '/scenes/autumn-dusk.jpg',
     videos: [{ src: '/scenes/autumn-dusk.mp4', type: 'video/mp4' }],
+    effects: ['leaves-falling', 'clouds-drift'],
   },
   {
     id: 'summer-day-clear',
@@ -76,6 +92,7 @@ export const SCENE_MANIFEST: Scene[] = [
       { src: '/scenes/summer-day-clear.mp4',  type: 'video/mp4' },
       { src: '/scenes/summer-day-clear.webm', type: 'video/webm' },
     ],
+    effects: ['sun-rays', 'clouds-drift'],
   },
   {
     id: 'summer-day',
@@ -83,6 +100,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { broadSeason: 'summer', timeOfDayGroup: 'day' },
     poster: '/scenes/summer-day.jpg',
     videos: [{ src: '/scenes/summer-day.mp4', type: 'video/mp4' }],
+    effects: ['clouds-drift'],
   },
   {
     id: 'spring-day',
@@ -90,6 +108,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { broadSeason: 'spring', timeOfDayGroup: 'day' },
     poster: '/scenes/spring-day.jpg',
     videos: [{ src: '/scenes/spring-day.mp4', type: 'video/mp4' }],
+    effects: ['clouds-drift'],
   },
   {
     id: 'winter-frost-aus',
@@ -97,6 +116,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { broadSeason: 'winter', timeOfDayGroup: 'day', hemisphere: 'south' },
     poster: '/scenes/winter-frost-aus.jpg',
     videos: [{ src: '/scenes/winter-frost-aus.mp4', type: 'video/mp4' }],
+    effects: ['frost-shimmer', 'fog-drift'],
   },
   {
     id: 'winter-day',
@@ -104,6 +124,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { broadSeason: 'winter', timeOfDayGroup: 'day' },
     poster: '/scenes/winter-day.jpg',
     videos: [{ src: '/scenes/winter-day.mp4', type: 'video/mp4' }],
+    effects: ['snow-falling', 'fog-drift'],
   },
   {
     id: 'night-clear-fullmoon',
@@ -114,6 +135,7 @@ export const SCENE_MANIFEST: Scene[] = [
       { src: '/scenes/night-clear-fullmoon.mp4',  type: 'video/mp4' },
       { src: '/scenes/night-clear-fullmoon.webm', type: 'video/webm' },
     ],
+    effects: ['stars-twinkle', 'moon-halo'],
   },
   {
     id: 'night-clear-dark',
@@ -121,6 +143,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { timeOfDayGroup: 'night', lunar: ['new', 'waxing-crescent', 'waning-crescent'] },
     poster: '/scenes/night-clear-dark.jpg',
     videos: [{ src: '/scenes/night-clear-dark.mp4', type: 'video/mp4' }],
+    effects: ['stars-twinkle-dense'],
   },
   {
     id: 'night-cloudy',
@@ -128,6 +151,7 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { timeOfDayGroup: 'night', weather: ['cloudy', 'overcast'] },
     poster: '/scenes/night-cloudy.jpg',
     videos: [{ src: '/scenes/night-cloudy.mp4', type: 'video/mp4' }],
+    effects: ['clouds-drift-dark'],
   },
   // Generic fallbacks — kept last so they only fire when nothing more specific matched.
   {
@@ -136,24 +160,28 @@ export const SCENE_MANIFEST: Scene[] = [
     conditions: { timeOfDayGroup: 'night' },
     poster: '/scenes/night-generic.jpg',
     videos: [{ src: '/scenes/night-generic.mp4', type: 'video/mp4' }],
+    effects: ['stars-twinkle'],
   },
   {
     id: 'dawn-generic',
     label: 'Dawn',
     conditions: { timeOfDayGroup: 'dawn' },
     poster: '/scenes/dawn-generic.jpg',
+    effects: ['clouds-drift'],
   },
   {
     id: 'dusk-generic',
     label: 'Dusk',
     conditions: { timeOfDayGroup: 'dusk' },
     poster: '/scenes/dusk-generic.jpg',
+    effects: ['clouds-drift'],
   },
   {
     id: 'day-generic',
     label: 'Daylight',
     conditions: {},
     poster: '/scenes/day-generic.jpg',
+    effects: ['clouds-drift'],
   },
 ];
 
