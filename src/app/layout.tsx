@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import Cosmos from '@/components/Cosmos';
 import './globals.css';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getsynastra.com';
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <ClerkProvider>
       <html lang="en" className="font-body">
         <body>
+          <Cosmos />
           {children}
           <Analytics />
           <SpeedInsights />

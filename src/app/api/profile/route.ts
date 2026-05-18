@@ -94,3 +94,24 @@ export async function GET() {
   }
   return NextResponse.json({ profile: data });
 }
+
+// Hard-deletes the user's profile row. Used by Settings → "Clear saved data &
+// start over" and the same action inside the in-chart SettingsCog modal.
+// Tier rows are deleted too — Stripe webhooks will recreate the tier on next
+// payment if the user subscribes again.
+export async function DELETE() {
+  const { userId } = await auth();
+  if (!userId) return NextResponse.json({ error: 'unauthorised' }, { status: 401 });
+
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .schema('astral')
+    .from('profiles')
+    .delete()
+    .eq('user_id', userId);
+
+  if (error) {
+    return NextResponse.json({ error: 'delete-failed', detail: error.message }, { status: 500 });
+  }
+  return NextResponse.json({ ok: true });
+}

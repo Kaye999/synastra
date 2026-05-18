@@ -68,7 +68,12 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
   };
 
   const handleCitySelect = (hit: CityHit) => {
-    setCityCoords({ lat: hit.lat, lon: hit.lon, tzOffset: hit.tzOffset });
+    setCityCoords({
+      lat: hit.lat,
+      lon: hit.lon,
+      tzOffset: hit.tzOffset,
+      tzId: hit.tzId,
+    });
   };
 
   // J.P. Morgan — the brand's canonical demo chart.

@@ -12,7 +12,7 @@ export type BirthData = {
    * engines read directly from here; when absent we fall back to the
    * bundled CITY_COORDS gazetteer in /lib/constants/cities.ts.
    */
-  coords?: { lat: number; lon: number; tzOffset: number };
+  coords?: { lat: number; lon: number; tzOffset: number; tzId?: string };
   gender: Gender;
   fullName: string;
   name: string;
