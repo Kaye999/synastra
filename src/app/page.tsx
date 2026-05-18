@@ -136,14 +136,14 @@ const QUOTES = [
 
 const PRICING_PREVIEW = [
   {
-    name: 'The Three',
+    name: 'The Glimpse',
     price: 'Free',
     alt: 'No card, forever',
     tag: 'Start with the classics.',
     bullets: ['Western · Vedic · Numerology (preview)', 'Full natal chart view', 'Keep your chart forever'],
   },
   {
-    name: 'The Six',
+    name: 'The Initiate',
     price: 'A$19 / mo',
     alt: 'or A$129 / year · save A$99',
     tag: 'Six traditions, fully unlocked.',
@@ -156,12 +156,12 @@ const PRICING_PREVIEW = [
     featured: true,
   },
   {
-    name: 'The Nine',
+    name: 'The Adept',
     price: 'A$39 / mo',
     alt: 'or A$259 / year · save A$209',
     tag: 'All twelve. Cross-woven.',
     bullets: [
-      'Everything in The Six',
+      'Everything in The Initiate',
       '+ Mayan · Astrocartography · Tarot',
       '+ Enneagram · Gene Keys · Ayurveda',
       'Transit alerts · Compatibility · Unlimited Oracle',
@@ -461,15 +461,15 @@ export default async function LandingPage() {
                   </ul>
                   <Link
                     href={
-                      t.name === 'The Three'
+                      t.name === 'The Glimpse'
                         ? primaryHref
                         : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`
                     }
                     className="tier-cta"
                   >
-                    {t.name === 'The Three'
+                    {t.name === 'The Glimpse'
                       ? isSignedIn ? 'Open your chart' : 'Begin free'
-                      : t.name === 'The Six'
+                      : t.name === 'The Initiate'
                       ? 'Start the reading'
                       : 'Go deep'} →
                   </Link>

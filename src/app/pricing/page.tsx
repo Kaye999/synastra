@@ -37,7 +37,7 @@ type TierDef =
 const TIERS: TierDef[] = [
   {
     id: 'glance',
-    name: 'The Three',
+    name: 'The Glimpse',
     tagline: 'Start with the classics — no card.',
     price: { monthly: 'Free', onetime: 'Free' },
     savingsPercent: null,
@@ -52,13 +52,13 @@ const TIERS: TierDef[] = [
   },
   {
     id: 'reader',
-    name: 'The Six',
+    name: 'The Initiate',
     tagline: 'Six traditions, fully unlocked.',
     price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
     savingsPercent: 43, // ((228-129)/228)
     featured: true,
     features: [
-      '§ Everything in The Three',
+      '§ Everything in The Glimpse',
       'Full Western chart — houses, aspects, personal planets',
       'Full Vedic — nakshatras, pada, current mahadasha',
       'Full Numerology — Expression, Soul Urge, Personal Year',
@@ -74,12 +74,12 @@ const TIERS: TierDef[] = [
   },
   {
     id: 'depth',
-    name: 'The Nine',
+    name: 'The Adept',
     tagline: 'All twelve. Cross-woven.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     savingsPercent: 45, // ((468-259)/468)
     features: [
-      '§ Everything in The Six',
+      '§ Everything in The Initiate',
       'Mayan Tzolk’in — kin, day-sign, galactic tone',
       'Astrocartography — planetary lines across the earth',
       'Tarot — daily card + three-card + celtic cross',
@@ -115,7 +115,7 @@ const FAQS = [
   },
   {
     q: 'Can I read someone else\'s chart?',
-    a: 'Yes — The Nine includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
+    a: 'Yes — The Adept includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -383,8 +383,8 @@ export default function PricingPage() {
                 margin: 0,
               }}
             >
-              The Six gives you full Western, Vedic, Numerology, Kabbalah, BaZi and Human Design —
-              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Nine
+              The Initiate gives you full Western, Vedic, Numerology, Kabbalah, BaZi and Human Design —
+              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Adept
               adds six more — Mayan, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — plus
               the live layer: transit alerts, compatibility, wealth timing, and unlimited Oracle chat.
               Monthly is right when you want the sky watched for you. One-time is right when you
