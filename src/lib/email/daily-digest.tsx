@@ -62,7 +62,7 @@ export function renderDailyDigestHtml(args: RenderArgs): string {
       <h1>${escape(firstName || 'Good morning')}</h1>
       ${paragraphsHtml}
       ${alertLine}
-      <p><a class="cta" href="${appUrl('/dashboard')}">Open Synastra →</a></p>
+      <p><a class="cta" href="${appUrl('/chart')}">Open Synastra →</a></p>
       <div class="foot">
         You're receiving this because you enabled the Morning Cup digest. <a href="${appUrl('/settings')}">Adjust preferences</a>.
       </div>
@@ -85,7 +85,7 @@ export function renderDailyDigestText(args: RenderArgs): string {
     '',
     alertLine,
     '',
-    `Open Synastra → ${appUrl('/dashboard')}`,
+    `Open Synastra → ${appUrl('/chart')}`,
     '',
     '---',
     `Adjust preferences: ${appUrl('/settings')}`,

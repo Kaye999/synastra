@@ -56,7 +56,7 @@ function escape(s: string): string {
 
 export function renderTransitAlertHtml(args: RenderArgs): string {
   const { firstName, alert, interpretation, pullQuote } = args;
-  const dashboardUrl = appUrl('/dashboard');
+  const dashboardUrl = appUrl('/chart');
   const date = formatDateLong(alert.exactDate);
 
   const quote = pullQuote || `${alert.transitPlanet} meets your ${alert.natalPlanet} — the sky rhymes with your chart on ${date}.`;
@@ -113,7 +113,7 @@ export function renderTransitAlertText(args: RenderArgs): string {
     '',
     `Exact on ${date}. The orb tightens in the days before and loosens after.`,
     '',
-    `Read in Synastra → ${appUrl('/dashboard')}`,
+    `Read in Synastra → ${appUrl('/chart')}`,
     '',
     '---',
     `You're receiving this because you enabled transit alerts on Synastra Depth.`,

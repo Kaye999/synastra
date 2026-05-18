@@ -1,12 +1,21 @@
 // /api/chat — streams Claude (claude-sonnet-4-6) responses to the Synastra
-// oracle widget. Clerk-authed, tier-gated via Supabase `profiles.tier` and
-// `profiles.chat_quota_used_today`.
+// oracle widget. Clerk-authed, tier-gated via Supabase `astral.profiles`.
 //
 // POST body: { messages: [{role, content}], chartContext: {...} }
 // Response: text/event-stream of Anthropic message stream events (JSON lines
 // prefixed with `data:`) so the client can render token-by-token.
 //
-// 401 → unauth. 402 → free tier. 429 → quota exceeded (body: {error, limit, used}).
+// Tier limits (per operator decision 2026-04-26):
+//   free   -> 5 / day, 30 / month
+//   reader -> 50 / day, 300 / month
+//   depth  -> unlimited
+//
+// Prompt caching: 2 ephemeral 1h breakpoints
+//   1. stable preamble (oracle voice + macro transits) — shared across all users
+//   2. per-user chart JSON + name — shared across messages within a session
+//
+// 401 → unauth. 429 → tier-limit reached
+//   ({ error: 'tier_limit_reached', tier, used, limit, period, upgradeUrl }).
 
 import Anthropic from '@anthropic-ai/sdk';
 import { auth } from '@clerk/nextjs/server';
@@ -21,8 +30,15 @@ export const dynamic = 'force-dynamic';
 
 const MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 1500;
-const READER_DAILY_LIMIT = 10;
 const UI_HISTORY_MAX = 10; // messages sent to the API per request (client also caps)
+
+// Tier-based usage caps. `null` means unlimited for that period.
+type Caps = { day: number | null; month: number | null };
+const TIER_CAPS: Record<Tier, Caps> = {
+  free: { day: 5, month: 30 },
+  reader: { day: 50, month: 300 },
+  depth: { day: null, month: null },
+};
 
 type IncomingMessage = { role: 'user' | 'assistant'; content: string };
 type IncomingBody = {
@@ -34,10 +50,20 @@ type ProfileRow = {
   tier: Tier;
   chat_quota_used_today: number | null;
   chat_quota_reset_at: string | null;
+  chat_quota_used_this_month: number | null;
+  chat_quota_month_reset_at: string | null;
   first_name: string | null;
 };
 
-const SYSTEM_TEMPLATE = `You are the Synastra oracle — an interpreter trained on Western astrology, Vedic astrology, Kabbalah, numerology, Chinese BaZi, Human Design, Mayan Tzolk'in, Astrocartography, Tarot, Enneagram, Gene Keys, and Ayurveda. You answer __NAME__'s questions about their chart, placements, transits, esoteric keywords, or the symbolic meaning of signs, houses, planets, sefirot, nakshatras, pillars, gates, day-signs.
+// ── System prompt ───────────────────────────────────────────────────────────
+//
+// Split into two cacheable blocks. Render order is `system` blocks in array
+// order, so block 1 (universal) sits before block 2 (per-user). Each block
+// gets a `cache_control: ephemeral, ttl: 1h` breakpoint:
+//   - block 1 hits across every user once it's warm
+//   - block 2 hits across every message a single user sends in a session
+
+const STABLE_PREAMBLE = `You are the Synastra oracle — an interpreter trained on Western astrology, Vedic astrology, Kabbalah, numerology, Chinese BaZi, Human Design, Mayan Tzolk'in, Astrocartography, Tarot, Enneagram, Gene Keys, and Ayurveda. You answer questions about the user's chart, placements, transits, esoteric keywords, or the symbolic meaning of signs, houses, planets, sefirot, nakshatras, pillars, gates, day-signs.
 
 Macro transits shaping this moment (cite when relevant):
 - Uranus in Taurus 2018 → 2026, ingresses Gemini April 2026 (opens a 7-year cycle of communication, curiosity, media, 2026–2033).
@@ -46,27 +72,21 @@ Macro transits shaping this moment (cite when relevant):
 - Saturn in Aries 2025 → 2028 (hard structural work on self, autonomy — things built here hold).
 - Jupiter enters Cancer mid-2026 for 12 months (expansion in home, family, emotional foundations).
 
-THE SYNASTRA ARC — longer answers follow a three-beat arc: (1) MACRO — name the cycle/transit framing the question, with real dates; (2) LESSON — read what it's asking of __NAME__ specifically, citing a placement from their chart; (3) CARRY — a forward-look, one concrete line on what they take from this. Short answers (one question, one line) skip the arc and just cite the placement.
+THE SYNASTRA ARC — longer answers follow a three-beat arc: (1) MACRO — name the cycle/transit framing the question, with real dates; (2) LESSON — read what it's asking of the user specifically, citing a placement from their chart; (3) CARRY — a forward-look, one concrete line on what they take from this. Short answers (one question, one line) skip the arc and just cite the placement.
 
 Voice: editorial, observational, richly imaged, concise. Dense — no filler. Second-person throughout. No hedging: never write "might", "could", "may", "sometimes", "perhaps". Concrete verbs only — builds, cuts, holds, burns, composts, refuses, inherits, severs, carries. No emoji. No exclamation marks. Reference real absolute dates — never "soon", "recently". One pull-quote-worthy line per longer answer.
 
-Out of scope: medical advice, legal advice, diagnosis of named third parties, specific financial predictions. If asked, redirect to the symbolic/archetypal layer.
+Out of scope: medical advice, legal advice, diagnosis of named third parties, specific financial predictions. If asked, redirect to the symbolic/archetypal layer.`;
 
-User's chart:
-__CHART__
-
-User's first name: __NAME__`;
-
-function buildSystem(chartContext: unknown, firstName: string): string {
+function buildPerUserBlock(chartContext: unknown, firstName: string): string {
   let chartJson: string;
   try {
     chartJson = JSON.stringify(chartContext ?? {}, null, 2);
   } catch {
     chartJson = '{}';
   }
-  return SYSTEM_TEMPLATE
-    .replace('__CHART__', chartJson)
-    .replace('__NAME__', firstName || 'friend');
+  const name = firstName || 'friend';
+  return `User's chart:\n${chartJson}\n\nUser's first name: ${name}`;
 }
 
 function sanitiseMessages(raw: unknown): IncomingMessage[] {
@@ -83,19 +103,24 @@ function sanitiseMessages(raw: unknown): IncomingMessage[] {
   return out.slice(-UI_HISTORY_MAX);
 }
 
-function shouldResetQuota(resetAt: string | null): boolean {
+function shouldReset(resetAt: string | null): boolean {
   if (!resetAt) return true;
   const reset = Date.parse(resetAt);
   if (!Number.isFinite(reset)) return true;
   return Date.now() >= reset;
 }
 
-// Next midnight UTC. (Keep server-side reset simple; "user-local" midnight
-// would require their tz — out of scope until we persist that on profiles.)
+// Next midnight UTC.
 function nextMidnightUtc(): string {
   const d = new Date();
   d.setUTCHours(24, 0, 0, 0);
   return d.toISOString();
+}
+
+// First moment of next UTC month.
+function nextMonthUtc(): string {
+  const now = new Date();
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0)).toISOString();
 }
 
 export async function POST(req: Request) {
@@ -116,12 +141,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'bad-messages' }, { status: 400 });
   }
 
-  // Load profile — tier + today's quota counter.
+  // Load profile — tier + day/month quota counters.
   const supabase = await createSupabaseServerClient();
   const { data: profile, error: profileErr } = await supabase
     .schema('astral')
     .from('profiles')
-    .select('tier, chat_quota_used_today, chat_quota_reset_at, first_name')
+    .select(
+      'tier, chat_quota_used_today, chat_quota_reset_at, chat_quota_used_this_month, chat_quota_month_reset_at, first_name',
+    )
     .eq('user_id', userId)
     .single();
 
@@ -131,55 +158,90 @@ export async function POST(req: Request) {
 
   const row = profile as ProfileRow;
   const tier: Tier = row.tier;
+  const caps = TIER_CAPS[tier];
 
-  if (tier === 'free') {
+  // ── Quota check ─────────────────────────────────────────────────────────
+  // Compute effective used counts after applying any due daily/monthly resets.
+  const dayShouldReset = shouldReset(row.chat_quota_reset_at);
+  const monthShouldReset = shouldReset(row.chat_quota_month_reset_at);
+  const usedToday = dayShouldReset ? 0 : row.chat_quota_used_today ?? 0;
+  const usedThisMonth = monthShouldReset ? 0 : row.chat_quota_used_this_month ?? 0;
+
+  if (caps.day !== null && usedToday >= caps.day) {
     return NextResponse.json(
-      { error: 'upgrade-required', message: 'Upgrade to ask the AI' },
-      { status: 402 },
+      {
+        error: 'tier_limit_reached',
+        tier,
+        used: usedToday,
+        limit: caps.day,
+        period: 'day',
+        upgradeUrl: '/pricing',
+      },
+      { status: 429 },
+    );
+  }
+  if (caps.month !== null && usedThisMonth >= caps.month) {
+    return NextResponse.json(
+      {
+        error: 'tier_limit_reached',
+        tier,
+        used: usedThisMonth,
+        limit: caps.month,
+        period: 'month',
+        upgradeUrl: '/pricing',
+      },
+      { status: 429 },
     );
   }
 
-  // Quota check for reader tier.
-  let used = row.chat_quota_used_today ?? 0;
-  if (tier === 'reader') {
-    if (shouldResetQuota(row.chat_quota_reset_at)) {
-      used = 0;
-    }
-    if (used >= READER_DAILY_LIMIT) {
-      return NextResponse.json(
-        { error: 'quota-exceeded', limit: READER_DAILY_LIMIT, used },
-        { status: 429 },
-      );
-    }
-  }
-
-  // Anthropic call
+  // ── Anthropic call ──────────────────────────────────────────────────────
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'server-misconfigured' }, { status: 500 });
   }
   const anthropic = new Anthropic({ apiKey });
 
-  const system = buildSystem(body.chartContext, row.first_name || '');
+  // Two cached system blocks. SDK 0.90 supports `cache_control` on each
+  // text block and `ttl: '1h'`. Order: stable preamble → per-user chart.
+  const systemBlocks: Anthropic.TextBlockParam[] = [
+    {
+      type: 'text',
+      text: STABLE_PREAMBLE,
+      cache_control: { type: 'ephemeral', ttl: '1h' },
+    },
+    {
+      type: 'text',
+      text: buildPerUserBlock(body.chartContext, row.first_name || ''),
+      cache_control: { type: 'ephemeral', ttl: '1h' },
+    },
+  ];
 
   const stream = anthropic.messages.stream({
     model: MODEL,
     max_tokens: MAX_TOKENS,
-    system,
+    system: systemBlocks,
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
   });
 
-  // On successful completion, increment the quota counter for reader tier.
-  if (tier === 'reader') {
-    const nextUsed = used + 1;
-    const resetAt = shouldResetQuota(row.chat_quota_reset_at) ? nextMidnightUtc() : row.chat_quota_reset_at;
+  // On successful completion, increment day + month counters (skip for depth).
+  if (caps.day !== null || caps.month !== null) {
+    const nextUsedToday = usedToday + 1;
+    const nextUsedThisMonth = usedThisMonth + 1;
+    const dayResetAt = dayShouldReset ? nextMidnightUtc() : row.chat_quota_reset_at;
+    const monthResetAt = monthShouldReset ? nextMonthUtc() : row.chat_quota_month_reset_at;
+
     stream.on('finalMessage', () => {
       // Fire-and-forget. Any error here just means this successful call
       // didn't count — the user gets a bonus question instead of a broken UX.
       supabase
         .schema('astral')
         .from('profiles')
-        .update({ chat_quota_used_today: nextUsed, chat_quota_reset_at: resetAt })
+        .update({
+          chat_quota_used_today: nextUsedToday,
+          chat_quota_reset_at: dayResetAt,
+          chat_quota_used_this_month: nextUsedThisMonth,
+          chat_quota_month_reset_at: monthResetAt,
+        })
         .eq('user_id', userId)
         .then(
           () => {},

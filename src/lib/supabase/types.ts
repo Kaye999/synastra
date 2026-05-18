@@ -16,6 +16,8 @@ type ProfilesTable = {
     first_name: string | null;
     chat_quota_used_today: number | null;
     chat_quota_reset_at: string | null;
+    chat_quota_used_this_month: number | null;
+    chat_quota_month_reset_at: string | null;
     created_at: string;
     updated_at: string;
   };
@@ -27,6 +29,8 @@ type ProfilesTable = {
     first_name?: string | null;
     chat_quota_used_today?: number | null;
     chat_quota_reset_at?: string | null;
+    chat_quota_used_this_month?: number | null;
+    chat_quota_month_reset_at?: string | null;
     created_at?: string;
     updated_at?: string;
   };

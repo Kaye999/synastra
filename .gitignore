@@ -43,3 +43,19 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+
+# clerk configuration (can include secrets)
+/.clerk/
+.env*.local
+
+# local IDE / Terminal session exports
+*.terminal
+
+# Python tooling caches (e.g. marketing/higgsfield compose script)
+__pycache__/
+*.pyc
+
+# Generated marketing assets — 64MB+ of Higgsfield outputs.
+# Keep the compose.py script versioned but not the generated images/videos.
+/marketing/higgsfield/posts/
+/marketing/higgsfield/__pycache__/
