@@ -660,7 +660,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         {/* ─── MAYAN (depth only) ────────────────────────────────────── */}
         {mode === 'mayan' && (
           <PaywallBlur tier={tier} required="depth">
-            <MayanPanel data={mayanResult as MayanData} />
+            <MayanPanel data={mayanResult as MayanResult | null} />
           </PaywallBlur>
         )}
 
@@ -918,16 +918,31 @@ function CategoryNav({
   }
 
   return (
-    <div className="reveal" style={{ marginBottom: 44, animationDelay: '240ms' }}>
-      {/* Top row: category pills */}
+    <div className="reveal" style={{ marginBottom: 56, animationDelay: '240ms' }}>
+      {/* ── Section eyebrow — labels what this nav IS ─────────────── */}
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 10,
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-faint)',
+          marginBottom: 14,
+        }}
+      >
+        Browse by
+      </div>
+
+      {/* ── Top row: CATEGORY (parent nav, bigger + bolder) ───────── */}
       <nav
+        aria-label="Tradition categories"
         style={{
           display: 'flex',
-          gap: 24,
-          marginBottom: 20,
+          gap: 32,
+          marginBottom: 28,
           flexWrap: 'wrap',
           borderBottom: '1px solid var(--rule)',
-          paddingBottom: 14,
+          paddingBottom: 18,
         }}
       >
         {GROUP_ORDER.map((g) => {
@@ -941,17 +956,29 @@ function CategoryNav({
               style={{
                 background: 'transparent',
                 border: 0,
-                padding: '4px 0',
-                color: isActive ? 'var(--brass)' : 'var(--ink-dim)',
+                padding: '6px 0',
+                color: isActive ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
                 fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 10,
-                letterSpacing: '0.24em',
+                fontSize: 14,
+                fontWeight: isActive ? 600 : 500,
+                letterSpacing: '0.16em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
                 position: 'relative',
+                transition: 'color 0.18s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) {
+                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.62)';
+                }
               }}
             >
-              §&nbsp;{MODE_GROUPS[g].label}
+              {MODE_GROUPS[g].label}
               {isActive && (
                 <span
                   aria-hidden="true"
@@ -959,8 +986,8 @@ function CategoryNav({
                     position: 'absolute',
                     left: 0,
                     right: 0,
-                    bottom: -15,
-                    height: 1,
+                    bottom: -19,
+                    height: 2,
                     background: 'var(--brass)',
                   }}
                 />
@@ -970,10 +997,23 @@ function CategoryNav({
         })}
       </nav>
 
-      {/* Bottom row: tradition sub-tabs within the active category */}
+      {/* ── Sub-eyebrow + bottom row: TRADITION (child nav) ───────── */}
+      <div
+        style={{
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 9,
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: 'var(--ink-faint)',
+          marginBottom: 10,
+        }}
+      >
+        Tradition
+      </div>
       <nav
+        aria-label="Traditions within category"
         className="mode-switch"
-        style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}
+        style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}
       >
         {MODE_GROUPS[activeGroup].modes.map((m) => (
           <ModeButton key={m} m={m} active={mode === m} onClick={() => setMode(m)} />
@@ -998,17 +1038,32 @@ function ModeButton({
       onClick={onClick}
       className={active ? 'active' : ''}
       style={{
-        background: 'transparent',
+        background: active ? 'rgba(200, 160, 82, 0.12)' : 'transparent',
         border: 0,
-        padding: '6px 0',
-        color: active ? 'var(--brass)' : 'var(--ink-faint)',
+        padding: '6px 12px',
+        color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.55)',
         borderBottom: active ? '1px solid var(--brass)' : '1px solid transparent',
         fontFamily: "'IBM Plex Mono', monospace",
         fontSize: 11,
+        fontWeight: active ? 600 : 500,
         letterSpacing: '0.2em',
         textTransform: 'uppercase',
         cursor: 'pointer',
         flexShrink: 0,
+        borderRadius: 3,
+        transition: 'color 0.18s ease, background 0.18s ease',
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
+          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.03)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.55)';
+          (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+        }
       }}
     >
       {MODE_LABELS[m]}
@@ -1221,16 +1276,17 @@ function EssayBlock({
 }) {
   if (!body) return null;
   return (
-    <article style={{ marginBottom: 40 }}>
+    <article className="essay-block">
       {eyebrow && (
         <div
+          className="essay-eyebrow"
           style={{
             fontFamily: "'IBM Plex Mono', monospace",
             fontSize: 10,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: 'var(--brass)',
-            marginBottom: 6,
+            marginBottom: 10,
           }}
         >
           {eyebrow}
@@ -1239,10 +1295,11 @@ function EssayBlock({
       <h3
         style={{
           fontFamily: "'Fraunces', serif",
-          fontSize: 22,
+          fontSize: 26,
           fontWeight: 500,
           letterSpacing: '-0.01em',
-          margin: '0 0 10px',
+          lineHeight: 1.25,
+          margin: '0 0 18px',
         }}
       >
         {title}
@@ -1251,34 +1308,18 @@ function EssayBlock({
         {body}
       </p>
       {(shadow || gift) && (
-        <div style={{ marginTop: 14, display: 'grid', gap: 8 }}>
+        <div style={{ marginTop: 22, display: 'grid', gap: 12 }}>
           {shadow && (
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: 'var(--ink-dim)' }}>
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 10,
-                  letterSpacing: '0.22em',
-                  color: 'var(--ember)',
-                  marginRight: 10,
-                }}
-              >
+            <p className="essay-aside">
+              <span className="essay-aside-label" style={{ color: 'var(--ember)' }}>
                 SHADOW
               </span>
               {shadow}
             </p>
           )}
           {gift && (
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: 'var(--ink-dim)' }}>
-              <span
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 10,
-                  letterSpacing: '0.22em',
-                  color: 'var(--brass)',
-                  marginRight: 10,
-                }}
-              >
+            <p className="essay-aside">
+              <span className="essay-aside-label" style={{ color: 'var(--brass)' }}>
                 GIFT
               </span>
               {gift}
@@ -1287,7 +1328,15 @@ function EssayBlock({
         </div>
       )}
       {footer && (
-        <p style={{ marginTop: 12, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: 'var(--ink-faint)' }}>
+        <p
+          style={{
+            marginTop: 18,
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 11,
+            letterSpacing: '0.06em',
+            color: 'var(--ink-faint)',
+          }}
+        >
           {footer}
         </p>
       )}
@@ -1296,22 +1345,18 @@ function EssayBlock({
 }
 
 // ─── Mayan panel ─────────────────────────────────────────────────────────────
-// Pure-presentational fallback. Accepts whatever shape computeMayan returns
-// (the engine lands later) and best-effort renders kin / day sign / tone. Any
-// interpretation strings on the payload are surfaced as EssayBlocks.
+// Renders the rich MayanResult shape returned by /lib/engines/mayan:
+// kin/kinName headline, day-sign + tone + color/direction tiles, all four
+// interpretation slabs, the four-card oracle (guide/antipode/analog/occult),
+// and the galactic year.
+//
+// Previously this was a stub that expected flat strings — when the real
+// engine landed it returned nested objects, React tried to render the
+// objects as text, the section blank-screened. This is the reconciliation.
 
-type MayanData = {
-  kin?: number;
-  tone?: number | string;
-  toneName?: string;
-  daySign?: string;
-  daySignName?: string;
-  signInterp?: string;
-  toneInterp?: string;
-  interpretation?: string;
-} | null;
+type MayanResult = import('@/lib/engines/mayan').MayanResult;
 
-function MayanPanel({ data }: { data: MayanData }) {
+function MayanPanel({ data }: { data: MayanResult | null }) {
   if (!data) {
     return (
       <EssayBlock
@@ -1321,56 +1366,144 @@ function MayanPanel({ data }: { data: MayanData }) {
     );
   }
 
-  const kin = data.kin;
-  const daySign = data.daySignName || data.daySign || '—';
-  const tone = data.toneName || data.tone || '—';
+  const { kin, kinName, daySign, tone, direction, earthFamily, oracle, galacticYear, interpretation } = data;
+
+  const tileLabel: React.CSSProperties = {
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 10,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    color: 'var(--brass)',
+  };
+  const tileNum: React.CSSProperties = {
+    fontFamily: "'Fraunces', serif",
+    fontSize: 36,
+    margin: '8px 0 4px',
+    lineHeight: 1.1,
+  };
+  const tileSub: React.CSSProperties = { fontSize: 12, color: 'var(--ink-dim)' };
+  const tileBox: React.CSSProperties = { padding: 20, border: '1px solid var(--rule)' };
 
   return (
     <section>
+      {/* Hero kin name */}
+      <div style={{ textAlign: 'center', margin: '0 auto 36px', maxWidth: 720 }}>
+        <div style={{ ...tileLabel, marginBottom: 8 }}>Galactic Signature</div>
+        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 34, lineHeight: 1.2, color: 'var(--ink)' }}>
+          {kinName}
+        </div>
+        <div style={{ ...tileSub, marginTop: 8 }}>Kin {kin} of 260</div>
+      </div>
+
+      {/* Tile row: Day Sign · Tone · Color & Direction · Earth Family */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: 20,
-          marginBottom: 32,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: 16,
+          marginBottom: 40,
+          maxWidth: 960,
+          margin: '0 auto 40px',
         }}
       >
-        <div style={{ padding: 20, border: '1px solid var(--rule)' }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--brass)' }}>
-            Kin
-          </div>
-          <div style={{ fontFamily: "'Fraunces', serif", fontSize: 40, margin: '8px 0' }}>
-            {kin ?? '—'}
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--ink-dim)' }}>of 260</div>
-        </div>
-        <div style={{ padding: 20, border: '1px solid var(--rule)' }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--brass)' }}>
-            Day Sign
-          </div>
-          <div style={{ fontFamily: "'Fraunces', serif", fontSize: 30, margin: '8px 0' }}>
-            {daySign}
+        <div style={tileBox}>
+          <div style={tileLabel}>Day Sign</div>
+          <div style={tileNum}>{daySign.name}</div>
+          <div style={tileSub}>
+            {daySign.yucatec} · #{daySign.number}
           </div>
         </div>
-        <div style={{ padding: 20, border: '1px solid var(--rule)' }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--brass)' }}>
-            Galactic Tone
+        <div style={tileBox}>
+          <div style={tileLabel}>Galactic Tone</div>
+          <div style={tileNum}>{tone.name}</div>
+          <div style={tileSub}>
+            {tone.power} · #{tone.number}
           </div>
-          <div style={{ fontFamily: "'Fraunces', serif", fontSize: 30, margin: '8px 0' }}>
-            {tone}
+        </div>
+        <div style={tileBox}>
+          <div style={tileLabel}>Color · Direction</div>
+          <div style={tileNum}>{daySign.color}</div>
+          <div style={tileSub}>{direction}</div>
+        </div>
+        {earthFamily && (
+          <div style={tileBox}>
+            <div style={tileLabel}>Earth Family</div>
+            <div style={{ ...tileNum, fontSize: 22 }}>{earthFamily.name}</div>
+            <div style={tileSub}>{earthFamily.theme}</div>
           </div>
+        )}
+      </div>
+
+      {/* Essays — these inherit the .essay-block reading treatment */}
+      <EssayBlock
+        eyebrow={`DAY SIGN · ${daySign.name.toUpperCase()}`}
+        title={daySign.essence}
+        body={interpretation.body}
+        shadow={daySign.shadow}
+        gift={daySign.gift}
+      />
+      <EssayBlock
+        eyebrow={`TONE · ${tone.name.toUpperCase()} (${tone.power.toUpperCase()})`}
+        title={tone.essence}
+        body={tone.body}
+      />
+      <EssayBlock
+        eyebrow="LIFE PURPOSE"
+        title="What the kin is for"
+        body={interpretation.lifePurpose}
+      />
+      <EssayBlock
+        eyebrow="SHADOW WORK"
+        title="The pitfall, named"
+        body={interpretation.shadowWork}
+      />
+      <EssayBlock
+        eyebrow="INTEGRATED READING"
+        title="The kin, woven"
+        body={interpretation.combinedReading}
+      />
+
+      {/* Oracle (4 cards) */}
+      <div style={{ maxWidth: 960, margin: '8px auto 40px' }}>
+        <div style={{ ...tileLabel, textAlign: 'center', marginBottom: 18 }}>
+          The Oracle · Four Allies
+        </div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 14,
+          }}
+        >
+          {(
+            [
+              ['Guide', oracle.guide],
+              ['Antipode', oracle.antipode],
+              ['Analog', oracle.analog],
+              ['Occult', oracle.occult],
+            ] as const
+          ).map(([role, card]) => (
+            <div key={role} style={tileBox}>
+              <div style={tileLabel}>{role}</div>
+              <div style={{ ...tileNum, fontSize: 18, margin: '6px 0' }}>{card.name}</div>
+              <div style={tileSub}>
+                Kin {card.kin} · {card.tone} {card.daySign}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {data.signInterp && (
-        <EssayBlock title={`Day Sign · ${daySign}`} body={data.signInterp} />
-      )}
-      {data.toneInterp && (
-        <EssayBlock title={`Tone · ${tone}`} body={data.toneInterp} />
-      )}
-      {data.interpretation && (
-        <EssayBlock title="The kin, integrated" body={data.interpretation} />
-      )}
+      {/* Galactic Year */}
+      <div style={{ maxWidth: 720, margin: '0 auto 40px', textAlign: 'center' }}>
+        <div style={{ ...tileLabel, marginBottom: 8 }}>Galactic Year</div>
+        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 22, color: 'var(--ink)' }}>
+          {galacticYear.yearName}
+        </div>
+        <div style={{ ...tileSub, marginTop: 4 }}>
+          Begins {galacticYear.yearStartDate} · {galacticYear.yearColor} · Kin seed {galacticYear.kinSeed}
+        </div>
+      </div>
     </section>
   );
 }
