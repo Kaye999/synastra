@@ -1,12 +1,16 @@
 // Tier definitions, access helpers, and editorial copy for paywall overlays.
 //
-// Synastra has three tiers (2026-04 refresh):
-//   - free   → The Three: preview of Western + Vedic + Numerology
-//   - reader → The Six: full Western + Vedic + Numerology + Kabbalah + BaZi
+// Synastra has three tiers (2026-05 rename — Three/Six/Nine → Glimpse/Initiate/Adept):
+//   - free   → The Glimpse:  preview of Western + Vedic + Numerology
+//   - reader → The Initiate: full Western + Vedic + Numerology + Kabbalah + BaZi
 //              + Human Design. Daily, Monthly, 10 AI/day.
-//   - depth  → The Nine: full all 12 traditions + Mayan, Astrocartography,
+//   - depth  → The Adept:    full all 12 traditions + Mayan, Astrocartography,
 //              Tarot, Enneagram, Gene Keys, Ayurveda. Transit alerts,
 //              compatibility, unlimited AI, cross-tradition synthesis.
+//
+// Internal tier IDs (free/reader/depth) intentionally NOT renamed — they back
+// the DB column and Stripe env var names. Renaming them is a coordinated
+// migration tracked in BACKLOG.md.
 //
 // `canAccess` gates by tier rank. `canAccessTradition` gates by per-tradition
 // minimum tier using TRADITION_MIN_TIER as the single source of truth.
@@ -77,7 +81,7 @@ export type TierCopy = {
 
 export const TIER_COPY: Record<Tier, TierCopy> = {
   free: {
-    headline: 'The Three',
+    headline: 'The Glimpse',
     bullets: [
       'Western astrology — Sun, Moon & Rising essence',
       'Vedic — Lagna, Nakshatra & day-star preview',
@@ -86,10 +90,10 @@ export const TIER_COPY: Record<Tier, TierCopy> = {
     ctaLabel: 'Create your chart',
     ctaHref: '/onboarding',
     priceNote: 'Free · no card required',
-    fineprint: 'Three traditions, one birth — the atlas begins.',
+    fineprint: 'A first look — three traditions, one birth, the atlas begins.',
   },
   reader: {
-    headline: 'Unlock The Six',
+    headline: 'Unlock The Initiate',
     bullets: [
       'Full Western, Vedic & Numerology readings',
       'Kabbalah — letters, sefirot, paths',
@@ -101,12 +105,12 @@ export const TIER_COPY: Record<Tier, TierCopy> = {
     ctaLabel: 'Upgrade — A$19/mo',
     ctaHref: '/pricing#reader',
     priceNote: 'Monthly · cancel anytime',
-    fineprint: 'Six traditions, fully unlocked.',
+    fineprint: 'Cross the threshold — six traditions, fully unlocked.',
   },
   depth: {
-    headline: 'Unlock The Nine',
+    headline: 'Unlock The Adept',
     bullets: [
-      'Everything in The Six',
+      'Everything in The Initiate',
       'Mayan Tzolk’in, Astrocartography, Tarot',
       'Enneagram, Gene Keys, Ayurveda',
       'Transit alerts + Compatibility + Wealth timing',
