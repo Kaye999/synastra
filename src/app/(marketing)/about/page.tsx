@@ -4,7 +4,7 @@ import Ornament from '@/components/Ornament';
 
 export const metadata = {
   title: 'About · Synastra',
-  description: 'Synastra — personal intelligence across twelve ancient systems.',
+  description: 'Synastra — personal intelligence across seven ancient systems.',
 };
 
 export default function AboutPage() {
@@ -32,7 +32,7 @@ export default function AboutPage() {
             margin: '0 0 28px',
           }}
         >
-          Twelve traditions, one chart.
+          Seven traditions, one chart.
         </h1>
         <div
           style={{
@@ -45,18 +45,19 @@ export default function AboutPage() {
           <p>
             Synastra is an intelligence layer for self-discovery, built on the
             premise that every ancient system for reading a person — Western
-            astrology, Vedic jyotish, Kabbalah, numerology, Chinese BaZi, Human
-            Design, the Mayan Tzolk&rsquo;in, astrocartography, Tarot,
-            Enneagram, Gene Keys, Ayurveda — has its own truth about who you
+            astrology, Vedic jyotish, numerology, Kabbalah, Human Design,
+            Tarot, and astrocartography — has its own truth about who you
             are. None of them is complete alone. Together, cross-referenced,
             they read you with startling precision.
           </p>
           <p>
             We compute your chart from the moment of your birth to
             arc-second accuracy and run it through each tradition separately.
-            The Oracle — an AI grounded in all twelve — synthesises the
-            overlap: where the systems agree, where they argue, what both
-            together reveal about what you are here to build.
+            The Master Oracle — an AI grounded in all seven, fluent in
+            general astrology, astronomy, and the traditional archetypes
+            besides — synthesises the overlap: where the systems agree,
+            where they argue, what together they reveal about what you are
+            here to build.
           </p>
           <p>
             Founded 2026 in Sydney. Built by a small team with help from

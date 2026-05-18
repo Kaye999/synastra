@@ -30,19 +30,14 @@ const SYSTEMS = [
       'Your Life Path from your birth date, Expression from your full name, Soul Urge from the vowels, and Destiny from the consonants. Reduced to root digits, except the master numbers 11, 22, and 33, which we leave intact. A second, independent reading that often echoes the chart.',
   },
   {
-    name: 'Chinese BaZi (Four Pillars)',
-    body:
-      'Your birth year, month, day, and hour expressed as eight characters — a heavenly stem and earthly branch per pillar. From these we derive your Day Master (which of the five elements you are), your favourable and hostile elements, and your luck pillars (ten-year cycles).',
-  },
-  {
     name: 'Human Design',
     body:
       'A mechanical portrait. Your Type (Generator, Manifestor, Projector, Reflector, or Manifesting Generator), your Strategy and Authority, and which of the nine centres in your bodygraph are defined. Synthesises I Ching, chakras, Kabbalah, and astrology into a single operational map.',
   },
   {
-    name: 'Mayan Tzolkin',
+    name: 'Tarot',
     body:
-      'A 260-day sacred calendar, counted independently of the solar year. Each day has a kin number (1–260), a day-sign (one of 20), and a tone (one of 13). Your Tzolkin signature is a galactic identifier — a reading system that runs on a completely different clock from the others.',
+      'A 78-card deck — 22 Major Arcana, 56 Minor — drawn against your natal chart. A daily single card for tone, a three-card spread for past-present-future, a full Celtic Cross for the question that needs ten positions of context.',
   },
   {
     name: 'Astrocartography',
@@ -57,12 +52,12 @@ const FAQS = [
     a: 'For your Sun sign, none at all. For your Moon, within a few hours. For your rising sign and houses — which drive a lot of the reading — within five minutes. If you\'re unsure, a birth certificate or a call to the hospital usually resolves it.',
   },
   {
-    q: 'Why eight systems and not one?',
-    a: 'Each system has a blindspot. Western is strong on psychology, weak on timing. Vedic is the reverse. Numerology and BaZi each see patterns the star-based systems miss. When eight independent frameworks converge on the same theme, the signal is real — and when they disagree, the disagreement is itself data.',
+    q: 'Why seven systems and not one?',
+    a: 'Each system has a blindspot. Western is strong on psychology, weak on timing. Vedic is the reverse. Numerology and Kabbalah see patterns the star-based systems miss. When seven independent frameworks converge on the same theme, the signal is real — and when they disagree, the disagreement is itself data.',
   },
   {
     q: 'Is the AI just making things up?',
-    a: 'No. The AI is given your full chart in structured form — actual placements, not prose — and is constrained to cite the placements it draws from in each answer. You can verify the reasoning. It is not scraping generic astrology text; it is reading your chart.',
+    a: 'No. The Master Oracle is given your full chart in structured form — actual placements, not prose — and is constrained to cite the placements it draws from in each answer. You can verify the reasoning. It is not scraping generic astrology text; it is reading your chart.',
   },
 ];
 
@@ -163,7 +158,7 @@ export default async function HowItWorksPage() {
           <Reveal delay={160}>
             <p>
               Most apps read you through one lens. Western, usually. Sometimes Vedic. Occasionally
-              numerology as a gimmick. Synastra runs your same birth data through eight
+              numerology as a gimmick. Synastra runs your same birth data through seven
               independent traditions in parallel, each with its own two-thousand-year lineage of
               thought, and then looks at where they agree.
             </p>
@@ -171,9 +166,9 @@ export default async function HowItWorksPage() {
           <Reveal delay={240}>
             <p>
               When three systems separately say <em>communicator</em>, it means something. When
-              your Vedic Moon and your BaZi Day Master and your Human Design authority all point
-              at the same decision-making style, the pattern has survived every filter we could
-              put it through. That is how we know what to trust.
+              your Vedic Moon and your Numerology Life Path and your Human Design authority all
+              point at the same decision-making style, the pattern has survived every filter we
+              could put it through. That is how we know what to trust.
             </p>
           </Reveal>
 
@@ -186,7 +181,7 @@ export default async function HowItWorksPage() {
           </Reveal>
           <Reveal delay={160}>
             <p>
-              The last step is translation — eight dense symbolic systems into one passage of
+              The last step is translation — seven dense symbolic systems into one passage of
               English you can actually read at breakfast. We do this with an AI layer that has
               been given your full chart (not a summary) as structured data, and is constrained
               to cite the specific placements it draws from. No horoscope paste. No hedging. If
@@ -201,9 +196,9 @@ export default async function HowItWorksPage() {
             </p>
           </Reveal>
 
-          {/* The eight systems deep dive */}
+          {/* The seven systems deep dive */}
           <Reveal>
-            <div className="act-label" style={{ marginTop: 80 }}>§ The eight systems</div>
+            <div className="act-label" style={{ marginTop: 80 }}>§ The seven systems</div>
           </Reveal>
           <Reveal delay={80}>
             <h2>What each tradition actually sees.</h2>

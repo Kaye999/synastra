@@ -176,7 +176,7 @@ export default function SettingsPage() {
           <h2>Subscription</h2>
           <p className="settings-note">
             {tier === 'free'
-              ? 'You’re on the free tier. Upgrade to read across all twelve traditions.'
+              ? 'You’re on the free tier. Upgrade to read across all seven traditions.'
               : `You’re subscribed to ${tierLabel}.`}
           </p>
           <div className="settings-actions">

@@ -37,14 +37,13 @@ type TierDef =
 const TIERS: TierDef[] = [
   {
     id: 'glance',
-    name: 'The Glimpse',
+    name: 'The Two',
     tagline: 'Start with the classics — no card.',
     price: { monthly: 'Free', onetime: 'Free' },
     savingsPercent: null,
     features: [
       'Western astrology — Sun, Moon & Rising preview',
-      'Vedic — Moon nakshatra preview',
-      'Numerology — Life Path number',
+      'Numerology — Life Path number (preview)',
       'Full natal chart + starfield view',
       'Keep your chart forever',
     ],
@@ -52,18 +51,17 @@ const TIERS: TierDef[] = [
   },
   {
     id: 'reader',
-    name: 'The Initiate',
-    tagline: 'Six traditions, fully unlocked.',
+    name: 'The Five',
+    tagline: 'Five traditions, fully unlocked.',
     price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
     savingsPercent: 43, // ((228-129)/228)
     featured: true,
     features: [
-      '§ Everything in The Glimpse',
+      '§ Everything in The Two',
       'Full Western chart — houses, aspects, personal planets',
       'Full Vedic — nakshatras, pada, current mahadasha',
       'Full Numerology — Expression, Soul Urge, Personal Year',
       'Kabbalah — Hebrew letters, sefirot, tarot paths',
-      'Chinese BaZi — four pillars, day master, Nine Star Ki',
       'Human Design — type, strategy, authority, BodyGraph',
       'Daily Guidance (AI-written each morning)',
       'Monthly Forecast (5-section arc)',
@@ -74,23 +72,19 @@ const TIERS: TierDef[] = [
   },
   {
     id: 'depth',
-    name: 'The Adept',
-    tagline: 'All twelve. Cross-woven.',
+    name: 'The Seven',
+    tagline: 'All seven. Cross-woven.',
     price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
     savingsPercent: 45, // ((468-259)/468)
     features: [
-      '§ Everything in The Initiate',
-      'Mayan Tzolk’in — kin, day-sign, galactic tone',
-      'Astrocartography — planetary lines across the earth',
+      '§ Everything in The Five',
       'Tarot — daily card + three-card + celtic cross',
-      'Enneagram — 9-type profile + arrows',
-      'Gene Keys — hologenetic profile, activation sequence',
-      'Ayurveda — prakruti, dosha balance',
+      'Astrocartography — planetary lines across the earth',
       'Transit Alerts — email on major aspects',
       'Compatibility (full synastry) for any two charts',
       'Wealth & Career Timing — electional windows',
       'Cross-Tradition Synthesis essays',
-      'Unlimited Oracle AI chat (no daily cap)',
+      'Unlimited Master Oracle — trained across all 7 traditions plus general astrology, astronomy, and the traditional archetypes',
     ],
     cta: { label: 'Go deep →', kind: 'checkout', tier: 'depth' },
   },
@@ -99,7 +93,7 @@ const TIERS: TierDef[] = [
 const FAQS = [
   {
     q: 'What is actually different from a horoscope app?',
-    a: 'A horoscope reads your Sun sign against today\'s sky. Synastra reads your entire chart across twelve independent systems, cross-references where they agree, and writes a daily passage personal to the moment you were born. The Oracle answers in your voice, citing your placements.',
+    a: 'A horoscope reads your Sun sign against today\'s sky. Synastra reads your entire chart across seven independent systems, cross-references where they agree, and writes a daily passage personal to the moment you were born. The Master Oracle answers in your voice, citing your placements.',
   },
   {
     q: 'Monthly or annual — which should I pick?',
@@ -111,11 +105,11 @@ const FAQS = [
   },
   {
     q: 'How is the AI grounded in my chart?',
-    a: 'Every Oracle answer is generated with your full chart in context — placements, aspects, nakshatras, BaZi pillars, Human Design type, numerology, the lot. Answers cite the specific placement they\'re drawing from, so you can verify the reasoning yourself.',
+    a: 'Every Oracle answer is generated with your full chart in context — placements, aspects, nakshatras, Human Design type, numerology, the lot. Answers cite the specific placement they\'re drawing from, so you can verify the reasoning yourself.',
   },
   {
     q: 'Can I read someone else\'s chart?',
-    a: 'Yes — The Adept includes full compatibility (synastry). You can generate a chart for any person and run the same twelve-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
+    a: 'Yes — The Seven includes full compatibility (synastry). You can generate a chart for any person and run the same seven-tradition reading, then overlay it on yours. Excellent for partners, business, family dynamics.',
   },
   {
     q: 'Can I cancel anytime?',
@@ -262,7 +256,7 @@ export default function PricingPage() {
             return (
               <Reveal key={tier.id} delay={120 + i * 100}>
                 <article
-                  id={tier.id === 'reader' ? 'the-six' : tier.id === 'depth' ? 'the-nine' : 'the-three'}
+                  id={tier.id === 'reader' ? 'the-five' : tier.id === 'depth' ? 'the-seven' : 'the-two'}
                   style={{
                     position: 'relative',
                     border: isFeatured ? '1px solid var(--brass)' : '1px solid var(--rule)',
@@ -383,10 +377,11 @@ export default function PricingPage() {
                 margin: 0,
               }}
             >
-              The Initiate gives you full Western, Vedic, Numerology, Kabbalah, BaZi and Human Design —
-              the core six traditions read in depth with Daily Guidance and a Monthly arc. The Adept
-              adds six more — Mayan, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — plus
-              the live layer: transit alerts, compatibility, wealth timing, and unlimited Oracle chat.
+              The Five gives you full Western, Vedic, Numerology, Kabbalah and Human Design —
+              the core five traditions read in depth with Daily Guidance and a Monthly arc. The Seven
+              adds Tarot and Astrocartography on top, then opens the live layer: transit alerts,
+              compatibility, wealth timing, and the Master Oracle — unlimited, trained across all
+              seven traditions plus general astrology, astronomy, and the traditional archetypes.
               Monthly is right when you want the sky watched for you. One-time is right when you
               want the reading as a keepsake — exported, portable, yours.
             </p>

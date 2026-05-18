@@ -10,15 +10,14 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://getsynastra.com';
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
+    default: 'Synastra — Seven traditions. One chart. One Oracle.',
     template: '%s · Synastra',
   },
   description:
-    'Your birth data read through twelve ancient traditions — Western, Vedic, Kabbalah, Numerology, Chinese BaZi, Human Design, Mayan Tzolk\u2019in, Astrocartography, Tarot, Enneagram, Gene Keys, and Ayurveda. One chart. One AI atlas. Kept by operators since J.P. Morgan.',
+    'Your birth data read through seven ancient traditions — Western, Vedic, Numerology, Kabbalah, Human Design, Tarot, and Astrocartography. One chart. One Oracle. Kept by operators since J.P. Morgan.',
   keywords: [
     'astrology', 'birth chart', 'vedic astrology', 'kabbalah', 'numerology',
-    'human design', 'tarot', 'enneagram', 'gene keys', 'ayurveda',
-    'astrocartography', 'mayan tzolkin', 'chinese bazi', 'AI astrology',
+    'human design', 'tarot', 'astrocartography', 'AI astrology',
   ],
   authors: [{ name: 'Synastra' }],
   alternates: { canonical: APP_URL },
@@ -26,24 +25,24 @@ export const metadata: Metadata = {
     type: 'website',
     url: APP_URL,
     siteName: 'Synastra',
-    title: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
+    title: 'Synastra — Seven traditions. One chart. One Oracle.',
     description:
-      'Western astrology, Vedic, Kabbalah, Numerology, Chinese BaZi, Human Design, Mayan Tzolk\u2019in, Astrocartography, Tarot, Enneagram, Gene Keys, and Ayurveda — pulled from the same birth data and read through one AI atlas.',
+      'Western, Vedic, Numerology, Kabbalah, Human Design, Tarot, and Astrocartography — pulled from the same birth data and read through one Oracle.',
     locale: 'en_AU',
     images: [
       {
         url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'Synastra — twelve traditions, one chart',
+        alt: 'Synastra — seven traditions, one chart',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Synastra — 12 traditions. One Chart. Your True Archetype.',
+    title: 'Synastra — Seven traditions. One chart. One Oracle.',
     description:
-      'Your birth data read through twelve ancient traditions, one AI atlas. Kept by operators since J.P. Morgan.',
+      'Your birth data read through seven ancient traditions, one Oracle. Kept by operators since J.P. Morgan.',
     images: ['/opengraph-image.png'],
   },
   robots: {

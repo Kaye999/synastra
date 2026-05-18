@@ -41,28 +41,10 @@ const TRADITIONS = [
     body: 'Life Path, Expression, Soul Urge, Destiny — the numbers hidden in your birth date and name.',
   },
   {
-    name: 'Chinese BaZi',
-    accent: 'var(--bazi)',
-    meta: 'Four Pillars',
-    body: 'The eight characters of your birth moment across the five elements — a chart of fortune and destiny.',
-  },
-  {
     name: 'Human Design',
     accent: 'var(--humandesign)',
     meta: 'Bodygraph',
     body: 'Type, strategy, authority, and your defined centres — a mechanical portrait of how your energy moves.',
-  },
-  {
-    name: 'Mayan Tzolkin',
-    accent: 'var(--mayan)',
-    meta: 'Sacred 260-day count',
-    body: 'Your kin and tone in the Tzolkin calendar — a galactic signature independent of the solar year.',
-  },
-  {
-    name: 'Astrocartography',
-    accent: 'var(--cartography)',
-    meta: 'Relocation lines',
-    body: 'The planetary lines across the earth — where on the map you are most likely to love, work, and break open.',
   },
   {
     name: 'Tarot',
@@ -71,22 +53,10 @@ const TRADITIONS = [
     body: 'A daily card and a full spread cast for the question — Majors and Minors drawn against your chart.',
   },
   {
-    name: 'Enneagram',
-    accent: 'var(--ember)',
-    meta: 'Nine types',
-    body: 'Thirty-six questions, nine bodies, one centre of gravity — the portrait of the self you defend and the self you become.',
-  },
-  {
-    name: 'Gene Keys',
-    accent: 'var(--violet-deep)',
-    meta: 'Hologenetic profile',
-    body: "Richard Rudd's four Activation keys read through Shadow, Gift, and Siddhi — a contemplative path through the 64 I Ching gates.",
-  },
-  {
-    name: 'Ayurveda',
-    accent: 'var(--saffron)',
-    meta: 'Three doshas',
-    body: 'Vata, Pitta, Kapha — the constitution you were born into, and the regimen that brings it back into balance.',
+    name: 'Astrocartography',
+    accent: 'var(--cartography)',
+    meta: 'Relocation lines',
+    body: 'The planetary lines across the earth — where on the map you are most likely to love, work, and break open.',
   },
 ] as const;
 
@@ -102,9 +72,9 @@ const INTELLIGENCE = [
       'A five-section arc-report at every new moon. Career, love, shadow, wealth, integration. The report knows which month of your life this is and writes to it — a letter from your own chart about the weather ahead.',
   },
   {
-    title: 'AI Oracle',
+    title: 'Master Oracle',
     body:
-      'Ask anything. The Oracle has read your complete chart across all twelve traditions and answers in your voice, with the evidence shown. No generic advice — every reply is grounded in your placements.',
+      'Ask anything. The Master Oracle has read your complete chart across all seven traditions — and is fluent in general astrology, astronomy, and the traditional archetypes besides. It answers in your voice, with the placement it drew from named. No generic advice. No guesswork.',
   },
   {
     title: 'Transit Alerts',
@@ -129,42 +99,42 @@ const QUOTES = [
     who: '— R.T., Brooklyn',
   },
   {
-    text: '"I finally understand what my Vedic chart was trying to say. Twelve systems, one page."',
+    text: '"I finally understand what my Vedic chart was trying to say. Seven systems, one page."',
     who: '— A.J., London',
   },
 ] as const;
 
 const PRICING_PREVIEW = [
   {
-    name: 'The Glimpse',
+    name: 'The Two',
     price: 'Free',
     alt: 'No card, forever',
     tag: 'Start with the classics.',
-    bullets: ['Western · Vedic · Numerology (preview)', 'Full natal chart view', 'Keep your chart forever'],
+    bullets: ['Western (Sun · Moon · Rising)', 'Numerology (Life Path preview)', 'Full natal chart view', 'Keep your chart forever'],
   },
   {
-    name: 'The Initiate',
+    name: 'The Five',
     price: 'A$19 / mo',
     alt: 'or A$129 / year · save A$99',
-    tag: 'Six traditions, fully unlocked.',
+    tag: 'Five traditions, fully unlocked.',
     bullets: [
       'Full Western · Vedic · Numerology',
-      'Kabbalah · Chinese BaZi · Human Design',
+      '+ Kabbalah · Human Design',
       'Daily Guidance · Monthly Forecast',
       '10 Oracle AI questions / day',
     ],
     featured: true,
   },
   {
-    name: 'The Adept',
+    name: 'The Seven',
     price: 'A$39 / mo',
     alt: 'or A$259 / year · save A$209',
-    tag: 'All twelve. Cross-woven.',
+    tag: 'All seven. Cross-woven.',
     bullets: [
-      'Everything in The Initiate',
-      '+ Mayan · Astrocartography · Tarot',
-      '+ Enneagram · Gene Keys · Ayurveda',
-      'Transit alerts · Compatibility · Unlimited Oracle',
+      'Everything in The Five',
+      '+ Tarot · Astrocartography',
+      'Transit alerts · Compatibility',
+      'Unlimited Master Oracle (7 traditions + astrology + astronomy + archetypes)',
     ],
   },
 ] as const;
@@ -278,14 +248,14 @@ export default async function LandingPage() {
             <div className="mk-hero-rule" />
           </Reveal>
           <Reveal delay={220}>
-            <h1 className="mk-hero-title">12 traditions. One Chart. Your True Archetype.</h1>
+            <h1 className="mk-hero-title">Seven traditions. One chart. One Oracle.</h1>
           </Reveal>
           <Reveal delay={300}>
             <p className="mk-hero-sub">
               Personal intelligence, drawn from systems older than the calendar.
               <br />
               <span className="mk-hero-sub-dim">
-                Western · Vedic · Kabbalah · Numerology · Chinese BaZi · Human Design · Mayan · Astrocartography · Tarot · Enneagram · Gene Keys · Ayurveda
+                Western · Vedic · Numerology · Kabbalah · Human Design · Tarot · Astrocartography
               </span>
             </p>
           </Reveal>
@@ -338,10 +308,10 @@ export default async function LandingPage() {
       <section style={{ position: 'relative', zIndex: 1, padding: '120px 24px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Reveal>
-            <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ The Twelve</div>
+            <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ The Seven</div>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mk-section-title">One birth moment. Twelve independent readings.</h2>
+            <h2 className="mk-section-title">One birth moment. Seven independent readings.</h2>
           </Reveal>
           <Reveal delay={160}>
             <p className="mk-prose">
@@ -442,7 +412,7 @@ export default async function LandingPage() {
             <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ Pricing</div>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mk-section-title">Three readings. Three, six, nine.</h2>
+            <h2 className="mk-section-title">Three readings. Two, five, seven.</h2>
           </Reveal>
 
           <div className="mk-pricing-mini">
@@ -461,15 +431,15 @@ export default async function LandingPage() {
                   </ul>
                   <Link
                     href={
-                      t.name === 'The Glimpse'
+                      t.name === 'The Two'
                         ? primaryHref
                         : `/pricing#${t.name.toLowerCase().replace(/ /g, '-')}`
                     }
                     className="tier-cta"
                   >
-                    {t.name === 'The Glimpse'
+                    {t.name === 'The Two'
                       ? isSignedIn ? 'Open your chart' : 'Begin free'
-                      : t.name === 'The Initiate'
+                      : t.name === 'The Five'
                       ? 'Start the reading'
                       : 'Go deep'} →
                   </Link>
@@ -513,7 +483,7 @@ export default async function LandingPage() {
       {/* ── 9. FOOTER ──────────────────────────────────────────────── */}
       <footer className="mk-footer" style={{ position: 'relative', zIndex: 1 }}>
         <div className="wordmark">Synastra</div>
-        <div className="tag">12 traditions. One Chart. Your True Archetype.</div>
+        <div className="tag">Seven traditions. One chart. One Oracle.</div>
         <nav>
           <Link href="/how-it-works">How it works</Link>
           <Link href="/now">Now</Link>

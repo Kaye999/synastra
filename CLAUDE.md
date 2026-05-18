@@ -8,18 +8,18 @@ This file is auto-loaded by Claude Code (and read by other AI assistants). Anyth
 
 ## What this product is
 
-**Synastra** is a consumer astrology + esoteric-traditions SaaS — a single natal chart cross-read through 12 wisdom traditions (Western, Vedic, Numerology, Kabbalah, BaZi, Human Design, Ayurveda, Enneagram, Gene Keys, Shadow, Tarot, more), plus a daily AI-written guidance feed and a monthly forecast.
+**Synastra** is a consumer astrology + esoteric-traditions SaaS — a single natal chart cross-read through **7 wisdom traditions** (Western, Vedic, Numerology, Kabbalah, Human Design, Tarot, Astrocartography), plus a daily AI-written guidance feed, a monthly forecast, and a **Master Oracle AI** (Tier 3) trained across all 7 traditions, general astrology, astronomy, and traditional archetypes.
 
-**Tagline:** *12 traditions. One chart. Your true archetype.*
+**Tagline:** *Seven traditions. One chart. One Oracle.*
 
 ### Pricing — locked
-| Tier | Monthly | One-time/yr | What you get |
-|------|---------|-------------|--------------|
-| **The Three** | Free | Free | Western (Sun/Moon/Rising), Vedic nakshatra, Life Path number, full natal chart |
-| **The Six** | A$19 | A$129 | + Houses/aspects, full Vedic w/ mahadasha, full numerology, Kabbalah, BaZi, Human Design, daily guidance, monthly forecast, 10 oracle questions/day |
-| **The Nine** | A$39 | A$259 | All twelve traditions, cross-woven readings |
+| Tier | Monthly | Yearly | What you get |
+|------|---------|--------|--------------|
+| **The Two** | Free | Free | Western (Sun/Moon/Rising) + Numerology preview · 3 Oracle questions/day teaser |
+| **The Five** | A$19 | A$129 | + Vedic (Lagna, Nakshatra, mahadasha), Kabbalah, Human Design · daily guidance · monthly forecast · 10 Oracle questions/day |
+| **The Seven** | A$39 | A$259 | + Tarot, Astrocartography · transit alerts · compatibility · cross-tradition synthesis · **unlimited Master Oracle** (expert across all 7 traditions + general astrology + astronomy + traditional archetypes) |
 
-**Don't propose pricing changes** without owner approval. Recent rebrand (Apr 2026): "The Depth" tier was renamed to "The Nine".
+**Don't propose pricing changes** without owner approval. **Rebrand history:** 12 traditions (Three/Six/Nine) → 7 traditions (Two/Five/Seven), 2026-05-18. Cut: BaZi (Chinese), Mayan Tzolk'in, Enneagram, Gene Keys, Ayurveda. Engine files for the cut traditions remain in `src/lib/engines/` for future optionality but are not wired into the UI.
 
 ---
 

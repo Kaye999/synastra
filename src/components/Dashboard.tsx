@@ -1,11 +1,11 @@
 "use client";
 
-// Dashboard.tsx — 12-tradition editorial dashboard.
+// Dashboard.tsx — 7-tradition editorial dashboard.
 //
-// Renders all twelve traditions under four categories:
-//   Astrological   · Western · Vedic · Chinese · Mayan
+// Renders all seven traditions under four categories:
+//   Astrological   · Western · Vedic
 //   Symbolic       · Kabbalah · Numerology · Tarot
-//   Psychological  · Human Design · Enneagram · Gene Keys · Ayurveda
+//   Psychological  · Human Design
 //   Geographic     · Astrocartography
 //
 // Each mode either renders an interactive widget (from ./Natal*, ./Tree*,
@@ -14,7 +14,7 @@
 // within it below. On narrow viewports the whole switcher collapses to a
 // single horizontally scrolling strip with category labels as dividers.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import Starfield from './Starfield';
@@ -28,41 +28,28 @@ import CompatibilityForm from './CompatibilityForm';
 import TransitAlerts from './TransitAlerts';
 import Ornament from './Ornament';
 
-// ─── Interactive widgets (shipped overnight) ────────────────────────────────
+// ─── Interactive widgets ────────────────────────────────────────────────────
 import NatalChartWheel from './NatalChartWheel';
 import TreeOfLife from './TreeOfLife';
 import TarotDailyCard from './TarotDailyCard';
 import TarotSpread from './TarotSpread';
-import EnneagramQuiz from './EnneagramQuiz';
-import EnneagramProfile from './EnneagramProfile';
-import GeneKeysProfile from './GeneKeysProfile';
-import AyurvedaQuiz from './AyurvedaQuiz';
-import AyurvedaProfile from './AyurvedaProfile';
 import BodyGraphInteractive from './BodyGraphInteractive';
 import AstrocartoMap from './AstrocartoMap';
 
-// ─── Engines (existing) ─────────────────────────────────────────────────────
+// ─── Engines ────────────────────────────────────────────────────────────────
 import { computeTropicalChart, computeSiderealChart, computeMahadasha } from '@/lib/engines/astro';
 import { computeNumerology, NUM_MEANINGS } from '@/lib/engines/numerology';
-import { computeBaZi } from '@/lib/engines/bazi';
-import { computeHologeneticProfile } from '@/lib/engines/gene-keys';
 import { resolveCityCoords } from '@/lib/constants/cities';
 
-// ─── Engines (porting in parallel — resolved lazily) ────────────────────────
-// The sibling agent is landing @/lib/engines/{hd,mayan,astrocarto} in a
-// separate PR. Until those files exist, static imports break the build, so
-// we resolve them via dynamic import() inside an effect and hold their
-// functions in state. Each hook below falls back to `null` when the module
-// cannot be loaded, which lets the other eleven traditions render normally.
+// ─── Engines resolved lazily ────────────────────────────────────────────────
+// hd and astrocarto are heavy enough to code-split. Each useState below
+// holds null until the dynamic import resolves; widgets fall back to
+// "still resolving" placeholders while loading.
 //
-// The engines expose:
-//   computeHumanDesign(birth: BirthData)  → HumanDesignResult
-//   computeMayan({ y, m, d })             → MayanResult
-//   computeAstrocarto(birth, chart)       → AstrocartoResult
-//
-// Shapes are best-effort-typed here because the files don't exist yet.
+// Engine files for BaZi, Mayan, Enneagram, Gene Keys, Ayurveda remain on
+// disk in /lib/engines/ for future optionality but are no longer wired
+// into the UI (2026-05-18 collapse from 12 → 7 traditions).
 type ComputeHumanDesign = (birth: BirthData) => unknown;
-type ComputeMayan = (dob: BirthData['dob']) => unknown;
 type ComputeAstrocarto = (birth: BirthData, chart: ReturnType<typeof computeTropicalChart>) => unknown;
 
 import {
@@ -80,10 +67,10 @@ import { computeChartBalance, formatBalanceSummary } from '@/lib/interp/helpers'
 import type { BirthData, Tier, Planet } from '@/lib/types';
 
 // ─── Mode & group taxonomy ──────────────────────────────────────────────────
+// Seven traditions across four groups (2026-05-18 — collapsed from 12).
 type Mode =
-  | 'astro' | 'vedic' | 'kab' | 'numerology' | 'chinese'
-  | 'hd' | 'mayan' | 'astrocarto'
-  | 'tarot' | 'enneagram' | 'genekeys' | 'ayurveda';
+  | 'astro' | 'vedic' | 'kab' | 'numerology'
+  | 'hd' | 'astrocarto' | 'tarot';
 
 type ModeGroup = 'astrological' | 'symbolic' | 'psychological' | 'geographic';
 
@@ -92,20 +79,15 @@ const MODE_LABELS: Record<Mode, string> = {
   vedic: 'Vedic',
   kab: 'Kabbalah',
   numerology: 'Numerology',
-  chinese: 'Chinese',
   hd: 'Human Design',
-  mayan: 'Mayan',
   astrocarto: 'Astrocartography',
   tarot: 'Tarot',
-  enneagram: 'Enneagram',
-  genekeys: 'Gene Keys',
-  ayurveda: 'Ayurveda',
 };
 
 const MODE_GROUPS: Record<ModeGroup, { label: string; modes: Mode[] }> = {
-  astrological:  { label: 'Astrological',  modes: ['astro', 'vedic', 'chinese', 'mayan'] },
+  astrological:  { label: 'Astrological',  modes: ['astro', 'vedic'] },
   symbolic:      { label: 'Symbolic',      modes: ['kab', 'numerology', 'tarot'] },
-  psychological: { label: 'Psychological', modes: ['hd', 'enneagram', 'genekeys', 'ayurveda'] },
+  psychological: { label: 'Psychological', modes: ['hd'] },
   geographic:    { label: 'Geographic',    modes: ['astrocarto'] },
 };
 
@@ -146,8 +128,6 @@ const PLANET_GLYPH: Record<string, string> = {
 };
 
 // ─── Types local to this file ───────────────────────────────────────────────
-type EnneagramResultLike = unknown;
-type PrakrutiLike = unknown;
 
 export type DashboardProps = {
   user: BirthData;
@@ -220,29 +200,16 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
     [user.fullName, user.dob, firstName],
   );
 
-  const bazi = useMemo(
-    () => computeBaZi(user.dob, user.time, user.timeUnknown, user.gender, firstName, CURRENT_YEAR),
-    [user.dob, user.time, user.timeUnknown, user.gender, firstName],
-  );
-
-  // ─── Engines under parallel construction — null-safe ──────────────────────
-  const geneKeys = useMemo(() => {
-    try { return computeHologeneticProfile(user); }
-    catch { return null; }
-  }, [user]);
-
-  // Lazily-resolved engine functions. If the dynamic import fails (module not
-  // yet on disk), these stay null and the relevant mode renders an "engine
-  // still resolving" fallback passage.
+  // ─── Engines resolved lazily ──────────────────────────────────────────────
+  // Heavy compute split into separate webpack chunks. Each stays null until
+  // the dynamic import resolves; widgets fall back to "still resolving"
+  // placeholders while loading.
   const [computeHumanDesign, setComputeHumanDesign] = useState<ComputeHumanDesign | null>(null);
-  const [computeMayan, setComputeMayan] = useState<ComputeMayan | null>(null);
   const [computeAstrocarto, setComputeAstrocarto] = useState<ComputeAstrocarto | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
-    // Lazy-load the heavy compute engines. Static imports let webpack split
-    // them into separate chunks that only download when the Dashboard mounts.
     async function safeLoad<T>(loader: () => Promise<Record<string, unknown>>, key: string): Promise<T | null> {
       try {
         const mod = await loader();
@@ -254,14 +221,12 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
     }
 
     (async () => {
-      const [hd, mayan, acg] = await Promise.all([
+      const [hd, acg] = await Promise.all([
         safeLoad<ComputeHumanDesign>(() => import('@/lib/engines/hd') as Promise<Record<string, unknown>>, 'computeHumanDesign'),
-        safeLoad<ComputeMayan>(() => import('@/lib/engines/mayan') as Promise<Record<string, unknown>>, 'computeMayan'),
         safeLoad<ComputeAstrocarto>(() => import('@/lib/engines/astrocarto') as Promise<Record<string, unknown>>, 'computeAstrocarto'),
       ]);
       if (cancelled) return;
       if (hd) setComputeHumanDesign(() => hd);
-      if (mayan) setComputeMayan(() => mayan);
       if (acg) setComputeAstrocarto(() => acg);
     })();
 
@@ -274,48 +239,11 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
     catch { return null; }
   }, [computeHumanDesign, user]);
 
-  const mayanResult = useMemo(() => {
-    if (!computeMayan) return null;
-    try { return computeMayan(user.dob); }
-    catch { return null; }
-  }, [computeMayan, user.dob]);
-
   const astrocartoRes = useMemo(() => {
     if (!computeAstrocarto) return null;
     try { return computeAstrocarto(user, tropical); }
     catch { return null; }
   }, [computeAstrocarto, user, tropical]);
-
-  // ─── Enneagram / Ayurveda persisted results — fetched client-side ────────
-  // The API may return these on the profile row; if absent, we show the quiz.
-  // After a quiz completes, we set the result into local state and re-render
-  // into the profile view without a full page reload.
-  const [enneagramResult, setEnneagramResult] = useState<EnneagramResultLike | null>(null);
-  const [ayurvedaResult, setAyurvedaResult] = useState<PrakrutiLike | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/profile', { cache: 'no-store' });
-        if (!res.ok) return;
-        const json = await res.json() as {
-          profile?: {
-            enneagram?: { result?: EnneagramResultLike } | null;
-            ayurveda?: PrakrutiLike | null;
-          } | null;
-        };
-        if (cancelled) return;
-        const enn = json.profile?.enneagram?.result ?? null;
-        const ayu = json.profile?.ayurveda ?? null;
-        if (enn) setEnneagramResult(enn);
-        if (ayu) setAyurvedaResult(ayu);
-      } catch {
-        // ignore — the quizzes remain available
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
 
   const sunPlanet = tropical.planets.find((p) => planetKey(p.planet) === 'Sun');
   const moonPlanet = tropical.planets.find((p) => planetKey(p.planet) === 'Moon');
@@ -345,23 +273,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
       soulUrge: numerology.soulUrge,
       personalYear: numerology.personalYear,
     },
-    bazi: {
-      pillars: bazi.pillars.map((p) => ({ label: p.label, combined: p.combined, element: p.element, animal: p.animal })),
-      dayMaster: bazi.analysis.dayMaster,
-    },
-  }), [user, tropical, sidereal, dashas, numerology, bazi]);
-
-  // Quiz completion handlers — optimistically update local state; persistence
-  // already happens inside the quiz components (POST /api/*/submit).
-  const handleEnneagramComplete = useCallback((result: EnneagramResultLike) => {
-    setEnneagramResult(result);
-  }, []);
-  const handleAyurvedaComplete = useCallback((result: PrakrutiLike) => {
-    setAyurvedaResult(result);
-  }, []);
-  const handleQuizError = useCallback((e: string) => {
-    console.error('[synastra] quiz error:', e);
-  }, []);
+  }), [user, tropical, sidereal, dashas, numerology]);
 
   return (
     <div className={`page mode-${mode}`} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -456,13 +368,8 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
             {mode === 'vedic' && 'The Sidereal Chart'}
             {mode === 'kab' && 'The Tree of Life'}
             {mode === 'numerology' && 'The Numerical Field'}
-            {mode === 'chinese' && 'Four Pillars of Destiny'}
             {mode === 'tarot' && 'The Cards'}
-            {mode === 'enneagram' && 'Nine Types'}
-            {mode === 'genekeys' && 'The Hologenetic Profile'}
-            {mode === 'ayurveda' && 'The Three Doshas'}
             {mode === 'hd' && 'The Rave BodyGraph'}
-            {mode === 'mayan' && "The Tzolk'in Kin"}
             {mode === 'astrocarto' && 'The World as a Chart'}
           </h1>
           <p className="editorial-sub">
@@ -470,13 +377,8 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
             {mode === 'vedic' && 'Lahiri ayanamsa. Whole-sign. Nakshatras and mahadasha periods.'}
             {mode === 'kab' && 'Hebrew letter, Sefira, and path — the arc of the Tree of Life.'}
             {mode === 'numerology' && 'Pythagorean, Chaldean, and gematric readings of the name and date.'}
-            {mode === 'chinese' && 'Stems and branches. Day master, luck pillars, five elements.'}
             {mode === 'tarot' && 'Majors and minors drawn for the day, and a spread cast for the question.'}
-            {mode === 'enneagram' && 'Thirty-six questions, nine bodies, one centre of gravity.'}
-            {mode === 'genekeys' && "Richard Rudd's four Activation keys — Shadow, Gift, Siddhi."}
-            {mode === 'ayurveda' && "Vata · Pitta · Kapha. The constitution you were born into."}
             {mode === 'hd' && 'Type, strategy, authority. The Rave mandala read as a machine.'}
-            {mode === 'mayan' && "The sacred 260-day count — your galactic kin and tone."}
             {mode === 'astrocarto' && 'Your planetary lines drawn across the earth. Where the sky lands.'}
           </p>
           <hr className="brass-rule" />
@@ -626,44 +528,6 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </section>
         )}
 
-        {/* ─── CHINESE / BaZi (reader+) ───────────────────────────────── */}
-        {mode === 'chinese' && (
-          <section>
-            <PaywallBlur tier={tier} required="reader">
-              <div className="pillars-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20, marginBottom: 32 }}>
-                {bazi.pillars.map((p) => (
-                  <div key={p.key} style={{ padding: 16, border: '1px solid var(--rule)' }}>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--brass)' }}>
-                      {p.label}
-                    </div>
-                    <div style={{ fontFamily: "'Fraunces', serif", fontSize: 30, margin: '10px 0' }}>
-                      {p.stemHz}
-                      {p.branchHz}
-                    </div>
-                    <div style={{ fontSize: 13, opacity: 0.7 }}>{p.combined}</div>
-                    <div style={{ fontSize: 13, marginTop: 6 }}>
-                      {p.yy} {p.element} {p.animal}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <EssayBlock title={`Day Master · ${bazi.analysis.dayMaster}`} body={bazi.analysis.strength} />
-              <EssayBlock title="Favourable elements" body={bazi.analysis.yongshenNote} />
-              <EssayBlock title={`Year ${CURRENT_YEAR} · ${bazi.annual.combined}`} body={bazi.annual.interaction} />
-              <EssayBlock title={`Nine Star Ki · ${bazi.nineStar.mainName}`} body={bazi.nineStar.forYou} footer={bazi.nineStar.calc} />
-            </PaywallBlur>
-
-          </section>
-        )}
-
-        {/* ─── MAYAN (depth only) ────────────────────────────────────── */}
-        {mode === 'mayan' && (
-          <PaywallBlur tier={tier} required="depth">
-            <MayanPanel data={mayanResult as MayanResult | null} />
-          </PaywallBlur>
-        )}
-
         {/* ═══════════ SYMBOLIC ═══════════════════════════════════════════ */}
 
         {/* ─── KABBALAH (reader+) ───────────────────────────────────── */}
@@ -752,42 +616,6 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
                 title="The BodyGraph is still resolving"
                 body="Your Human Design chart is being computed. If this persists, ensure your birth time is set — the BodyGraph needs it to map your centres."
               />
-            )}
-          </PaywallBlur>
-        )}
-
-        {/* ─── ENNEAGRAM (depth only) ─────────────────────────────── */}
-        {mode === 'enneagram' && (
-          <PaywallBlur tier={tier} required="depth">
-            {enneagramResult ? (
-              <EnneagramProfile result={enneagramResult as never} />
-            ) : (
-              <EnneagramQuiz onComplete={handleEnneagramComplete} onError={handleQuizError} />
-            )}
-          </PaywallBlur>
-        )}
-
-        {/* ─── GENE KEYS (depth only — widget also gates internally) ─ */}
-        {mode === 'genekeys' && (
-          <PaywallBlur tier={tier} required="depth">
-            {geneKeys ? (
-              <GeneKeysProfile hologenetic={geneKeys} userTier={tier} />
-            ) : (
-              <EssayBlock
-                title="The Activation Sequence is still resolving"
-                body="Your Hologenetic Profile is being computed. A Sun-based chart is required; ensure your birth date is set."
-              />
-            )}
-          </PaywallBlur>
-        )}
-
-        {/* ─── AYURVEDA (depth only) ──────────────────────────────── */}
-        {mode === 'ayurveda' && (
-          <PaywallBlur tier={tier} required="depth">
-            {ayurvedaResult ? (
-              <AyurvedaProfile prakruti={ayurvedaResult as never} firstName={firstName} />
-            ) : (
-              <AyurvedaQuiz onComplete={handleAyurvedaComplete} onError={handleQuizError} />
             )}
           </PaywallBlur>
         )}
@@ -1344,166 +1172,3 @@ function EssayBlock({
   );
 }
 
-// ─── Mayan panel ─────────────────────────────────────────────────────────────
-// Renders the rich MayanResult shape returned by /lib/engines/mayan:
-// kin/kinName headline, day-sign + tone + color/direction tiles, all four
-// interpretation slabs, the four-card oracle (guide/antipode/analog/occult),
-// and the galactic year.
-//
-// Previously this was a stub that expected flat strings — when the real
-// engine landed it returned nested objects, React tried to render the
-// objects as text, the section blank-screened. This is the reconciliation.
-
-type MayanResult = import('@/lib/engines/mayan').MayanResult;
-
-function MayanPanel({ data }: { data: MayanResult | null }) {
-  if (!data) {
-    return (
-      <EssayBlock
-        title="The kin is still being counted"
-        body="Your Tzolk'in signature is computed from your birth date against the sacred 260-day count. A moment."
-      />
-    );
-  }
-
-  const { kin, kinName, daySign, tone, direction, earthFamily, oracle, galacticYear, interpretation } = data;
-
-  const tileLabel: React.CSSProperties = {
-    fontFamily: "'IBM Plex Mono', monospace",
-    fontSize: 10,
-    letterSpacing: '0.18em',
-    textTransform: 'uppercase',
-    color: 'var(--brass)',
-  };
-  const tileNum: React.CSSProperties = {
-    fontFamily: "'Fraunces', serif",
-    fontSize: 36,
-    margin: '8px 0 4px',
-    lineHeight: 1.1,
-  };
-  const tileSub: React.CSSProperties = { fontSize: 12, color: 'var(--ink-dim)' };
-  const tileBox: React.CSSProperties = { padding: 20, border: '1px solid var(--rule)' };
-
-  return (
-    <section>
-      {/* Hero kin name */}
-      <div style={{ textAlign: 'center', margin: '0 auto 36px', maxWidth: 720 }}>
-        <div style={{ ...tileLabel, marginBottom: 8 }}>Galactic Signature</div>
-        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 34, lineHeight: 1.2, color: 'var(--ink)' }}>
-          {kinName}
-        </div>
-        <div style={{ ...tileSub, marginTop: 8 }}>Kin {kin} of 260</div>
-      </div>
-
-      {/* Tile row: Day Sign · Tone · Color & Direction · Earth Family */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 16,
-          marginBottom: 40,
-          maxWidth: 960,
-          margin: '0 auto 40px',
-        }}
-      >
-        <div style={tileBox}>
-          <div style={tileLabel}>Day Sign</div>
-          <div style={tileNum}>{daySign.name}</div>
-          <div style={tileSub}>
-            {daySign.yucatec} · #{daySign.number}
-          </div>
-        </div>
-        <div style={tileBox}>
-          <div style={tileLabel}>Galactic Tone</div>
-          <div style={tileNum}>{tone.name}</div>
-          <div style={tileSub}>
-            {tone.power} · #{tone.number}
-          </div>
-        </div>
-        <div style={tileBox}>
-          <div style={tileLabel}>Color · Direction</div>
-          <div style={tileNum}>{daySign.color}</div>
-          <div style={tileSub}>{direction}</div>
-        </div>
-        {earthFamily && (
-          <div style={tileBox}>
-            <div style={tileLabel}>Earth Family</div>
-            <div style={{ ...tileNum, fontSize: 22 }}>{earthFamily.name}</div>
-            <div style={tileSub}>{earthFamily.theme}</div>
-          </div>
-        )}
-      </div>
-
-      {/* Essays — these inherit the .essay-block reading treatment */}
-      <EssayBlock
-        eyebrow={`DAY SIGN · ${daySign.name.toUpperCase()}`}
-        title={daySign.essence}
-        body={interpretation.body}
-        shadow={daySign.shadow}
-        gift={daySign.gift}
-      />
-      <EssayBlock
-        eyebrow={`TONE · ${tone.name.toUpperCase()} (${tone.power.toUpperCase()})`}
-        title={tone.essence}
-        body={tone.body}
-      />
-      <EssayBlock
-        eyebrow="LIFE PURPOSE"
-        title="What the kin is for"
-        body={interpretation.lifePurpose}
-      />
-      <EssayBlock
-        eyebrow="SHADOW WORK"
-        title="The pitfall, named"
-        body={interpretation.shadowWork}
-      />
-      <EssayBlock
-        eyebrow="INTEGRATED READING"
-        title="The kin, woven"
-        body={interpretation.combinedReading}
-      />
-
-      {/* Oracle (4 cards) */}
-      <div style={{ maxWidth: 960, margin: '8px auto 40px' }}>
-        <div style={{ ...tileLabel, textAlign: 'center', marginBottom: 18 }}>
-          The Oracle · Four Allies
-        </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 14,
-          }}
-        >
-          {(
-            [
-              ['Guide', oracle.guide],
-              ['Antipode', oracle.antipode],
-              ['Analog', oracle.analog],
-              ['Occult', oracle.occult],
-            ] as const
-          ).map(([role, card]) => (
-            <div key={role} style={tileBox}>
-              <div style={tileLabel}>{role}</div>
-              <div style={{ ...tileNum, fontSize: 18, margin: '6px 0' }}>{card.name}</div>
-              <div style={tileSub}>
-                Kin {card.kin} · {card.tone} {card.daySign}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Galactic Year */}
-      <div style={{ maxWidth: 720, margin: '0 auto 40px', textAlign: 'center' }}>
-        <div style={{ ...tileLabel, marginBottom: 8 }}>Galactic Year</div>
-        <div style={{ fontFamily: "'Fraunces', serif", fontSize: 22, color: 'var(--ink)' }}>
-          {galacticYear.yearName}
-        </div>
-        <div style={{ ...tileSub, marginTop: 4 }}>
-          Begins {galacticYear.yearStartDate} · {galacticYear.yearColor} · Kin seed {galacticYear.kinSeed}
-        </div>
-      </div>
-    </section>
-  );
-}

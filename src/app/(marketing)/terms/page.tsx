@@ -37,7 +37,7 @@ export default function TermsPage() {
         <p>Last updated: 22 April 2026.</p>
         <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>The short version</h2>
         <p>
-          Synastra provides personal chart readings across twelve esoteric traditions and an AI oracle grounded
+          Synastra provides personal chart readings across seven esoteric traditions and an AI oracle grounded
           in your chart. Readings are for self-reflection and entertainment. Nothing on Synastra constitutes
           medical, legal, financial, or psychiatric advice.
         </p>
