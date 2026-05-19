@@ -69,9 +69,20 @@ const STYLES = `
 .homepage-bg-root {
   position: fixed;
   inset: 0;
-  z-index: -1;             /* behind page content */
+  z-index: 0;              /* not -1 — body bg masks negative z children */
   pointer-events: none;
   overflow: hidden;
+}
+/* Page content needs to sit above the background. Without this every
+   element at default z-index would be at the same stacking level. */
+.homepage-bg-root ~ * {
+  position: relative;
+  z-index: 1;
+}
+/* Hide the global Cosmos when the homepage BG is mounted — they paint
+   the same real estate, and Cosmos's nebulae fight the dawn palette. */
+body:has(.homepage-bg-root) .cosmos-root {
+  display: none;
 }
 
 /* ─── 1. Sky gradient ─────────────────────────────────────────────── */

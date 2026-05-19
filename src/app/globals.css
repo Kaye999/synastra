@@ -115,6 +115,9 @@
 
 * { box-sizing: border-box; }
 html, body { background: var(--bg-base); color: var(--ink); }
+/* When HomepageBackground mounts on the landing it needs a transparent body
+   so the night→dawn gradient can paint freely. Other pages keep --bg-base. */
+body:has(.homepage-bg-root) { background: transparent !important; }
 /* zoom: 0.8 removed — was intermittently blocking input focus on Safari.
    If global scale is needed, reduce component sizes individually. */
 
