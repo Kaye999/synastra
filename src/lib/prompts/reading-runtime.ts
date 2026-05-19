@@ -15,7 +15,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient as createSupabaseServerClient } from '@/lib/supabase/server';
 import type { Tier } from '@/lib/types';
 import type { ReadingPromptResult } from './reading-templates';
 
@@ -73,7 +73,10 @@ export async function loadProfile(userId: string): Promise<
   | { ok: true; profile: ReadingProfile; supabase: Awaited<ReturnType<typeof createSupabaseServerClient>> }
   | { ok: false; response: Response }
 > {
-  const supabase = await createSupabaseServerClient();
+  // Service-role client — bypasses RLS. The route has already verified
+  // the Clerk userId via authenticated(); we always scope by user_id
+  // below so no cross-user data exposure is possible.
+  const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
     .schema('astral')
     .from('profiles')

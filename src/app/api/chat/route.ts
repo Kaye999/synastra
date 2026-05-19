@@ -20,7 +20,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServiceClient } from '@/lib/supabase/server';
 import type { Tier } from '@/lib/types';
 
 // Use the Node runtime — more reliable for the Anthropic SDK's streaming.
@@ -180,7 +180,9 @@ export async function POST(req: Request) {
   }
 
   // Load profile — tier + day/month quota counters.
-  const supabase = await createSupabaseServerClient();
+  // Service role — RLS bypass safe because Clerk auth() above gates entry
+  // and all queries below scope by .eq('user_id', userId).
+  const supabase = createSupabaseServiceClient();
   const { data: profile, error: profileErr } = await supabase
     .schema('astral')
     .from('profiles')
