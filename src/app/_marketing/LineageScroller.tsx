@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { ReactNode } from 'react';
 
 type LineageFigure = {
@@ -38,6 +39,26 @@ export default function LineageScroller({ figures, speed = 0.35, resumeAfterMs =
   const rafRef = useRef<number | null>(null);
   const lastUserInteractionRef = useRef<number>(0);
   const reducedMotionRef = useRef(false);
+
+  // Click-to-expand: which figure is open in the reader modal?
+  const [openFigure, setOpenFigure] = useState<LineageFigure | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
+  // Esc closes the modal. Body scroll-lock while open.
+  useEffect(() => {
+    if (!openFigure) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenFigure(null);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [openFigure]);
 
   useEffect(() => {
     const el = scrollerRef.current;
@@ -108,11 +129,14 @@ export default function LineageScroller({ figures, speed = 0.35, resumeAfterMs =
   for (let copy = 0; copy < 2; copy++) {
     figures.forEach((figure, i) => {
       doubled.push(
-        <article
+        <button
           key={`${figure.name}-${copy}`}
-          className="mk-lineage-card"
+          type="button"
+          className="mk-lineage-card mk-lineage-card-button"
           data-index={i + 1}
           aria-hidden={copy === 1}
+          aria-label={`Read more about ${figure.name}`}
+          onClick={() => setOpenFigure(figure)}
         >
           <div className="mk-lineage-card-index">
             {String(i + 1).padStart(2, '0')} / {figures.length}
@@ -123,20 +147,54 @@ export default function LineageScroller({ figures, speed = 0.35, resumeAfterMs =
           <div className="mk-lineage-card-attrib">— {figure.attrib}</div>
           <div className="mk-lineage-card-rule" />
           <p className="mk-lineage-card-body">{figure.body}</p>
-        </article>
+          <span className="mk-lineage-card-readmore">Read more →</span>
+        </button>
       );
     });
   }
 
   return (
-    <div
-      ref={scrollerRef}
-      className="mk-lineage-scroller mk-lineage-scroller-js"
-      tabIndex={0}
-      role="region"
-      aria-label="Lineage — drag or swipe to explore"
-    >
-      <div className="mk-lineage-track mk-lineage-track-js">{doubled}</div>
-    </div>
+    <>
+      <div
+        ref={scrollerRef}
+        className="mk-lineage-scroller mk-lineage-scroller-js"
+        tabIndex={0}
+        role="region"
+        aria-label="Lineage — drag or swipe to explore. Click a figure to read more."
+      >
+        <div className="mk-lineage-track mk-lineage-track-js">{doubled}</div>
+      </div>
+
+      {/* Click-to-expand reader modal */}
+      {mounted && openFigure && createPortal(
+        <div
+          className="mk-lineage-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-label={openFigure.name}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOpenFigure(null);
+          }}
+        >
+          <article className="mk-lineage-modal">
+            <button
+              type="button"
+              className="mk-lineage-modal-close"
+              aria-label="Close"
+              onClick={() => setOpenFigure(null)}
+            >
+              ✕
+            </button>
+            <div className="mk-lineage-modal-name">{openFigure.name}</div>
+            <div className="mk-lineage-modal-era">{openFigure.era}</div>
+            <blockquote className="mk-lineage-modal-quote">{openFigure.quote}</blockquote>
+            <div className="mk-lineage-modal-attrib">— {openFigure.attrib}</div>
+            <div className="mk-lineage-modal-rule" />
+            <p className="mk-lineage-modal-body">{openFigure.body}</p>
+          </article>
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }

@@ -818,6 +818,148 @@ body {
   color: var(--ink-dim);
   line-height: 1.6;
   margin: 0;
+  /* clamp to 4 lines on the compact card; full prose lives in the modal */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* Card is now a <button> — strip native chrome, keep editorial look */
+.mk-lineage-card-button {
+  text-align: left;
+  background: rgba(19, 24, 40, 0.5);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.mk-lineage-card-button:focus-visible {
+  outline: 1px solid var(--brass);
+  outline-offset: 2px;
+}
+.mk-lineage-card-readmore {
+  display: inline-block;
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--brass);
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.mk-lineage-card-button:hover .mk-lineage-card-readmore {
+  opacity: 1;
+}
+
+/* ─── Lineage reader modal ──────────────────────────────────────────
+   Click any card → modal opens centred over the page with body text
+   at proper reading size. Backdrop blur, brass-bordered card. */
+.mk-lineage-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(6, 9, 18, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  animation: lineage-modal-fade 0.22s ease-out;
+}
+@keyframes lineage-modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.mk-lineage-modal {
+  position: relative;
+  max-width: 680px;
+  width: 100%;
+  margin: auto;
+  background: rgba(10, 14, 26, 0.94);
+  border: 1px solid rgba(200, 160, 82, 0.32);
+  padding: 56px 56px 48px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  animation: lineage-modal-rise 0.28s cubic-bezier(.2, .7, .3, 1) both;
+}
+@keyframes lineage-modal-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+.mk-lineage-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: 0;
+  color: rgba(252, 250, 246, 0.55);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+}
+.mk-lineage-modal-close:hover {
+  color: var(--brass);
+}
+.mk-lineage-modal-name {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144;
+  font-weight: 600;
+  font-size: 36px;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.mk-lineage-modal-era {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 28px;
+}
+.mk-lineage-modal-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.42;
+  color: var(--ink);
+  margin: 0 0 16px;
+  font-weight: 500;
+}
+.mk-lineage-modal-attrib {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 28px;
+}
+.mk-lineage-modal-rule {
+  height: 1px;
+  width: 48px;
+  background: var(--brass-soft);
+  margin-bottom: 24px;
+}
+.mk-lineage-modal-body {
+  font-family: var(--font-body);
+  /* The whole point of the modal: bigger, readable body prose. */
+  font-size: 17.5px;
+  line-height: 1.78;
+  color: rgba(252, 250, 246, 0.82);
+  margin: 0;
+  max-width: 60ch;
+}
+@media (max-width: 720px) {
+  .mk-lineage-modal {
+    padding: 36px 24px 28px;
+  }
+  .mk-lineage-modal-name { font-size: 26px; }
+  .mk-lineage-modal-quote { font-size: 16px; }
+  .mk-lineage-modal-body { font-size: 16px; line-height: 1.72; }
 }
 .mk-lineage-hint {
   display: flex;
