@@ -34,6 +34,7 @@ import TreeOfLife from './TreeOfLife';
 import TarotDailyCard from './TarotDailyCard';
 import TarotSpread from './TarotSpread';
 import BodyGraphInteractive from './BodyGraphInteractive';
+import AnatomicalChakraMap from './AnatomicalChakraMap';
 import AstrocartoMap from './AstrocartoMap';
 
 // ─── Engines ────────────────────────────────────────────────────────────────
@@ -610,7 +611,12 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         {mode === 'hd' && (
           <PaywallBlur tier={tier} required="reader">
             {hdResult ? (
-              <BodyGraphInteractive hdResult={hdResult as { activatedGates: number[] }} />
+              <>
+                <BodyGraphInteractive hdResult={hdResult as { activatedGates: number[] }} />
+                <AnatomicalChakraMap
+                  hdResult={hdResult as { activatedGates: number[]; definedCenters?: readonly string[] }}
+                />
+              </>
             ) : (
               <EssayBlock
                 title="The BodyGraph is still resolving"
