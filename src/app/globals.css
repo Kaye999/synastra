@@ -1311,14 +1311,25 @@ body {
   }
 }
 .mk-intel-cell {
-  padding: 44px 36px;
+  padding: 28px 26px;
   background: var(--bg-base);
   position: relative;
 }
 .mk-intel-cell .ornament {
   color: var(--brass);
   opacity: 0.55;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
+  transform: scale(0.7);
+  transform-origin: 0 0;
+}
+.mk-intel-cell .mk-block-title {
+  font-size: 22px;
+  margin: 6px 0 10px;
+}
+.mk-intel-cell .mk-prose {
+  font-size: 14.5px !important;
+  line-height: 1.55;
+  max-width: 56ch;
 }
 
 /* ─── Marketing: personas ─────────────────────────────────────────── */

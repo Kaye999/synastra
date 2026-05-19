@@ -349,9 +349,9 @@ export default async function LandingPage() {
             {INTELLIGENCE.map((b, i) => (
               <Reveal key={b.title} delay={120 + i * 80}>
                 <div className="mk-intel-cell">
-                  <Ornament kind="constellation" width={96} style={{ margin: 0 }} />
+                  <Ornament kind="constellation" width={68} style={{ margin: 0 }} />
                   <h3 className="mk-block-title">{b.title}</h3>
-                  <p className="mk-prose" style={{ fontSize: 17 }}>{b.body}</p>
+                  <p className="mk-prose">{b.body}</p>
                 </div>
               </Reveal>
             ))}
