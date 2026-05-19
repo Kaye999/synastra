@@ -578,6 +578,82 @@ export default function BodyGraphInteractive({
           </filter>
         </defs>
 
+        {/* ─── Body silhouette (behind everything) ──────────────────────
+           A stylised front-view human figure underlaid behind the
+           canonical HD geometry. Outline-only, faint stroke — the
+           triangles, squares, and diamonds for the nine centres now
+           visibly sit ON a body instead of floating in space, which
+           was the user's "make it a realistic person" ask. */}
+        <g
+          aria-hidden="true"
+          fill="none"
+          stroke="rgba(252, 250, 246, 0.13)"
+          strokeWidth={1.2}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        >
+          {/* Torso + head + legs */}
+          <path d="
+            M 250 14
+            C 285 14 305 36 305 70
+            C 305 100 290 122 275 130
+            L 275 142
+            C 305 148 332 162 350 182
+            L 362 240
+            L 368 320
+            L 364 400
+            C 364 432 358 452 350 466
+            L 354 580
+            C 354 620 348 670 340 700
+            L 296 700
+            L 286 596
+            L 268 470
+            L 250 470
+            L 232 470
+            L 214 596
+            L 204 700
+            L 160 700
+            C 152 670 146 620 146 580
+            L 150 466
+            C 142 452 136 432 136 400
+            L 132 320
+            L 138 240
+            L 150 182
+            C 168 162 195 148 225 142
+            L 225 130
+            C 210 122 195 100 195 70
+            C 195 36 215 14 250 14
+            Z
+          " />
+          {/* Arms */}
+          <path d="
+            M 148 198
+            C 116 220 96 262 88 312
+            L 82 400
+            C 80 442 84 480 92 522
+            L 100 522
+            L 98 482
+            L 102 400
+            C 110 362 122 280 148 222
+          " />
+          <path d="
+            M 352 198
+            C 384 220 404 262 412 312
+            L 418 400
+            C 420 442 416 480 408 522
+            L 400 522
+            L 402 482
+            L 398 400
+            C 390 362 378 280 352 222
+          " />
+          {/* Faint spine guide — dashed */}
+          <line
+            x1={250} y1={140} x2={250} y2={600}
+            stroke="rgba(252, 250, 246, 0.06)"
+            strokeDasharray="3 8"
+          />
+        </g>
+
         {/* ─── Channels layer (behind centres) ─── */}
         <g>
           {CHANNELS.map((ch, i) => {
