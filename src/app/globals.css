@@ -366,7 +366,51 @@ body {
   text-transform: uppercase;
   cursor: pointer;
 }
-.onboard-check input { accent-color: var(--brass); }
+/* Custom brass-styled checkbox — replaces native UA chrome. The native
+   input is hidden via appearance:none and re-drawn as a brass-bordered
+   square; the checkmark is an inline SVG mask. Matches the editorial
+   aesthetic across both onboarding and compatibility forms. */
+.onboard-check input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--brass);
+  background: transparent;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+  flex-shrink: 0;
+}
+.onboard-check input[type="checkbox"]:hover {
+  background: rgba(200, 160, 82, 0.10);
+}
+.onboard-check input[type="checkbox"]:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(200, 160, 82, 0.35);
+}
+.onboard-check input[type="checkbox"]:checked {
+  background: var(--brass);
+}
+.onboard-check input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--bg-base);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.onboard-check input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .onboard-radio { display: flex; gap: 28px; margin-top: 2px; }
 .onboard-radio label {
   padding: 6px 0;

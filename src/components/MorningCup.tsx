@@ -18,6 +18,8 @@ import type { BirthData } from '@/lib/types';
 export type MorningCupProps = {
   user: BirthData;
   firstName: string;
+  /** True on /chart?demo=1 — show "this is the demo" CTA rather than "sign up" gate. */
+  demo?: boolean;
 };
 
 const LONG_DATE = new Intl.DateTimeFormat('en-AU', {
@@ -126,17 +128,29 @@ async function readSse(
   return full;
 }
 
-export default function MorningCup({ user: _user, firstName: _firstName }: MorningCupProps) {
+export default function MorningCup({ user: _user, firstName: _firstName, demo = false }: MorningCupProps) {
   const [body, setBody] = useState<string>('');
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(!demo);
   const [isStreaming, setStreaming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    demo
+      ? 'This is the J.P. Morgan demo chart — sign up to receive your own daily reading, written to your placements.'
+      : null,
+  );
   const [transitsOpen, setTransitsOpen] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const today = useMemo(() => LONG_DATE.format(new Date()), []);
 
   const load = useCallback(async () => {
+    // Don't call the auth-gated API in demo mode — we already show a
+    // tailored demo-state message via the error slot.
+    if (demo) {
+      setError('This is the J.P. Morgan demo chart — sign up to receive your own daily reading, written to your placements.');
+      setLoading(false);
+      setStreaming(false);
+      return;
+    }
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
@@ -161,7 +175,7 @@ export default function MorningCup({ user: _user, firstName: _firstName }: Morni
         setStreaming(false);
       }
     }
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     load();
@@ -277,7 +291,7 @@ export default function MorningCup({ user: _user, firstName: _firstName }: Morni
               cursor: 'pointer',
             }}
           >
-            Pour again
+            {demo ? 'Sign up for yours' : 'Try again'}
           </button>
         </div>
       )}

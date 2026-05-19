@@ -166,7 +166,18 @@ export default function DeepReadTabs({ user: _user, firstName: _firstName, tier 
       }));
     } catch (e) {
       if (ac.signal.aborted) return;
-      const msg = e instanceof Error ? e.message : 'Reading unavailable.';
+      const raw = e instanceof Error ? e.message : 'Reading unavailable.';
+      // Map common server error codes to copy that won't scare a reader.
+      // Raw "profile-not-found" / "unauthorised" / "tier_limit_reached"
+      // strings used to leak straight onto the card — fixed 2026-05-19.
+      let msg = raw;
+      if (raw === 'profile-not-found' || raw === 'unauthorised' || raw === '404') {
+        msg = 'This reading needs your saved chart — head to onboarding to cast yours, or sign in if you already have.';
+      } else if (raw === 'tier_limit_reached') {
+        msg = 'Daily limit reached. The Seven tier gets unlimited deep reads.';
+      } else if (raw.startsWith('stream-')) {
+        msg = 'The stream stuttered. Try again in a moment.';
+      }
       setReadings((r) => ({
         ...r,
         [tab.key]: { body: '', loading: false, streaming: false, error: msg },

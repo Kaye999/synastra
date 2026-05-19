@@ -144,12 +144,18 @@ async function readSse(
 export type MonthlyForecastProps = {
   user: BirthData;
   firstName: string;
+  /** True on /chart?demo=1 — skip the auth-gated fetch, show a demo CTA. */
+  demo?: boolean;
 };
 
-export default function MonthlyForecast({ user: _user, firstName: _firstName }: MonthlyForecastProps) {
+export default function MonthlyForecast({ user: _user, firstName: _firstName, demo = false }: MonthlyForecastProps) {
   const [body, setBody] = useState<string>('');
-  const [isLoading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setLoading] = useState(!demo);
+  const [error, setError] = useState<string | null>(
+    demo
+      ? 'This is the demo chart. Sign up to receive your own monthly forecast, written to your transits.'
+      : null,
+  );
   const [open, setOpen] = useState<SectionKey | null>(null);
   const [inView, setInView] = useState(false);
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -159,6 +165,11 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName }: 
   const parsed = useMemo(() => parseSections(body), [body]);
 
   const load = useCallback(async () => {
+    if (demo) {
+      setError('This is the demo chart. Sign up to receive your own monthly forecast, written to your transits.');
+      setLoading(false);
+      return;
+    }
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
@@ -173,13 +184,20 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName }: 
       );
     } catch (e) {
       if (ac.signal.aborted) return;
-      const msg = e instanceof Error ? e.message : 'The arc is hidden for now.';
+      const raw = e instanceof Error ? e.message : 'The arc is hidden for now.';
+      // Map raw API codes to readable copy.
+      let msg = raw;
+      if (raw === 'profile-not-found' || raw === 'unauthorised' || raw === '404') {
+        msg = 'Sign in to receive your monthly forecast.';
+      } else if (raw === 'tier_limit_reached') {
+        msg = 'Daily limit reached. The Seven tier gets unlimited reads.';
+      }
       setError(msg);
       setBody('');
     } finally {
       if (!ac.signal.aborted) setLoading(false);
     }
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     load();
@@ -259,7 +277,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName }: 
           maxWidth: '42ch',
         }}
       >
-        Tap to open each thread of the month.
+        Open each thread of the month.
       </p>
 
       {isLoading && !anySection && <ForecastShimmer />}

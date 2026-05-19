@@ -135,9 +135,11 @@ export type DashboardProps = {
   user: BirthData;
   tier: Tier;
   onReset?: () => void;
+  /** True when rendering /chart?demo=1 (the J.P. Morgan demo). */
+  demo?: boolean;
 };
 
-export default function Dashboard({ user, tier, onReset }: DashboardProps) {
+export default function Dashboard({ user, tier, onReset, demo = false }: DashboardProps) {
   // If no handler was passed (server-component case), fall back to clearing
   // the profile and redirecting to onboarding from the client.
   const effectiveOnReset = onReset || (() => {
@@ -345,10 +347,10 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           }}
         >
           <div className="reveal" style={{ animationDelay: '120ms' }}>
-            <MorningCup user={user} firstName={firstName} />
+            <MorningCup user={user} firstName={firstName} demo={demo} />
           </div>
           <div className="reveal" style={{ animationDelay: '480ms' }}>
-            <MonthlyForecast user={user} firstName={firstName} />
+            <MonthlyForecast user={user} firstName={firstName} demo={demo} />
           </div>
         </div>
 

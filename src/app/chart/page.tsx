@@ -73,7 +73,7 @@ export default async function ChartPage({
   const isUpgraded = sp.upgraded === '1';
 
   if (isDemo) {
-    return <ClientShell profile={DEMO_PROFILE} upgraded={false} />;
+    return <ClientShell profile={DEMO_PROFILE} upgraded={false} demo />;
   }
 
   const { userId } = await auth();
@@ -82,15 +82,15 @@ export default async function ChartPage({
   const profile = await loadProfile(userId);
   if (!profile) redirect('/onboarding');
 
-  return <ClientShell profile={profile} upgraded={isUpgraded} />;
+  return <ClientShell profile={profile} upgraded={isUpgraded} demo={false} />;
 }
 
-function ClientShell({ profile, upgraded }: { profile: Profile; upgraded: boolean }) {
+function ClientShell({ profile, upgraded, demo }: { profile: Profile; upgraded: boolean; demo: boolean }) {
   return (
     <>
       {upgraded && <UpgradeBanner tier={profile.tier} />}
       {/* No onReset from server component — Dashboard's SettingsCog handles reset via /api/profile DELETE + router.push */}
-      <Dashboard user={profile.birthData} tier={profile.tier} />
+      <Dashboard user={profile.birthData} tier={profile.tier} demo={demo} />
     </>
   );
 }
