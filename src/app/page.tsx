@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
-import Starfield from '@/components/Starfield';
+import HomepageBackground from '@/components/HomepageBackground';
 import Ornament from '@/components/Ornament';
 import Reveal from './_marketing/Reveal';
 import LineageScroller from './_marketing/LineageScroller';
@@ -208,7 +208,9 @@ export default async function LandingPage() {
 
   return (
     <main style={{ position: 'relative', overflow: 'hidden' }}>
-      <Starfield />
+      {/* Night → dawn scroll-tied background. Its own stars + sun + horizon
+         layers replace the per-page <Starfield /> that used to live here. */}
+      <HomepageBackground />
 
       {/* ── STICKY NAV ─────────────────────────────────────────────── */}
       <nav className="mk-nav">

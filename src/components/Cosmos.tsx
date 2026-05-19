@@ -29,7 +29,7 @@ const STYLES = `
 .cosmos-root {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -2;             /* sits behind HomepageBackground (z:-1) on landing */
   pointer-events: none;
   overflow: hidden;
   background: radial-gradient(
@@ -38,6 +38,12 @@ const STYLES = `
       #060912 50%,
       #02040a 100%
     );
+  /* On the homepage HomepageBackground sets --hp-scroll on :root.
+     Other pages never set it so the var defaults to 0 → opacity 1 (no fade).
+     On the homepage we fade the cosmos out across the scroll so dawn
+     doesn't fight the drifting nebulae palette. */
+  opacity: calc(1 - var(--hp-scroll, 0) * 0.85);
+  transition: opacity 200ms linear;
 }
 
 .cosmos-plate {
