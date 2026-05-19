@@ -332,7 +332,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
       />
       <TransitAlerts user={user} firstName={firstName} tier={tier} />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '120px 24px 120px' }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '150px 24px 120px' }}>
         {/* ─── Morning Cup + Monthly Forecast (two columns on desktop) ──── */}
         <div
           className="dash-top-grid"
@@ -996,21 +996,23 @@ function TraditionTopBar({
       aria-label="Synastra traditions"
       style={{
         position: 'fixed',
-        top: 0,
+        // Sit BELOW the 14+40=54px corner control row (logo + UserButton
+        // top-left, Alerts + SettingsCog top-right). Gives both rows clear
+        // space — no overlap, neat horizontal axis.
+        top: 68,
         left: 0,
         right: 0,
         zIndex: 30,
-        height: 56,
+        height: 48,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'rgba(10, 14, 26, 0.82)',
+        background: 'rgba(10, 14, 26, 0.72)',
         backdropFilter: 'blur(14px)',
         WebkitBackdropFilter: 'blur(14px)',
+        borderTop: '1px solid rgba(252, 250, 246, 0.04)',
         borderBottom: '1px solid rgba(252, 250, 246, 0.06)',
-        // Leave room on each side for the fixed corner clusters
-        // (logo @ left:14, settings/alerts @ right:14, both 40px tall).
-        padding: '0 240px',
+        padding: '0 24px',
         overflowX: 'auto',
         WebkitOverflowScrolling: 'touch',
       }}

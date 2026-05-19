@@ -2,39 +2,49 @@
 
 // Onboarding page — client wrapper around <Onboarding>. On submit, writes
 // the user's birth data + default tier ('free') to astral.profiles via the
-// RLS-aware Supabase browser client, then redirects to /chart.
+// service-role API route, then redirects to /chart.
 //
-// Uses Clerk's useUser() to stamp user_id. RLS policies (see tiers.ts)
-// ensure users can only read/write their own row — service role bypasses
-// RLS for the Stripe webhook.
+// Auth flow (hardened 2026-05-19):
+//   1. If Clerk is still loading → show inline message in the banner.
+//   2. If user not signed in → don't silently bounce; show a clear
+//      "Sign in first" CTA so they understand why nothing happens.
+//   3. If signed in → POST /api/profile, on success push /chart.
+//
+// Every state has visible feedback near the button so the user never
+// feels like "nothing happened".
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import Link from 'next/link';
 import Onboarding from '@/components/Onboarding';
 import type { BirthData } from '@/lib/types';
+
+type Status =
+  | { kind: 'idle' }
+  | { kind: 'loading' }
+  | { kind: 'saving' }
+  | { kind: 'auth-required' }
+  | { kind: 'error'; message: string }
+  | { kind: 'success' };
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isLoaded } = useUser();
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState<string>('');
+  const [status, setStatus] = useState<Status>({ kind: 'idle' });
 
   const handleSave = async (birthData: BirthData) => {
-    setErr('');
-
     if (!isLoaded) {
-      setErr('Still loading your account — please try again in a moment.');
+      setStatus({ kind: 'loading' });
       return;
     }
     if (!user) {
-      router.push('/sign-in');
+      setStatus({ kind: 'auth-required' });
       return;
     }
 
-    setSaving(true);
+    setStatus({ kind: 'saving' });
     try {
-      // POST to server API — uses service role to upsert, bypasses Clerk<>Supabase JWT setup.
       const res = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,44 +60,121 @@ export default function OnboardingPage() {
             : typeof (body as { error?: unknown }).error === 'string'
               ? (body as { error: string }).error
               : 'unknown';
-        setErr(`Could not save your chart. (${detail})`);
-        setSaving(false);
+        setStatus({ kind: 'error', message: `Could not save your chart — ${detail}` });
         return;
       }
 
-      router.push('/chart');
+      setStatus({ kind: 'success' });
+      // Small delay so the user sees the success state before the redirect.
+      setTimeout(() => router.push('/chart'), 600);
     } catch (e) {
       console.error('[synastra] onboarding threw:', e);
-      setErr('Something went wrong. Please try again.');
-      setSaving(false);
+      setStatus({ kind: 'error', message: 'Something went wrong. Please try again.' });
     }
   };
 
+  // Disable the button while saving / success.
+  const isBusy = status.kind === 'saving' || status.kind === 'success';
+
   return (
     <>
-      <Onboarding onSave={handleSave} />
-      {(saving || err) && (
-        <div
-          role={err ? 'alert' : 'status'}
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 50,
-            background: 'rgba(12, 10, 14, 0.94)',
-            border: `1px solid ${err ? '#d66' : 'var(--brass, #C8A052)'}`,
-            padding: '12px 20px',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 11,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: err ? '#f8b6b6' : 'var(--brass, #C8A052)',
-          }}
-        >
-          {err || 'Casting your atlas…'}
-        </div>
-      )}
+      <Onboarding
+        onSave={handleSave}
+        submitDisabled={isBusy}
+        submitLabel={
+          status.kind === 'saving' ? 'Casting your atlas…' :
+          status.kind === 'success' ? '✓ Cast — taking you to your chart' :
+          undefined
+        }
+      />
+      <Feedback status={status} onDismissError={() => setStatus({ kind: 'idle' })} />
     </>
+  );
+}
+
+function Feedback({
+  status,
+  onDismissError,
+}: {
+  status: Status;
+  onDismissError: () => void;
+}) {
+  if (status.kind === 'idle') return null;
+
+  const isError = status.kind === 'error';
+  const isAuthRequired = status.kind === 'auth-required';
+
+  // Banner sits ABOVE the fold (top-centred), not at the bottom edge,
+  // so the user always sees it without scrolling.
+  return (
+    <div
+      role={isError || isAuthRequired ? 'alert' : 'status'}
+      style={{
+        position: 'fixed',
+        top: 84,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 80,
+        background: 'rgba(8, 12, 24, 0.96)',
+        border: `1px solid ${isError ? '#d66' : isAuthRequired ? 'var(--brass)' : 'rgba(200, 160, 82, 0.55)'}`,
+        padding: '18px 28px',
+        borderRadius: 6,
+        fontFamily: "'IBM Plex Mono', monospace",
+        fontSize: 12,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: isError ? '#f8b6b6' : 'var(--brass, #C8A052)',
+        maxWidth: '90vw',
+        boxShadow: '0 16px 48px rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+      }}
+    >
+      {status.kind === 'loading' && 'Loading your account — try again in a moment…'}
+      {status.kind === 'saving' && 'Casting your atlas…'}
+      {status.kind === 'success' && '✓ Cast — taking you to your chart'}
+      {status.kind === 'auth-required' && (
+        <>
+          <span>Sign in first to save your chart</span>
+          <Link
+            href="/sign-in?redirect=/onboarding"
+            style={{
+              padding: '8px 16px',
+              border: '1px solid var(--brass)',
+              color: 'var(--brass)',
+              textDecoration: 'none',
+              borderRadius: 4,
+              letterSpacing: '0.18em',
+            }}
+          >
+            Sign in
+          </Link>
+        </>
+      )}
+      {isError && (
+        <>
+          <span style={{ textTransform: 'none', letterSpacing: 'normal' }}>
+            {status.message}
+          </span>
+          <button
+            type="button"
+            onClick={onDismissError}
+            aria-label="Dismiss"
+            style={{
+              background: 'transparent',
+              border: 0,
+              color: '#f8b6b6',
+              cursor: 'pointer',
+              padding: 4,
+              fontSize: 16,
+              lineHeight: 1,
+            }}
+          >
+            ✕
+          </button>
+        </>
+      )}
+    </div>
   );
 }

@@ -9,9 +9,13 @@ import CityAutocomplete, { type CityHit } from './CityAutocomplete';
 export type OnboardingProps = {
   onSave: (user: BirthData) => void;
   initial?: Partial<BirthData>;
+  /** Override the Cast The Atlas button label (e.g. "Casting…"). */
+  submitLabel?: string;
+  /** Disable the submit button while a save is in flight. */
+  submitDisabled?: boolean;
 };
 
-export default function Onboarding({ onSave, initial }: OnboardingProps) {
+export default function Onboarding({ onSave, initial, submitLabel, submitDisabled }: OnboardingProps) {
   const init: Partial<BirthData> = initial || {};
   const initDateStr =
     init.dob && init.dob.y && init.dob.m && init.dob.d
@@ -93,10 +97,10 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
     <div className="onboard-wrap">
       <form className="onboard-card" onSubmit={handleSubmit}>
         <div className="onboard-symbol">☉ ☽ ↑</div>
-        <div className="onboard-eyebrow">An Astral Atlas — Volume I</div>
-        <h1 className="onboard-title">Twelve traditions. One birth.</h1>
+        <div className="onboard-eyebrow">An Astral Atlas</div>
+        <h1 className="onboard-title">Seven traditions. One birth.</h1>
         <p className="onboard-sub">
-          Western, Vedic, Kabbalah, Numerology, Chinese BaZi, Human Design, Mayan Tzolk&rsquo;in, Astrocartography, Tarot, Enneagram, Gene Keys, Ayurveda — all pulled from the same date, time, and place.
+          Western, Vedic, Numerology, Kabbalah, Human Design, Tarot, and Astrocartography — all pulled from the same date, time, and place. One chart. One Oracle.
         </p>
         <hr className="brass-rule" />
 
@@ -214,8 +218,20 @@ export default function Onboarding({ onSave, initial }: OnboardingProps) {
 
         {err && <div className="onboard-err">{err}</div>}
 
-        <button type="submit" className="onboard-btn">Cast the Atlas</button>
-        <button type="button" className="onboard-demo" onClick={loadDemo}>
+        <button
+          type="submit"
+          className="onboard-btn"
+          disabled={submitDisabled}
+          style={submitDisabled ? { opacity: 0.6, cursor: 'wait' } : undefined}
+        >
+          {submitLabel || 'Cast the Atlas'}
+        </button>
+        <button
+          type="button"
+          className="onboard-demo"
+          onClick={loadDemo}
+          disabled={submitDisabled}
+        >
           Read the demo chart instead
         </button>
       </form>
