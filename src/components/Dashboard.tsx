@@ -34,7 +34,7 @@ import TreeOfLife from './TreeOfLife';
 import TarotDailyCard from './TarotDailyCard';
 import TarotSpread from './TarotSpread';
 import BodyGraphInteractive from './BodyGraphInteractive';
-import AnatomicalChakraMap from './AnatomicalChakraMap';
+import HumanAnatomy from './HumanAnatomy';
 import AstrocartoMap from './AstrocartoMap';
 import { WesternSignAtlas, VedicNakshatraAtlas, NumerologyAtlas } from './atlases';
 
@@ -632,7 +632,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
             {hdResult ? (
               <>
                 <BodyGraphInteractive hdResult={hdResult as { activatedGates: number[] }} />
-                <AnatomicalChakraMap
+                <HumanAnatomy
                   hdResult={hdResult as { activatedGates: number[]; definedCenters?: readonly string[] }}
                 />
               </>
