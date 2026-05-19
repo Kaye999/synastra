@@ -150,7 +150,8 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
   const { userId } = useAuth();
 
   const firstName = user.name || user.fullName.split(' ')[0] || 'You';
-  const activeGroup = groupOfMode(mode);
+  // activeGroup retained for future per-category routing — not currently rendered.
+  void groupOfMode;
 
   const coords = useMemo(() => {
     return resolveCityCoords(user.city) || { lat: -33.87, lon: 151.21, tzOffset: 10 };
@@ -280,6 +281,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
     <div className={`page mode-${mode}`} style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
 
+      {/* ── Tradition tabs — fixed at top, always visible while reading. ── */}
+      <TraditionTopBar mode={mode} setMode={setMode} />
+
       {/* Top-left identity cluster: home link + avatar, in one row so they
           can never collide with each other or with the top-right controls
           (Alerts pill, Settings cog). */}
@@ -327,7 +331,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
       />
       <TransitAlerts user={user} firstName={firstName} tier={tier} />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '80px 24px 120px' }}>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '120px 24px 120px' }}>
         {/* ─── Morning Cup + Monthly Forecast (two columns on desktop) ──── */}
         <div
           className="dash-top-grid"
@@ -347,8 +351,7 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
           </div>
         </div>
 
-        {/* ─── Mode switcher: two-tier nav (category → tradition) ───────── */}
-        <CategoryNav mode={mode} setMode={setMode} activeGroup={activeGroup} />
+        {/* Tradition switcher is rendered as a fixed top bar — see <TraditionTopBar /> below. */}
 
         {/* Hero */}
         <header className="reveal" style={{ marginBottom: 64, animationDelay: '360ms' }}>
@@ -671,239 +674,6 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
   );
 }
 
-// ─── Category / mode nav ─────────────────────────────────────────────────────
-//
-// Two-tier: category pills on top, tradition sub-tabs below. Below 720px the
-// whole strip collapses to a horizontally-scrollable bar with small category
-// labels inline as dividers.
-
-function CategoryNav({
-  mode,
-  setMode,
-  activeGroup,
-}: {
-  mode: Mode;
-  setMode: (m: Mode) => void;
-  activeGroup: ModeGroup;
-}) {
-  const [compact, setCompact] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mql = window.matchMedia('(max-width: 720px)');
-    const update = () => setCompact(mql.matches);
-    update();
-    mql.addEventListener('change', update);
-    return () => mql.removeEventListener('change', update);
-  }, []);
-
-  if (compact) {
-    // Single-row horizontal scroll with category labels as dividers.
-    return (
-      <nav
-        className="mode-switch reveal"
-        style={{
-          display: 'flex',
-          gap: 14,
-          marginBottom: 48,
-          overflowX: 'auto',
-          alignItems: 'center',
-          paddingBottom: 6,
-          animationDelay: '240ms',
-          WebkitOverflowScrolling: 'touch',
-        }}
-      >
-        {GROUP_ORDER.map((g, gi) => (
-          <span
-            key={g}
-            style={{ display: 'inline-flex', gap: 12, alignItems: 'center', flexShrink: 0 }}
-          >
-            {gi > 0 && (
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 1,
-                  height: 14,
-                  background: 'var(--rule)',
-                  margin: '0 6px',
-                  flexShrink: 0,
-                }}
-              />
-            )}
-            <span
-              style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 9,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--ink-faint)',
-                flexShrink: 0,
-              }}
-            >
-              §&nbsp;{MODE_GROUPS[g].label}
-            </span>
-            {MODE_GROUPS[g].modes.map((m) => (
-              <ModeButton key={m} m={m} active={mode === m} onClick={() => setMode(m)} />
-            ))}
-          </span>
-        ))}
-      </nav>
-    );
-  }
-
-  return (
-    <div className="reveal" style={{ marginBottom: 56, animationDelay: '240ms' }}>
-      {/* ── Section eyebrow — labels what this nav IS ─────────────── */}
-      <div
-        style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'var(--ink-faint)',
-          marginBottom: 14,
-        }}
-      >
-        Browse by
-      </div>
-
-      {/* ── Top row: CATEGORY (parent nav, bigger + bolder) ───────── */}
-      <nav
-        aria-label="Tradition categories"
-        style={{
-          display: 'flex',
-          gap: 32,
-          marginBottom: 28,
-          flexWrap: 'wrap',
-          borderBottom: '1px solid var(--rule)',
-          paddingBottom: 18,
-        }}
-      >
-        {GROUP_ORDER.map((g) => {
-          const first = MODE_GROUPS[g].modes[0];
-          const isActive = activeGroup === g;
-          return (
-            <button
-              key={g}
-              type="button"
-              onClick={() => setMode(first)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                padding: '6px 0',
-                color: isActive ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: 14,
-                fontWeight: isActive ? 600 : 500,
-                letterSpacing: '0.16em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                position: 'relative',
-                transition: 'color 0.18s ease',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.62)';
-                }
-              }}
-            >
-              {MODE_GROUPS[g].label}
-              {isActive && (
-                <span
-                  aria-hidden="true"
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    bottom: -19,
-                    height: 2,
-                    background: 'var(--brass)',
-                  }}
-                />
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* ── Sub-eyebrow + bottom row: TRADITION (child nav) ───────── */}
-      <div
-        style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 9,
-          letterSpacing: '0.28em',
-          textTransform: 'uppercase',
-          color: 'var(--ink-faint)',
-          marginBottom: 10,
-        }}
-      >
-        Tradition
-      </div>
-      <nav
-        aria-label="Traditions within category"
-        className="mode-switch"
-        style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}
-      >
-        {MODE_GROUPS[activeGroup].modes.map((m) => (
-          <ModeButton key={m} m={m} active={mode === m} onClick={() => setMode(m)} />
-        ))}
-      </nav>
-    </div>
-  );
-}
-
-function ModeButton({
-  m,
-  active,
-  onClick,
-}: {
-  m: Mode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={active ? 'active' : ''}
-      style={{
-        background: active ? 'rgba(200, 160, 82, 0.12)' : 'transparent',
-        border: 0,
-        padding: '6px 12px',
-        color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.55)',
-        borderBottom: active ? '1px solid var(--brass)' : '1px solid transparent',
-        fontFamily: "'IBM Plex Mono', monospace",
-        fontSize: 11,
-        fontWeight: active ? 600 : 500,
-        letterSpacing: '0.2em',
-        textTransform: 'uppercase',
-        cursor: 'pointer',
-        flexShrink: 0,
-        borderRadius: 3,
-        transition: 'color 0.18s ease, background 0.18s ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
-          (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255, 255, 255, 0.03)';
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!active) {
-          (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.55)';
-          (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-        }
-      }}
-    >
-      {MODE_LABELS[m]}
-    </button>
-  );
-}
 
 // ─── Small subcomponents ─────────────────────────────────────────────────────
 function ChartTable({ planets, showHouses }: { planets: Planet[]; showHouses: boolean }) {
@@ -1178,3 +948,133 @@ function EssayBlock({
   );
 }
 
+
+// ─── Tradition top bar ──────────────────────────────────────────────────────
+//
+// Single fixed row of all 7 traditions at the top of every chart page.
+// Replaces the previous two-tier (Category → Tradition) nav — with only 7
+// items the category layer was just noise. Sits between the corner
+// identity cluster (top-left) and the controls cluster (top-right).
+//
+// Active state: brass colour + 2px brass underline.
+// Hover: ink colour (no underline yet).
+// Mobile: horizontal scroll with brass momentum.
+
+const TRADITION_TAB_ORDER: readonly Mode[] = [
+  'astro',        // Western
+  'vedic',
+  'numerology',
+  'kab',          // Kabbalah
+  'hd',           // Human Design
+  'tarot',
+  'astrocarto',   // Astrocartography
+];
+
+function TraditionTopBar({
+  mode,
+  setMode,
+}: {
+  mode: Mode;
+  setMode: (m: Mode) => void;
+}) {
+  return (
+    <nav
+      aria-label="Synastra traditions"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 30,
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(10, 14, 26, 0.82)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        borderBottom: '1px solid rgba(252, 250, 246, 0.06)',
+        // Leave room on each side for the fixed corner clusters
+        // (logo @ left:14, settings/alerts @ right:14, both 40px tall).
+        padding: '0 240px',
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          gap: 6,
+          alignItems: 'center',
+          flexWrap: 'nowrap',
+        }}
+      >
+        {TRADITION_TAB_ORDER.map((m, i) => {
+          const active = mode === m;
+          return (
+            <span key={m} style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {i > 0 && (
+                <span
+                  aria-hidden="true"
+                  style={{
+                    width: 3,
+                    height: 3,
+                    borderRadius: '50%',
+                    background: 'rgba(252, 250, 246, 0.18)',
+                    margin: '0 8px',
+                  }}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setMode(m)}
+                className={active ? 'active' : ''}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '8px 4px',
+                  color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 11,
+                  fontWeight: active ? 600 : 500,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  transition: 'color 0.18s ease',
+                  whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) {
+                    (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) {
+                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.62)';
+                  }
+                }}
+              >
+                {MODE_LABELS[m]}
+                {active && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      left: 4,
+                      right: 4,
+                      bottom: 2,
+                      height: 2,
+                      background: 'var(--brass)',
+                      borderRadius: 2,
+                    }}
+                  />
+                )}
+              </button>
+            </span>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
