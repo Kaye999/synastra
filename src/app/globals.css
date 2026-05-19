@@ -262,6 +262,23 @@ body {
   }
   .chapter-body { font-size: 17.5px; line-height: 1.75; }
 }
+
+/* ─── Mobile: dashboard corner clusters (iPhone 14 = 390px) ─────────
+   Hide the "SYNASTRA" wordmark + "Settings" / "Alerts" pill labels
+   so the four corner controls fit on one row at 390px without
+   overlapping the tradition top bar. Icons + UserButton remain. */
+@media (max-width: 640px) {
+  .dash-home-word,
+  .dash-corner-label {
+    display: none;
+  }
+  /* Drop-cap clamp: 72px float-left was eating half the body column
+     at 390px. 48px keeps the editorial feel without squeezing prose
+     to 3-char lines. */
+  .drop-cap {
+    font-size: 2.2em !important;
+  }
+}
 .drop-cap {
   float: left;
   font-family: var(--font-display);
@@ -916,6 +933,16 @@ body {
 @media (max-width: 720px) {
   .mk-nav { padding: 14px 20px; }
   .mk-nav-links a:not(.mk-nav-cta):not(.mk-nav-signin) { display: none; }
+}
+/* Under 480px the brass CTA + Sign-in + wordmark were all hitting the
+   right edge. Shrink CTA padding + letter-spacing so the row fits. */
+@media (max-width: 480px) {
+  .mk-nav-cta {
+    padding: 8px 12px;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+  }
+  .mk-nav-signin { font-size: 11px; }
 }
 
 /* ─── Marketing: Brand-first hero ─────────────────────────────────── */

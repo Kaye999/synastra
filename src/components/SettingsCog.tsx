@@ -60,7 +60,7 @@ export default function SettingsCog({ user, onSave, onReset }: SettingsCogProps)
         }}
       >
         <span style={{ fontSize: 16, lineHeight: 1 }}>⚙</span>
-        <span>Settings</span>
+        <span className="dash-corner-label">Settings</span>
       </button>
 
       {open && (

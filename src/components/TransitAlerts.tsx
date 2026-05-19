@@ -267,7 +267,7 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
         <span style={{ display: 'inline-flex', fontSize: 14, lineHeight: 1 }}>
           <BellGlyph />
         </span>
-        <span>Alerts</span>
+        <span className="dash-corner-label">Alerts</span>
         {badgeCount > 0 && (
           <span
             aria-hidden="true"

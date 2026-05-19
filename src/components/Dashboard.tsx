@@ -304,6 +304,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
         <Link
           href="/"
           aria-label="Synastra home"
+          className="dash-home-pill"
           style={{
             padding: '0 14px',
             height: 40,
@@ -322,7 +323,8 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
             borderRadius: 20,
           }}
         >
-          ← SYNASTRA
+          <span className="dash-home-icon">←</span>
+          <span className="dash-home-word">&nbsp;SYNASTRA</span>
         </Link>
         <UserButton appearance={{ elements: { avatarBox: { width: 36, height: 36 } } }} />
       </div>
@@ -694,7 +696,8 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
 // ─── Small subcomponents ─────────────────────────────────────────────────────
 function ChartTable({ planets, showHouses }: { planets: Planet[]; showHouses: boolean }) {
   return (
-    <table className="chart-table" style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, marginBottom: 32 }}>
+    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', marginBottom: 32 }}>
+    <table className="chart-table" style={{ width: '100%', minWidth: 360, borderCollapse: 'collapse', fontFamily: "'IBM Plex Mono', monospace", fontSize: 13 }}>
       <thead>
         <tr style={{ borderBottom: '1px solid var(--rule)' }}>
           <th style={{ textAlign: 'left', padding: '8px 6px' }}>Planet</th>
@@ -719,6 +722,7 @@ function ChartTable({ planets, showHouses }: { planets: Planet[]; showHouses: bo
         })}
       </tbody>
     </table>
+    </div>
   );
 }
 
