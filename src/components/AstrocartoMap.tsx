@@ -26,6 +26,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Chart } from '@/lib/types';
+import { WORLD_COUNTRIES } from '@/lib/world-countries';
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -568,8 +569,12 @@ export default function AstrocartoMap({
     return paths.join(' ');
   }, []);
 
+  // Real country outlines — Natural Earth 1:110m, pre-projected into the
+  // map's equirectangular space at build time. Single concatenated path
+  // for fast render (177 features otherwise) — fill-rule:evenodd handles
+  // holes correctly.
   const continentPaths = useMemo(
-    () => CONTINENTS.map((poly) => projectPolygon(poly)).join(' '),
+    () => WORLD_COUNTRIES.map((c) => c.d).join(' '),
     [],
   );
 
@@ -638,12 +643,15 @@ export default function AstrocartoMap({
                 opacity={0.08}
               />
 
-              {/* Continents (very faint) */}
+              {/* Countries (real Natural Earth outlines, very faint) */}
               <path
                 d={continentPaths}
+                fillRule="evenodd"
                 fill="rgba(200,160,82,0.05)"
-                stroke="rgba(200,160,82,0.22)"
-                strokeWidth={0.8}
+                stroke="rgba(200,160,82,0.28)"
+                strokeWidth={0.6}
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
               />
 
               {/* Equator accent */}
