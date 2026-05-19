@@ -236,6 +236,7 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
       </p>
 
       <div
+        className="anatomical-chakra-grid"
         style={{
           display: 'grid',
           gridTemplateColumns: 'minmax(260px, 380px) 1fr',
@@ -244,6 +245,14 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
           padding: '24px 0',
         }}
       >
+        <style>{`
+          @media (max-width: 720px) {
+            .anatomical-chakra-grid {
+              grid-template-columns: 1fr !important;
+              gap: 24px !important;
+            }
+          }
+        `}</style>
         {/* ─── BODY + CHAKRA SVG ─── */}
         <div style={{ position: 'relative' }}>
           <svg

@@ -147,14 +147,11 @@ export default function Onboarding({ onSave, initial, submitLabel, submitDisable
         </div>
 
         <div className="onboard-field">
-          <label htmlFor="ob-time">Birth time</label>
-          <input
-            id="ob-time"
-            className="time-input"
-            type="time"
+          <label htmlFor="ob-hour">Birth time</label>
+          <TimeWheel
             value={timeStr}
+            onChange={setTimeStr}
             disabled={timeUnknown}
-            onChange={(e) => setTimeStr(e.target.value)}
           />
           <label className="onboard-check">
             <input
@@ -235,6 +232,127 @@ export default function Onboarding({ onSave, initial, submitLabel, submitDisable
           Read the demo chart instead
         </button>
       </form>
+    </div>
+  );
+}
+
+/* ─── TimeWheel — three-select birth-time picker ─────────────────────────── */
+//
+// Replaces <input type="time"> which has uneven UX across platforms (iOS
+// renders a beautiful native wheel, desktop Chrome shows an awkward
+// caret-based field with the AM/PM toggle hard to find).
+//
+// Three native <select> elements:
+//   - On iOS / Android: each select pops a full-height NATIVE WHEEL PICKER
+//     — exactly what the user asked for (scrollable, big touch targets).
+//   - On desktop: clean dropdowns.
+//   - Same JSX, no platform-specific code.
+//
+// Internal state is HH (1-12), MM (0-59), period ('AM' | 'PM'). On change
+// we convert back to a 24-hour "HH:MM" string for the parent's existing
+// timeStr state — zero contract change for handleSubmit's regex.
+
+function TimeWheel({
+  value,
+  onChange,
+  disabled,
+}: {
+  /** 24-hour "HH:MM" string (matches parent's existing format). */
+  value: string;
+  onChange: (next: string) => void;
+  disabled?: boolean;
+}) {
+  // Parse incoming "HH:MM" (24h). Defaults sensible if empty / invalid.
+  const m = /^(\d{1,2}):(\d{2})$/.exec(value || '');
+  const h24 = m ? Math.max(0, Math.min(23, parseInt(m[1], 10))) : 12;
+  const min = m ? Math.max(0, Math.min(59, parseInt(m[2], 10))) : 0;
+  const period: 'AM' | 'PM' = h24 < 12 ? 'AM' : 'PM';
+  const h12 = ((h24 + 11) % 12) + 1; // 0→12, 1→1, ..., 12→12, 13→1, ..., 23→11
+
+  const emit = (nextH12: number, nextMin: number, nextPeriod: 'AM' | 'PM') => {
+    let h = nextH12 % 12;
+    if (nextPeriod === 'PM') h += 12;
+    const hh = String(h).padStart(2, '0');
+    const mm = String(nextMin).padStart(2, '0');
+    onChange(`${hh}:${mm}`);
+  };
+
+  const selectStyle: React.CSSProperties = {
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    MozAppearance: 'none',
+    background: 'transparent',
+    border: 'none',
+    color: 'var(--ink, #FCFAF6)',
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 22,
+    letterSpacing: '0.04em',
+    padding: '8px 6px',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    minWidth: 56,
+    textAlign: 'center',
+    textAlignLast: 'center',
+    flex: '0 0 auto',
+  };
+
+  const sepStyle: React.CSSProperties = {
+    fontFamily: "'IBM Plex Mono', monospace",
+    fontSize: 22,
+    color: 'var(--brass, #C8A052)',
+    opacity: 0.55,
+    padding: '0 2px',
+    userSelect: 'none',
+  };
+
+  return (
+    <div
+      className="time-wheel"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '6px 14px',
+        border: '1px solid var(--brass, #C8A052)',
+        borderRadius: 2,
+        background: 'transparent',
+        opacity: disabled ? 0.45 : 1,
+      }}
+    >
+      <select
+        id="ob-hour"
+        aria-label="Hour"
+        value={h12}
+        disabled={disabled}
+        onChange={(e) => emit(parseInt(e.target.value, 10), min, period)}
+        style={selectStyle}
+      >
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((n) => (
+          <option key={n} value={n}>{String(n).padStart(2, '0')}</option>
+        ))}
+      </select>
+      <span aria-hidden="true" style={sepStyle}>:</span>
+      <select
+        aria-label="Minute"
+        value={min}
+        disabled={disabled}
+        onChange={(e) => emit(h12, parseInt(e.target.value, 10), period)}
+        style={selectStyle}
+      >
+        {Array.from({ length: 60 }, (_, i) => i).map((n) => (
+          <option key={n} value={n}>{String(n).padStart(2, '0')}</option>
+        ))}
+      </select>
+      <span aria-hidden="true" style={{ ...sepStyle, width: 12 }} />
+      <select
+        aria-label="AM or PM"
+        value={period}
+        disabled={disabled}
+        onChange={(e) => emit(h12, min, e.target.value as 'AM' | 'PM')}
+        style={{ ...selectStyle, fontSize: 14, color: 'var(--brass, #C8A052)' }}
+      >
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
     </div>
   );
 }

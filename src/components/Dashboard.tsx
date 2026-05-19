@@ -1048,7 +1048,9 @@ function TraditionTopBar({
                 style={{
                   background: 'transparent',
                   border: 0,
-                  padding: '8px 4px',
+                  // Vertical padding 14px gives a 44px touch target on mobile
+                  // (Apple HIG minimum) while keeping the typography compact.
+                  padding: '14px 6px',
                   color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 11,
