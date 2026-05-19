@@ -292,7 +292,17 @@ export function streamReading(opts: StreamOptions): Response {
       stream.on('error', (err: unknown) => {
         console.error('[reading] stream error', err);
         opts.onError?.(err);
-        send({ type: 'error', message: 'stream-error' });
+        // Pass the real message through so the client can show something
+        // useful (was generic 'stream-error' which hid the cause).
+        const raw =
+          err instanceof Error
+            ? err.message
+            : typeof err === 'string'
+              ? err
+              : 'stream-error';
+        // Strip newlines and cap length so the SSE event stays well-formed.
+        const message = raw.replace(/\s+/g, ' ').slice(0, 240);
+        send({ type: 'error', message });
       });
       stream.on('end', () => {
         Promise.resolve(opts.onComplete?.(full))

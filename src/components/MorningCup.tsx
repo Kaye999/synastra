@@ -85,8 +85,8 @@ async function readSse(
     }
 
     const msg = parsedError
-      ? `The sky is quiet — ${parsedError}.`
-      : `The sky is quiet (${res.status}).`;
+      ? `Couldn't pour today's cup — ${parsedError}`
+      : `Couldn't pour today's cup (HTTP ${res.status}).`;
     throw new Error(msg);
   }
   if (!res.body) throw new Error('No stream came through.');
