@@ -36,6 +36,7 @@ import TarotSpread from './TarotSpread';
 import BodyGraphInteractive from './BodyGraphInteractive';
 import AnatomicalChakraMap from './AnatomicalChakraMap';
 import AstrocartoMap from './AstrocartoMap';
+import { WesternSignAtlas, VedicNakshatraAtlas, NumerologyAtlas } from './atlases';
 
 // ─── Engines ────────────────────────────────────────────────────────────────
 import { computeTropicalChart, computeSiderealChart, computeMahadasha } from '@/lib/engines/astro';
@@ -407,6 +408,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
               <NatalChartWheel chart={tropical} />
             </div>
 
+            {/* Sign atlas — 12 zodiac archetypes. User's Sun/Moon/Rising glow. */}
+            <WesternSignAtlas tropical={tropical} />
+
             {/* ── Free-tier reading: Rising / Sun / Moon with shadow + gift,
                 plus the chart-weather balance paragraph. Enough to prove
                 quality; Mercury/Venus/Mars + houses + aspects + other 11
@@ -499,6 +503,9 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         {/* ─── VEDIC (reader+; free tier gets Moon-nakshatra preview) ──── */}
         {mode === 'vedic' && (
           <section>
+            {/* Nakshatra atlas — 27 lunar mansions. User's Moon nakshatra glows. */}
+            <VedicNakshatraAtlas sidereal={sidereal} />
+
             {tier === 'free' && sidereal.nakshatra && (
               <EssayBlock
                 title={`A glance: Moon · ${sidereal.nakshatra.name} nakshatra`}
@@ -562,6 +569,13 @@ export default function Dashboard({ user, tier, onReset }: DashboardProps) {
         {/* ─── NUMEROLOGY (reader+; free tier gets Life Path preview) ── */}
         {mode === 'numerology' && (
           <section>
+            {/* Number atlas — 9 + 3 master numbers. User's Life Path / Expression / Soul Urge glow. */}
+            <NumerologyAtlas
+              lifePath={numerology.lifePath}
+              expression={numerology.expression}
+              soulUrge={numerology.soulUrge}
+            />
+
             <PaywallBlur tier={tier} required="reader">
               <EssayBlock title={`Life Path ${numerology.lifePath} — ${numerology.lifePathObj.title}`} body={numerology.lifePathObj.forYou} footer={numerology.lifePathObj.calc} />
               <EssayBlock title={`Expression ${numerology.expression} — ${numerology.expressionObj.title}`} body={numerology.expressionObj.forYou} footer={numerology.expressionObj.calc} />
