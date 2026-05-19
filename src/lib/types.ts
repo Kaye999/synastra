@@ -84,4 +84,5 @@ export type CityCoords = {
   lat: number;
   lon: number;
   tzOffset: number;
+  tzId?: string;
 };

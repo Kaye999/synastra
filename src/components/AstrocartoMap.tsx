@@ -27,6 +27,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Chart } from '@/lib/types';
 import { WORLD_COUNTRIES } from '@/lib/world-countries';
+import { WORLD_COUNTRIES as WORLD_COUNTRIES_FLAT } from '@/lib/world-countries-flat';
+
+// ─── View modes ─────────────────────────────────────────────────────────────
+//
+// Two ways to see the same astrocartography data:
+//
+//   classic  — equirectangular, lon → x, lat → y, 1440×720.
+//   flat     — azimuthal-equidistant centred on the North Pole, 900×900.
+//              South Pole spreads around the outer rim. Meridians become
+//              radial spokes; horizon curves bend gracefully around the disc.
+//
+// All path-builders take the active view as a parameter; the underlying math
+// is identical, only the screen-space projection changes.
+
+type ViewMode = 'classic' | 'flat';
+
+const VIEW_STORAGE_KEY = 'synastra:astrocarto-view';
 
 // ─── Props ──────────────────────────────────────────────────────────────────
 
@@ -41,11 +58,28 @@ export type AstrocartoMapProps = {
 const MAP_W = 1440;
 const MAP_H = 720;
 
+// Flat-earth (azimuthal-equidistant) viewBox.
+const FLAT_SIZE = 900;
+const FLAT_CX = FLAT_SIZE / 2;
+const FLAT_CY = FLAT_SIZE / 2;
+const FLAT_R_FULL = 360; // pixel radius assigned to the South Pole (90°S).
+// FLAT_R_EQ ≈ 180; rim of the disc lies at FLAT_R_FULL.
+
 const DEG = Math.PI / 180;
 const RAD = 180 / Math.PI;
 const OBLIQUITY = 23.4393 * DEG;
 
-// Projection helpers.
+// ─── Projection ─────────────────────────────────────────────────────────────
+//
+// Equirectangular (classic): straightforward lon→x, lat→y.
+// Azimuthal-equidistant (flat): polar coords centred on the North Pole.
+//   ρ = (90 - lat) × (R_FULL / 90)
+//   θ = lon · DEG
+//   x = CX + ρ sin θ
+//   y = CY - ρ cos θ          (cos θ is negated so north = up, +lon = east)
+//
+// project() is the single source of truth — every callsite goes through it.
+
 function lonToX(lon: number): number {
   // normalise to -180..180
   let l = lon;
@@ -55,6 +89,21 @@ function lonToX(lon: number): number {
 }
 function latToY(lat: number): number {
   return ((90 - lat) / 180) * MAP_H;
+}
+
+function project(lon: number, lat: number, view: ViewMode): [number, number] {
+  if (view === 'classic') {
+    return [lonToX(lon), latToY(lat)];
+  }
+  // azimuthal-equidistant from North Pole
+  const rho = (90 - lat) * (FLAT_R_FULL / 90);
+  const theta = lon * DEG;
+  return [FLAT_CX + rho * Math.sin(theta), FLAT_CY - rho * Math.cos(theta)];
+}
+
+// View metadata for downstream layout decisions.
+function viewDims(view: ViewMode): { w: number; h: number } {
+  return view === 'classic' ? { w: MAP_W, h: MAP_H } : { w: FLAT_SIZE, h: FLAT_SIZE };
 }
 
 function normalise360(d: number): number {
@@ -204,74 +253,7 @@ const CITIES: { name: string; lat: number; lon: number }[] = [
   { name: 'Antananarivo', lat: -18.88, lon: 47.51 },
 ];
 
-// ─── Very simplified continent outlines ─────────────────────────────────────
-// Low-fi polygons — intentionally loose, for atmospheric context only.
-// Coordinates are [lon, lat] pairs.
-
-const CONTINENTS: [number, number][][] = [
-  // North America (very rough)
-  [
-    [-168, 66], [-140, 70], [-125, 60], [-120, 49], [-124, 40], [-120, 33],
-    [-110, 23], [-97, 26], [-88, 30], [-80, 26], [-80, 33], [-75, 39],
-    [-70, 43], [-60, 47], [-55, 52], [-65, 60], [-80, 65], [-100, 70],
-    [-120, 72], [-150, 70], [-168, 66],
-  ],
-  // South America
-  [
-    [-80, 10], [-73, 12], [-60, 8], [-51, 4], [-43, -5], [-35, -10],
-    [-40, -23], [-52, -35], [-65, -44], [-73, -55], [-72, -40], [-75, -20],
-    [-80, -5], [-80, 10],
-  ],
-  // Europe
-  [
-    [-10, 36], [0, 36], [15, 36], [30, 40], [40, 46], [50, 54], [40, 60],
-    [25, 65], [10, 60], [0, 55], [-8, 50], [-10, 44], [-10, 36],
-  ],
-  // Africa
-  [
-    [-17, 14], [-10, 30], [10, 35], [30, 32], [40, 15], [48, 10], [50, -5],
-    [40, -20], [30, -30], [18, -35], [12, -20], [5, -5], [-5, 4], [-17, 14],
-  ],
-  // Asia (very rough combined landmass)
-  [
-    [30, 40], [50, 45], [65, 50], [80, 55], [100, 60], [130, 65], [150, 68],
-    [160, 60], [140, 50], [135, 40], [125, 35], [120, 25], [105, 18],
-    [100, 10], [95, 18], [78, 8], [73, 22], [60, 25], [50, 25], [45, 35],
-    [40, 40], [30, 40],
-  ],
-  // Australia
-  [
-    [115, -22], [128, -15], [140, -12], [145, -18], [153, -26], [150, -38],
-    [140, -38], [130, -34], [115, -32], [114, -25], [115, -22],
-  ],
-  // Antarctica (as a band at the bottom)
-  [
-    [-180, -65], [180, -65], [180, -85], [-180, -85], [-180, -65],
-  ],
-  // Greenland
-  [
-    [-55, 60], [-30, 60], [-20, 70], [-25, 82], [-45, 83], [-55, 76], [-55, 60],
-  ],
-  // Indonesia / SE Asia cluster
-  [
-    [95, -2], [108, -6], [120, -8], [130, -7], [135, -4], [128, 2], [115, 3],
-    [105, 5], [95, 2], [95, -2],
-  ],
-];
-
-function projectPolygon(poly: [number, number][]): string {
-  return poly
-    .map((p, i) => {
-      const x = lonToX(p[0]);
-      const y = latToY(p[1]);
-      return `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
-    })
-    .join(' ') + ' Z';
-}
-
 // ─── Line-building math ─────────────────────────────────────────────────────
-
-type Segment = string; // SVG path 'd' string fragment
 
 function rightAscensionDeclination(eclipticLonDeg: number): {
   raDeg: number;
@@ -283,24 +265,46 @@ function rightAscensionDeclination(eclipticLonDeg: number): {
   return { raDeg: normalise360(ra * RAD), decDeg: dec * RAD };
 }
 
-function buildMCPath(raDeg: number, gmst: number): { mc: string; ic: string } {
-  // world longitude where the planet is on the upper meridian
+function buildMCPath(
+  raDeg: number,
+  gmst: number,
+  view: ViewMode,
+): { mc: string; ic: string } {
+  // World longitudes where the planet is on the upper / lower meridian.
   const mcLon = normalise180(raDeg - gmst);
   const icLon = normalise180(mcLon + 180);
-  const mcX = lonToX(mcLon);
-  const icX = lonToX(icLon);
-  return {
-    mc: `M${mcX} 0 L${mcX} ${MAP_H}`,
-    ic: `M${icX} 0 L${icX} ${MAP_H}`,
+
+  if (view === 'classic') {
+    const mcX = lonToX(mcLon);
+    const icX = lonToX(icLon);
+    return {
+      mc: `M${mcX} 0 L${mcX} ${MAP_H}`,
+      ic: `M${icX} 0 L${icX} ${MAP_H}`,
+    };
+  }
+
+  // Flat (azimuthal): a meridian is a single value of θ — a radial spoke
+  // from the North Pole. Sample lat from +90° (centre) down to -90° (rim).
+  // Sample finely so the spoke renders at full length under animation.
+  const meridian = (lon: number): string => {
+    const pts: string[] = [];
+    for (let lat = 90; lat >= -90; lat -= 2) {
+      const [x, y] = project(lon, lat, view);
+      pts.push(`${pts.length === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
+    }
+    return pts.join(' ');
   };
+  return { mc: meridian(mcLon), ic: meridian(icLon) };
 }
 
 function buildACDCPaths(
   raDeg: number,
   decDeg: number,
   gmst: number,
+  view: ViewMode,
 ): { ac: string[]; dc: string[] } {
-  // Sample latitudes from -66° to +66° in 3° steps.
+  // Sample latitudes from -66° to +66° in 3° steps (classic) — same range
+  // works for flat-earth too; the projection handles the shape change.
   const lats: number[] = [];
   for (let lat = -66; lat <= 66; lat += 3) lats.push(lat);
 
@@ -321,26 +325,30 @@ function buildACDCPaths(
   }
 
   return {
-    ac: segmentsFromPoints(acPoints),
-    dc: segmentsFromPoints(dcPoints),
+    ac: segmentsFromPoints(acPoints, view),
+    dc: segmentsFromPoints(dcPoints, view),
   };
 }
 
-function segmentsFromPoints(pts: [number, number][]): string[] {
-  // Break when longitude wraps (abs diff > 180).
+function segmentsFromPoints(
+  pts: [number, number][],
+  view: ViewMode,
+): string[] {
+  // Break the polyline whenever the longitude wraps (|Δlon| > 180). In
+  // classic that prevents a horizon line from streaking across the map; in
+  // flat-earth the wrap is also a visual jump (the spoke crosses the
+  // anti-meridian), so we cut there too.
   const segs: string[] = [];
   let cur: string[] = [];
   for (let i = 0; i < pts.length; i++) {
     const [lon, lat] = pts[i];
-    const x = lonToX(lon);
-    const y = latToY(lat);
+    const [x, y] = project(lon, lat, view);
     if (i === 0) {
       cur.push(`M${x.toFixed(1)} ${y.toFixed(1)}`);
       continue;
     }
     const prev = pts[i - 1];
     if (Math.abs(lon - prev[0]) > 180) {
-      // wrap
       if (cur.length > 1) segs.push(cur.join(' '));
       cur = [`M${x.toFixed(1)} ${y.toFixed(1)}`];
     } else {
@@ -385,6 +393,29 @@ export default function AstrocartoMap({
     return gmstDeg(new Date(Date.UTC(2000, 0, 1, 12, 0, 0)));
   }, [chart.mc, birthLocation]);
 
+  // ── View toggle (Classic ↔ Flat Earth) ────────────────────────────────
+  // Persists to localStorage so the user's preference survives reloads.
+  // SSR-safe: defaults to 'classic' on the server, then hydrates from
+  // storage in an effect.
+  const [view, setView] = useState<ViewMode>('classic');
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
+      if (stored === 'flat' || stored === 'classic') setView(stored);
+    } catch {
+      /* ignore — localStorage may be disabled */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, view);
+    } catch {
+      /* ignore */
+    }
+  }, [view]);
+
+  const dims = viewDims(view);
+
   const planetsData = useMemo(() => {
     type PD = {
       planet: string;
@@ -400,8 +431,8 @@ export default function AstrocartoMap({
       const style = PLANET_STYLE[p.planet];
       if (!style) continue;
       const { raDeg, decDeg } = rightAscensionDeclination(p.longitude);
-      const { mc, ic } = buildMCPath(raDeg, gmst);
-      const { ac, dc } = buildACDCPaths(raDeg, decDeg, gmst);
+      const { mc, ic } = buildMCPath(raDeg, gmst, view);
+      const { ac, dc } = buildACDCPaths(raDeg, decDeg, gmst, view);
       out.push({
         planet: p.planet,
         color: style.color,
@@ -414,7 +445,7 @@ export default function AstrocartoMap({
     }
     out.sort((a, b) => a.order - b.order);
     return out;
-  }, [chart.planets, gmst]);
+  }, [chart.planets, gmst, view]);
 
   // Visibility toggles
   const [visible, setVisible] = useState<Record<string, boolean>>(() => {
@@ -555,28 +586,55 @@ export default function AstrocartoMap({
     setTooltip(null);
   }
 
-  // Graticule (10 meridians every 30°, parallels at 0 / ±30 / ±60).
+  // Graticule (meridians every 30°, parallels at 0 / ±30 / ±60).
+  // In classic these are straight lines; in flat-earth meridians become
+  // radial spokes and parallels become concentric circles. Both are built
+  // by sampling under project() so the math stays single-source-of-truth.
   const graticule = useMemo(() => {
     const paths: string[] = [];
+    // Meridians
     for (let lon = -150; lon <= 180; lon += 30) {
-      const x = lonToX(lon);
-      paths.push(`M${x} 0 L${x} ${MAP_H}`);
+      const pts: string[] = [];
+      for (let lat = 90; lat >= -90; lat -= 3) {
+        const [x, y] = project(lon, lat, view);
+        pts.push(`${pts.length === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
+      }
+      paths.push(pts.join(' '));
     }
+    // Parallels
     for (const lat of [60, 30, 0, -30, -60]) {
-      const y = latToY(lat);
-      paths.push(`M0 ${y} L${MAP_W} ${y}`);
+      const pts: string[] = [];
+      for (let lon = -180; lon <= 180; lon += 3) {
+        const [x, y] = project(lon, lat, view);
+        pts.push(`${pts.length === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
+      }
+      paths.push(pts.join(' '));
     }
     return paths.join(' ');
-  }, []);
+  }, [view]);
 
-  // Real country outlines — Natural Earth 1:110m, pre-projected into the
-  // map's equirectangular space at build time. Single concatenated path
-  // for fast render (177 features otherwise) — fill-rule:evenodd handles
-  // holes correctly.
-  const continentPaths = useMemo(
-    () => WORLD_COUNTRIES.map((c) => c.d).join(' '),
-    [],
-  );
+  // Real country outlines — Natural Earth 1:110m, pre-projected at build
+  // time into whichever space the active view uses. Single concatenated
+  // path for fast render (177 features otherwise) — fill-rule:evenodd
+  // handles holes correctly.
+  const continentPaths = useMemo(() => {
+    const source = view === 'classic' ? WORLD_COUNTRIES : WORLD_COUNTRIES_FLAT;
+    return source.map((c) => c.d).join(' ');
+  }, [view]);
+
+  // Equator polyline (used as a brass accent) — sampled through project().
+  const equatorPath = useMemo(() => {
+    const pts: string[] = [];
+    for (let lon = -180; lon <= 180; lon += 3) {
+      const [x, y] = project(lon, 0, view);
+      pts.push(`${pts.length === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`);
+    }
+    return pts.join(' ');
+  }, [view]);
+
+  // Outer rim ring — only meaningful in flat-earth, demarcates the South Pole
+  // edge and gives the Gleason-style disc its silhouette.
+  const flatRimRadius = FLAT_R_FULL;
 
   // Order planets mount-in by speed (Moon first)
   const planetMountDelay = (order: number): number =>
@@ -610,7 +668,7 @@ export default function AstrocartoMap({
           }}
         >
           <svg
-            viewBox={`0 0 ${MAP_W} ${MAP_H}`}
+            viewBox={`0 0 ${dims.w} ${dims.h}`}
             preserveAspectRatio="xMidYMid meet"
             role="img"
             aria-label="Astrocartography map"
@@ -628,7 +686,7 @@ export default function AstrocartoMap({
             }}
           >
             {/* Ocean */}
-            <rect x="0" y="0" width={MAP_W} height={MAP_H} fill="#0A0E1A" />
+            <rect x="0" y="0" width={dims.w} height={dims.h} fill="#0A0E1A" />
 
             {/* Pan/zoom transform group */}
             <g
@@ -655,15 +713,25 @@ export default function AstrocartoMap({
               />
 
               {/* Equator accent */}
-              <line
-                x1={0}
-                y1={latToY(0)}
-                x2={MAP_W}
-                y2={latToY(0)}
+              <path
+                d={equatorPath}
+                fill="none"
                 stroke="#C8A052"
                 strokeWidth={0.5}
                 opacity={0.18}
               />
+
+              {/* Flat-earth rim — the South Pole disc edge */}
+              {view === 'flat' && (
+                <circle
+                  cx={FLAT_CX}
+                  cy={FLAT_CY}
+                  r={flatRimRadius}
+                  fill="none"
+                  stroke="rgba(200,160,82,0.35)"
+                  strokeWidth={0.8}
+                />
+              )}
 
               {/* Planetary lines */}
               {planetsData.map((pd) => {
@@ -771,11 +839,13 @@ export default function AstrocartoMap({
               })}
 
               {/* Cities */}
-              {CITIES.map((c) => (
+              {CITIES.map((c) => {
+                const [cx, cy] = project(c.lon, c.lat, view);
+                return (
                 <g key={c.name}>
                   <circle
-                    cx={lonToX(c.lon)}
-                    cy={latToY(c.lat)}
+                    cx={cx}
+                    cy={cy}
                     r={2.2}
                     fill="rgba(252,250,246,0.55)"
                     stroke="rgba(200,160,82,0.5)"
@@ -788,8 +858,8 @@ export default function AstrocartoMap({
                   />
                   {hoveredCity === c.name && (
                     <text
-                      x={lonToX(c.lon) + 6}
-                      y={latToY(c.lat) - 6}
+                      x={cx + 6}
+                      y={cy - 6}
                       style={{
                         fontFamily: "'IBM Plex Mono', monospace",
                         fontSize: 9,
@@ -801,12 +871,15 @@ export default function AstrocartoMap({
                     </text>
                   )}
                 </g>
-              ))}
+                );
+              })}
 
               {/* Birth marker */}
-              {birthLocation && (
+              {birthLocation && (() => {
+                const [bx, by] = project(birthLocation.lon, birthLocation.lat, view);
+                return (
                 <g
-                  transform={`translate(${lonToX(birthLocation.lon)} ${latToY(birthLocation.lat)})`}
+                  transform={`translate(${bx} ${by})`}
                 >
                   <circle
                     r={8}
@@ -828,7 +901,8 @@ export default function AstrocartoMap({
                     strokeWidth={0.4}
                   />
                 </g>
-              )}
+                );
+              })()}
             </g>
           </svg>
 
@@ -875,6 +949,32 @@ export default function AstrocartoMap({
               )}
             </div>
           )}
+
+          {/* View toggle (Classic / Flat Earth) */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              display: 'flex',
+              zIndex: 3,
+              border: '1px solid rgba(200,160,82,0.5)',
+              background: 'rgba(10,14,26,0.85)',
+            }}
+            role="group"
+            aria-label="Projection"
+          >
+            <ViewToggleButton
+              active={view === 'classic'}
+              onClick={() => setView('classic')}
+              label="CLASSIC"
+            />
+            <ViewToggleButton
+              active={view === 'flat'}
+              onClick={() => setView('flat')}
+              label="FLAT EARTH"
+            />
+          </div>
 
           {/* Zoom controls */}
           <div
@@ -1122,6 +1222,38 @@ function ZoomButton({
         textTransform: 'uppercase',
         cursor: 'pointer',
         minWidth: wide ? 60 : 28,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function ViewToggleButton({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      style={{
+        background: active ? 'rgba(200,160,82,0.18)' : 'transparent',
+        border: 'none',
+        borderRight: '1px solid rgba(200,160,82,0.25)',
+        color: active ? '#FCFAF6' : '#C8A052',
+        padding: '6px 12px',
+        fontFamily: "'IBM Plex Mono', monospace",
+        fontSize: 10,
+        letterSpacing: '0.22em',
+        textTransform: 'uppercase',
+        cursor: 'pointer',
       }}
     >
       {label}

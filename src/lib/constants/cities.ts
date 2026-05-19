@@ -61,6 +61,7 @@ export const CITY_COORDS: Record<string, CityCoords> = {
   "kyiv":           { lat:50.45,  lon:30.52,  tzOffset:2  },
   "bucharest":      { lat:44.43,  lon:26.10,  tzOffset:2  },
   "sofia":          { lat:42.70,  lon:23.32,  tzOffset:2  },
+  "belgrade":       { lat:44.7866, lon:20.4489, tzOffset:1, tzId:'Europe/Belgrade' },
 
   // ── North America ────────────────────────────────────────────────
   "new york":       { lat:40.71,  lon:-74.01, tzOffset:-5 },
@@ -81,6 +82,13 @@ export const CITY_COORDS: Record<string, CityCoords> = {
   "philadelphia":   { lat:39.95,  lon:-75.17, tzOffset:-5 },
   "detroit":        { lat:42.33,  lon:-83.05, tzOffset:-5 },
   "minneapolis":    { lat:44.98,  lon:-93.27, tzOffset:-6 },
+  "hartford":       { lat:41.7637, lon:-72.6851, tzOffset:-5, tzId:'America/New_York' },
+  "cleveland":      { lat:41.4993, lon:-81.6944, tzOffset:-5, tzId:'America/New_York' },
+  "pittsburgh":     { lat:40.4406, lon:-79.9959, tzOffset:-5, tzId:'America/New_York' },
+  "portland":       { lat:45.5152, lon:-122.6784, tzOffset:-8, tzId:'America/Los_Angeles' },
+  "nashville":      { lat:36.1627, lon:-86.7816, tzOffset:-6, tzId:'America/Chicago' },
+  "austin":         { lat:30.2672, lon:-97.7431, tzOffset:-6, tzId:'America/Chicago' },
+  "salt lake city": { lat:40.7608, lon:-111.8910, tzOffset:-7, tzId:'America/Denver' },
   "toronto":        { lat:43.65,  lon:-79.38, tzOffset:-5 },
   "vancouver":      { lat:49.28,  lon:-123.12,tzOffset:-8 },
   "montreal":       { lat:45.50,  lon:-73.57, tzOffset:-5 },
@@ -98,8 +106,11 @@ export const CITY_COORDS: Record<string, CityCoords> = {
   "santiago":       { lat:-33.45, lon:-70.67, tzOffset:-4 },
   "lima":           { lat:-12.05, lon:-77.04, tzOffset:-5 },
   "bogota":         { lat:4.71,   lon:-74.07, tzOffset:-5 },
+  "bogotá":         { lat:4.7110, lon:-74.0721, tzOffset:-5, tzId:'America/Bogota' },
   "caracas":        { lat:10.48,  lon:-66.90, tzOffset:-4 },
   "quito":          { lat:-0.18,  lon:-78.47, tzOffset:-5 },
+  "asuncion":       { lat:-25.2637, lon:-57.5759, tzOffset:-4, tzId:'America/Asuncion' },
+  "asunción":       { lat:-25.2637, lon:-57.5759, tzOffset:-4, tzId:'America/Asuncion' },
   "montevideo":     { lat:-34.90, lon:-56.16, tzOffset:-3 },
   "la paz":         { lat:-16.50, lon:-68.12, tzOffset:-4 },
 
@@ -174,6 +185,7 @@ export const CITY_COORDS: Record<string, CityCoords> = {
   "casablanca":     { lat:33.57,  lon:-7.59,  tzOffset:1  },
   "marrakech":      { lat:31.63,  lon:-7.99,  tzOffset:1  },
   "tunis":          { lat:36.81,  lon:10.18,  tzOffset:1  },
+  "algiers":        { lat:36.7538, lon:3.0588, tzOffset:1, tzId:'Africa/Algiers' },
   "accra":          { lat:5.56,   lon:-0.20,  tzOffset:0  },
   "dakar":          { lat:14.72,  lon:-17.47, tzOffset:0  },
 };
