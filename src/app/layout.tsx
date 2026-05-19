@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -66,11 +67,46 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+// JSON-LD structured data for Organization + WebSite. Helps Google
+// understand the brand at a structured level and tends to trigger a
+// faster snippet refresh in search results. Output via Next.js
+// <Script> component (children-as-text, not dangerouslySetInnerHTML).
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${APP_URL}/#organization`,
+      name: 'Synastra',
+      url: APP_URL,
+      logo: `${APP_URL}/opengraph-image.png`,
+      description:
+        'Synastra reads your birth data through seven ancient traditions — Western, Vedic, Numerology, Kabbalah, Human Design, Tarot, and Astrocartography — synthesised by an AI Oracle trained across all seven.',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${APP_URL}/#website`,
+      url: APP_URL,
+      name: 'Synastra',
+      description: 'Seven traditions. One chart. One Oracle.',
+      publisher: { '@id': `${APP_URL}/#organization` },
+      inLanguage: 'en-AU',
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <html lang="en" className="font-body">
         <body>
+          <Script
+            id="synastra-jsonld"
+            type="application/ld+json"
+            strategy="beforeInteractive"
+          >
+            {JSON.stringify(STRUCTURED_DATA)}
+          </Script>
           <Cosmos />
           {children}
           <Analytics />
