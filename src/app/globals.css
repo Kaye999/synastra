@@ -725,15 +725,17 @@ body {
 }
 .mk-lineage-track {
   display: flex;
-  gap: 32px;
+  gap: 20px;
   width: max-content;
-  padding: 0 32px;
+  padding: 0 24px;
 }
 .mk-lineage-card {
-  flex: 0 0 clamp(320px, 48vw, 560px);
+  /* Halved (was clamp(320px, 48vw, 560px)) — read more cards per scroll,
+     headline reads as a chapter card not a billboard. */
+  flex: 0 0 clamp(240px, 28vw, 340px);
   background: rgba(19, 24, 40, 0.5);
   border: 1px solid var(--rule);
-  padding: 48px 42px 44px;
+  padding: 28px 26px 26px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -745,59 +747,59 @@ body {
 }
 .mk-lineage-card-index {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.28em;
+  font-size: 9px;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--ink-faint);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .mk-lineage-card-name {
   font-family: var(--font-display);
   font-variation-settings: "opsz" 144;
-  font-weight: 700;
-  font-size: 34px;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.01em;
   color: var(--ink);
-  line-height: 1.08;
-  margin-bottom: 6px;
+  line-height: 1.15;
+  margin-bottom: 4px;
 }
 .mk-lineage-card-era {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--brass);
-  margin-bottom: 26px;
+  margin-bottom: 16px;
 }
 .mk-lineage-card-quote {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: clamp(20px, 2vw, 26px);
-  line-height: 1.28;
-  letter-spacing: -0.01em;
+  font-size: clamp(14px, 1.1vw, 16px);
+  line-height: 1.4;
+  letter-spacing: 0;
   color: var(--ink);
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   font-weight: 500;
 }
 .mk-lineage-card-attrib {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink-dim);
-  margin-bottom: 28px;
+  margin-bottom: 16px;
 }
 .mk-lineage-card-rule {
   height: 1px;
-  width: 60px;
+  width: 40px;
   background: var(--brass-soft);
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 .mk-lineage-card-body {
   font-family: var(--font-body);
-  font-size: 15.5px;
+  font-size: 13.5px;
   color: var(--ink-dim);
-  line-height: 1.68;
+  line-height: 1.6;
   margin: 0;
 }
 .mk-lineage-hint {
