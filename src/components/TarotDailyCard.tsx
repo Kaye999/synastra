@@ -93,18 +93,13 @@ async function readSse(
 }
 
 /* ============================================================
- * Roman numerals for the Major Arcana (0-21)
+ * Card number label — Arabic for both Majors (0-21) and Minors.
+ * Roman numerals dropped 2026-05-19 in favour of readability.
  * ============================================================ */
-
-const ROMAN = [
-  '0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX',
-  'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII',
-  'XIX', 'XX', 'XXI',
-];
 
 function cardNumberLabel(draw: TarotDraw): string {
   if (draw.card.arcana === 'major') {
-    return ROMAN[draw.card.id] ?? '';
+    return String(draw.card.id);
   }
   const suit = draw.card.suit ?? '';
   const num = draw.card.number;

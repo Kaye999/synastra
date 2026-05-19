@@ -183,13 +183,10 @@ function NameTspans({ name }: { name: string }) {
   );
 }
 
-const ROMAN = [
-  '0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX',
-  'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII',
-  'XIX', 'XX', 'XXI',
-];
+// Card number label — Arabic for readability (was Roman pre-2026-05-19).
+// Kept as a function for callsite ergonomics.
 function romanFor(id: number): string {
-  return ROMAN[id] ?? String(id);
+  return String(id);
 }
 
 /* ============================================================

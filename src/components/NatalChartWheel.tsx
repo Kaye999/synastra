@@ -32,7 +32,8 @@ const SIGN_ORDER = [
   'Libra', 'Scorpio', 'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces',
 ];
 
-const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+// House numbers as Arabic — easier to read at a glance than Roman numerals.
+const HOUSE_NUM = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
 // Geometry — centred on (300, 300) with outer radius 290
 const CX = 300;
@@ -191,7 +192,7 @@ export default function NatalChartWheel({
       const pt = polar((R_HOUSE_IN + R_HOUSE_OUT) / 2, mid + ascLon);
       return {
         x: pt.x, y: pt.y,
-        title: `House ${ROMAN[hoverHouse - 1]}`,
+        title: `House ${HOUSE_NUM[hoverHouse - 1]}`,
         line1: '',
         body: '',
       };
@@ -346,7 +347,7 @@ export default function NatalChartWheel({
                   opacity={active ? 1 : 0.55}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
-                  {ROMAN[i]}
+                  {HOUSE_NUM[i]}
                 </text>
               </g>
             );
