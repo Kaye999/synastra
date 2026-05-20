@@ -129,8 +129,8 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
     try {
       const res = await fetch(`/api/reading/transit-alerts?scope=${s}`, { cache: 'no-store' });
       if (!res.ok) {
-        if (res.status === 401) throw new Error('Sign up to unlock real-time transit alerts.');
-        throw new Error(`Alerts unavailable (${res.status}).`);
+        if (res.status === 401) throw new Error('Sign up to unlock real-time planetary transits.');
+        throw new Error(`Transits unavailable (${res.status}).`);
       }
       const text = await res.text();
       let payload: { alerts?: RawAlert[] } = {};
@@ -142,7 +142,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
       const raw = Array.isArray(payload.alerts) ? payload.alerts : [];
       setAlerts(raw.map(toUiAlert));
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Alerts unavailable.');
+      setError(e instanceof Error ? e.message : 'Transits unavailable.');
       setAlerts([]);
     } finally {
       setLoading(false);
@@ -262,7 +262,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
       >
       <button
         type="button"
-        aria-label={`Transit alerts${badgeCount ? `, ${badgeCount} unread` : ''}`}
+        aria-label={`Planetary transits${badgeCount ? `, ${badgeCount} active` : ''}`}
         onClick={() => setOpen((o) => !o)}
         style={{
           pointerEvents: 'auto',
@@ -300,7 +300,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
         <span style={{ display: 'inline-flex', fontSize: 14, lineHeight: 1 }}>
           <BellGlyph />
         </span>
-        <span className="dash-corner-label">Alerts</span>
+        <span className="dash-corner-label">Planetary transits</span>
         {badgeCount > 0 && (
           <span
             aria-hidden="true"
@@ -346,7 +346,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
 
       <aside
         role="dialog"
-        aria-label="Transit alerts"
+        aria-label="Planetary transits"
         aria-hidden={!open}
         style={{
           position: 'fixed',
@@ -417,7 +417,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
           </div>
           <button
             type="button"
-            aria-label="Close alerts"
+            aria-label="Close planetary transits"
             onClick={() => setOpen(false)}
             style={{
               background: 'transparent',

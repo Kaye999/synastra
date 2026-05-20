@@ -130,10 +130,19 @@ export async function GET(req: Request) {
       : 12;
   const start = new Date();
   const end = new Date(start.getTime() + days * 86400 * 1000);
+
+  // Medium-to-hard impact only — Ethan's rule (2026-05-20). The detector
+  // already restricts to outer planets hitting personal points, but it
+  // still returns trines and sextiles which feel like noise to a user.
+  // Drop them. Keep hard aspects (conjunction/opposition/square) plus
+  // eclipses (always significant when on a natal point).
+  const HARD_ASPECTS = new Set(['conjunction', 'opposition', 'square']);
   const detected = detectSignificantTransits(chart, { start, end }, {
     includeEclipses: true,
     includeInnerStations: false,
-  }).slice(0, maxResults);
+  })
+    .filter((t) => t.kind === 'eclipse' || HARD_ASPECTS.has(t.aspect))
+    .slice(0, maxResults);
 
   // Pull existing rows for these scope keys. We cast to `any` because the
   // generated Database type doesn't yet know about astral.readings.
