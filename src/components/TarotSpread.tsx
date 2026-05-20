@@ -215,8 +215,43 @@ const CELTIC_GRID: { col: number; row: number; rotate?: boolean }[] = [
 
 type Phase = 'idle' | 'shuffling' | 'dealing' | 'dealt' | 'reading' | 'done' | 'error';
 
+// Rotating placeholder prompts — softer, more personal than the original
+// "What lies at the hinge of this next decision?". The placeholder cycles
+// every 4.5s while the input is empty + the user isn't focused on it, so a
+// hesitant user gets nudged with a fresh angle rather than the same line
+// staring back at them.
+const PRESET_QUESTIONS: readonly string[] = [
+  'What is my heart not letting me see?',
+  'Where am I being asked to grow right now?',
+  'What does this relationship actually need from me?',
+  'What am I holding on to that’s ready to be let go?',
+  'What is the next right step for my work?',
+  'Where am I underestimating myself?',
+  'What old pattern is asking to be retired?',
+  'What is the lesson hidden in what’s frustrating me?',
+  'What would love do here?',
+  'What gift is this season trying to deliver?',
+  'Who am I becoming, and what does she need?',
+  'What is mine to do today — and what is not?',
+];
+
 export default function TarotSpread({ spreadType, userId, userContext, tier }: TarotSpreadProps) {
   const [question, setQuestion] = useState('');
+  // Index into PRESET_QUESTIONS for the current rotating placeholder. Starts
+  // at a random offset so two side-by-side spreads don't show the same line.
+  const [presetIdx, setPresetIdx] = useState(() =>
+    Math.floor(Math.random() * PRESET_QUESTIONS.length),
+  );
+  // Pause the rotation while the input is focused so a user mid-thought
+  // doesn't watch the placeholder change under their cursor.
+  const [questionFocused, setQuestionFocused] = useState(false);
+  useEffect(() => {
+    if (questionFocused || question.length > 0) return;
+    const id = window.setInterval(() => {
+      setPresetIdx((i) => (i + 1) % PRESET_QUESTIONS.length);
+    }, 4500);
+    return () => window.clearInterval(id);
+  }, [questionFocused, question.length]);
   const [phase, setPhase] = useState<Phase>('idle');
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -339,8 +374,10 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           type="text"
           value={question}
           onChange={(e) => setQuestion(e.target.value.slice(0, 200))}
+          onFocus={() => setQuestionFocused(true)}
+          onBlur={() => setQuestionFocused(false)}
           maxLength={200}
-          placeholder="What lies at the hinge of this next decision?"
+          placeholder={PRESET_QUESTIONS[presetIdx]}
           disabled={phase === 'shuffling' || phase === 'dealing' || phase === 'reading'}
         />
         <div className="tarot-spread-count">{question.length}/200</div>
