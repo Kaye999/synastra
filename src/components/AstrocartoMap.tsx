@@ -393,26 +393,20 @@ export default function AstrocartoMap({
     return gmstDeg(new Date(Date.UTC(2000, 0, 1, 12, 0, 0)));
   }, [chart.mc, birthLocation]);
 
-  // ── View toggle (Classic ↔ Flat Earth) ────────────────────────────────
-  // Persists to localStorage so the user's preference survives reloads.
-  // SSR-safe: defaults to 'classic' on the server, then hydrates from
-  // storage in an effect.
-  const [view, setView] = useState<ViewMode>('classic');
+  // Flat-earth (azimuthal) view archived 2026-05-20 — Ethan disliked it.
+  // We keep the projection code below in case we ever want to bring it back,
+  // but the runtime is locked to 'classic'. If any user had 'flat' persisted
+  // from before, we clear it so they're not stuck on a hidden mode.
+  const [view] = useState<ViewMode>('classic');
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
-      if (stored === 'flat' || stored === 'classic') setView(stored);
+      if (window.localStorage.getItem(VIEW_STORAGE_KEY) === 'flat') {
+        window.localStorage.removeItem(VIEW_STORAGE_KEY);
+      }
     } catch {
       /* ignore — localStorage may be disabled */
     }
   }, []);
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(VIEW_STORAGE_KEY, view);
-    } catch {
-      /* ignore */
-    }
-  }, [view]);
 
   const dims = viewDims(view);
 
@@ -950,31 +944,8 @@ export default function AstrocartoMap({
             </div>
           )}
 
-          {/* View toggle (Classic / Flat Earth) */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              display: 'flex',
-              zIndex: 3,
-              border: '1px solid rgba(200,160,82,0.5)',
-              background: 'rgba(10,14,26,0.85)',
-            }}
-            role="group"
-            aria-label="Projection"
-          >
-            <ViewToggleButton
-              active={view === 'classic'}
-              onClick={() => setView('classic')}
-              label="CLASSIC"
-            />
-            <ViewToggleButton
-              active={view === 'flat'}
-              onClick={() => setView('flat')}
-              label="FLAT EARTH"
-            />
-          </div>
+          {/* View toggle archived 2026-05-20 — flat-earth (azimuthal) hidden;
+              classic equirectangular is the only mode. */}
 
           {/* Zoom controls */}
           <div
