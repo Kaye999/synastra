@@ -36,6 +36,15 @@ type UiAlert = {
   expanded: boolean;
 };
 
+type Scope = 'week' | 'month' | 'year' | 'decade';
+
+const SCOPE_LABEL: Record<Scope, string> = {
+  week: 'Week',
+  month: 'Month',
+  year: 'Year',
+  decade: 'Decade',
+};
+
 const DATE_FMT = new Intl.DateTimeFormat('en-AU', {
   day: 'numeric',
   month: 'short',
@@ -104,6 +113,7 @@ async function streamSse(
 
 export default function TransitAlerts({ user: _user, firstName: _firstName, tier }: TransitAlertsProps) {
   const [open, setOpen] = useState(false);
+  const [scope, setScope] = useState<Scope>('month');
   const [alerts, setAlerts] = useState<UiAlert[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -112,12 +122,12 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
 
   const badgeCount = alerts.length;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (s: Scope = scope) => {
     if (tier !== 'depth') return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/reading/transit-alerts', { cache: 'no-store' });
+      const res = await fetch(`/api/reading/transit-alerts?scope=${s}`, { cache: 'no-store' });
       if (!res.ok) {
         if (res.status === 401) throw new Error('Sign up to unlock real-time transit alerts.');
         throw new Error(`Alerts unavailable (${res.status}).`);
@@ -137,7 +147,7 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
     } finally {
       setLoading(false);
     }
-  }, [tier]);
+  }, [tier, scope]);
 
   useEffect(() => {
     if (tier === 'depth' && !fetchedRef.current) {
@@ -145,6 +155,16 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
       load();
     }
   }, [load, tier]);
+
+  // Reload when the user picks a different time window.
+  const changeScope = useCallback(
+    (s: Scope) => {
+      if (s === scope) return;
+      setScope(s);
+      load(s);
+    },
+    [load, scope],
+  );
 
   // ESC to close.
   useEffect(() => {
@@ -229,9 +249,13 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
         aria-label={`Transit alerts${badgeCount ? `, ${badgeCount} unread` : ''}`}
         onClick={() => setOpen((o) => !o)}
         style={{
+          // Centred horizontally, sits above the 7-tradition top bar (which
+          // lives at top:68). Same row as the corner controls but anchored
+          // to viewport-centre so it reads as a primary navigation cue.
           position: 'fixed',
-          top: 18,
-          right: 140,
+          top: 14,
+          left: '50%',
+          transform: 'translateX(-50%)',
           zIndex: 40,
           background: 'rgba(200, 160, 82, 0.12)',
           backdropFilter: 'blur(8px)',
@@ -363,7 +387,10 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
                 color: 'var(--ink)',
               }}
             >
-              What&rsquo;s near
+              {scope === 'week' && 'This week'}
+              {scope === 'month' && 'What’s near'}
+              {scope === 'year' && 'This year'}
+              {scope === 'decade' && 'The next decade'}
             </h3>
           </div>
           <button
@@ -383,6 +410,48 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
             ×
           </button>
         </header>
+
+        {/* Scope toggle — week / month / year / decade */}
+        <div
+          role="tablist"
+          aria-label="Transit window"
+          style={{
+            display: 'flex',
+            gap: 4,
+            padding: '12px 22px',
+            borderBottom: '1px solid var(--rule)',
+          }}
+        >
+          {(Object.keys(SCOPE_LABEL) as Scope[]).map((s) => {
+            const active = scope === s;
+            return (
+              <button
+                key={s}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => changeScope(s)}
+                style={{
+                  flex: 1,
+                  background: active ? 'rgba(200, 160, 82, 0.14)' : 'transparent',
+                  border: `1px solid ${active ? 'rgba(200, 160, 82, 0.55)' : 'rgba(252, 250, 246, 0.10)'}`,
+                  color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
+                  padding: '8px 6px',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  fontWeight: active ? 600 : 500,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  borderRadius: 3,
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                {SCOPE_LABEL[s]}
+              </button>
+            );
+          })}
+        </div>
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 22px 22px' }}>
           {isLoading && (
@@ -424,7 +493,7 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
               </p>
               <button
                 type="button"
-                onClick={load}
+                onClick={() => load()}
                 style={{
                   background: 'transparent',
                   border: '1px solid var(--brass)',

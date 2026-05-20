@@ -13,7 +13,24 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import type { Chart } from '@/lib/types';
-import { PLANET_IN_SIGN, PLANET_IN_HOUSE } from '@/lib/interp/tables';
+import { PLANET_IN_SIGN, PLANET_IN_HOUSE, SIGN_ESSENCE, HOUSE_ESSENCE } from '@/lib/interp/tables';
+
+// Short glossary used in the click-for-detail panel. The PLANET_IN_SIGN table
+// gives the "this planet in this sign" copy, but if the user clicks a planet
+// glyph cold (no sign-specific body in cache), we still want a baseline
+// description of the planet's archetype.
+const PLANET_PROFILE: Record<string, { title: string; body: string }> = {
+  Sun:     { title: 'Identity · Vitality',  body: 'The Sun is the centre that everything else organises around. Where it sits in the chart is where you become most visible to yourself — the room you walk into and feel met, the activity that returns energy rather than spending it.' },
+  Moon:    { title: 'Inner life · Memory',  body: 'The Moon is the night-self — what feels safe, what feels home, what the body reaches for when it is tired. The Moon is how you actually feel, beneath whatever the Sun is performing.' },
+  Mercury: { title: 'Mind · Voice',         body: 'Mercury is the messenger — how you think, speak, listen, learn. Mercury reveals the tempo of your thought and the kind of detail your mind reaches for first.' },
+  Venus:   { title: 'Love · Beauty · Value', body: 'Venus is what draws you in: who you love, what you find beautiful, what you spend on without resenting the cost. Venus governs taste, attraction, and the felt sense of "worth it".' },
+  Mars:    { title: 'Drive · Anger · Desire', body: 'Mars is how you go after what you want — also how you fight, how you defend, how you cut a path. Healthy Mars is clean desire; wounded Mars is reactivity or paralysis.' },
+  Jupiter: { title: 'Expansion · Faith',    body: 'Jupiter is the open door, the bigger-than-this-room belief, the appetite for meaning. Where Jupiter sits is where life keeps offering more than seems reasonable.' },
+  Saturn:  { title: 'Structure · Time',     body: 'Saturn is the teacher, the wall, the slow return. Where Saturn sits is where you build by paying attention over years rather than days.' },
+  Uranus:  { title: 'Disruption · Insight', body: 'Uranus is the lightning — the sudden break with the inherited script, the friend who arrives once and changes how you see. Uranus is what cannot be planned for.' },
+  Neptune: { title: 'Dream · Dissolution',  body: 'Neptune is the veil — imagination, devotion, the longing that has no fixed object. Neptune dissolves what was solid; whether that is liberation or escape depends on the craft of your attention.' },
+  Pluto:   { title: 'Power · Transformation', body: 'Pluto is the underworld — what cannot be reasoned with, only undergone. Pluto governs death and rebirth at every scale: relationships, careers, identities that have to go for the next one to arrive.' },
+};
 
 // ─── GLYPHS + CONSTANTS ──────────────────────────────────────────────────────
 const SIGN_GLYPH: Record<string, string> = {
@@ -108,6 +125,13 @@ export default function NatalChartWheel({
   const [hoverHouse, setHoverHouse] = useState<number | null>(null);
   const [flashPlanet, setFlashPlanet] = useState<string | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // Click-to-expand: which sign / planet / house has been opened for its
+  // full description. Mutually exclusive — the panel shows one at a time.
+  type Detail =
+    | { kind: 'sign'; key: string }
+    | { kind: 'planet'; key: string }
+    | { kind: 'house'; key: number };
+  const [detail, setDetail] = useState<Detail | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -162,8 +186,75 @@ export default function NatalChartWheel({
   function handlePlanetClick(name: string) {
     setFlashPlanet(name);
     onPlanetClick?.(name);
+    setDetail({ kind: 'planet', key: name });
     window.setTimeout(() => setFlashPlanet((n) => (n === name ? null : n)), 900);
   }
+
+  // ESC closes the detail panel.
+  useEffect(() => {
+    if (!detail) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDetail(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [detail]);
+
+  // ── Resolve the click-for-detail content ────────────────────────────────
+  type DetailContent = {
+    eyebrow: string;
+    title: string;
+    subtitle?: string;
+    body: string;
+    extras?: Array<{ label: string; value: string }>;
+  } | null;
+
+  const detailContent: DetailContent = (() => {
+    if (!detail) return null;
+    if (detail.kind === 'sign') {
+      type SignRow = { title?: string; element?: string; ruler?: string; body?: string; shadow?: string; gift?: string };
+      const e = (SIGN_ESSENCE as unknown as Record<string, SignRow>)[detail.key];
+      if (!e) return null;
+      return {
+        eyebrow: `Sign · ${SIGN_GLYPH[detail.key] ?? ''}`,
+        title: `${detail.key}${e.title ? ` — ${e.title}` : ''}`,
+        subtitle: e.element && e.ruler ? `${e.element} · ruled by ${e.ruler}` : undefined,
+        body: e.body ?? '',
+        extras: [
+          ...(e.shadow ? [{ label: 'Shadow', value: e.shadow }] : []),
+          ...(e.gift ? [{ label: 'Gift', value: e.gift }] : []),
+        ],
+      };
+    }
+    if (detail.kind === 'planet') {
+      const profile = PLANET_PROFILE[detail.key];
+      const p = planetPos.find((x) => x.planet === detail.key);
+      type SignRow = Record<string, Record<string, string>>;
+      const inSign = p ? (PLANET_IN_SIGN as unknown as SignRow)[detail.key]?.[p.sign] : '';
+      const deg = p ? Math.floor(p.deg ?? 0) : null;
+      const min = p ? Math.floor(((p.deg ?? 0) - (deg ?? 0)) * 60) : null;
+      const placement = p
+        ? `${deg}°${String(min).padStart(2, '0')}′ ${p.sign}${p.house ? ` · House ${p.house}` : ''}`
+        : '';
+      return {
+        eyebrow: `Planet · ${PLANET_GLYPH[detail.key] ?? ''}`,
+        title: `${detail.key}${profile ? ` — ${profile.title}` : ''}`,
+        subtitle: placement,
+        body: profile?.body ?? '',
+        extras: inSign ? [{ label: `In ${p?.sign ?? ''}`, value: inSign }] : [],
+      };
+    }
+    if (detail.kind === 'house') {
+      type HouseRow = Record<number, { title?: string; body?: string }>;
+      const h = (HOUSE_ESSENCE as unknown as HouseRow)[detail.key];
+      return {
+        eyebrow: `House ${detail.key}`,
+        title: h?.title ? `${h.title}` : `House ${detail.key}`,
+        body: h?.body ?? '',
+      };
+    }
+    return null;
+  })();
 
   const tooltip = (() => {
     if (hoverPlanet) {
@@ -256,7 +347,11 @@ export default function NatalChartWheel({
                 key={sign}
                 onMouseEnter={() => setHoverSign(sign)}
                 onMouseLeave={() => setHoverSign((s) => (s === sign ? null : s))}
-                style={{ cursor: 'default' }}
+                onClick={() => setDetail({ kind: 'sign', key: sign })}
+                role="button"
+                tabIndex={0}
+                aria-label={`${sign} — open description`}
+                style={{ cursor: 'pointer' }}
               >
                 <path
                   d={sectorPath}
@@ -323,6 +418,11 @@ export default function NatalChartWheel({
                 key={houseNum}
                 onMouseEnter={() => setHoverHouse(houseNum)}
                 onMouseLeave={() => setHoverHouse((h) => (h === houseNum ? null : h))}
+                onClick={() => setDetail({ kind: 'house', key: houseNum })}
+                role="button"
+                tabIndex={0}
+                aria-label={`House ${houseNum} — open description`}
+                style={{ cursor: 'pointer' }}
               >
                 <path
                   d={sectorPath}
@@ -566,6 +666,147 @@ export default function NatalChartWheel({
         </div>
       )}
 
+      {/* ── DETAIL PANEL (click-to-expand) ── */}
+      {detailContent && (
+        <>
+          <div
+            onClick={() => setDetail(null)}
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(4, 6, 14, 0.62)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              zIndex: 70,
+              animation: reducedMotion ? undefined : 'ncw-veil 220ms ease-out both',
+            }}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={detailContent.title}
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'min(560px, 92vw)',
+              maxHeight: '82vh',
+              overflowY: 'auto',
+              background: 'rgba(10, 14, 26, 0.96)',
+              border: '1px solid rgba(200, 160, 82, 0.32)',
+              borderRadius: 6,
+              boxShadow: '0 20px 80px rgba(0, 0, 0, 0.55), 0 0 40px rgba(200, 160, 82, 0.12)',
+              padding: '32px 36px 36px',
+              zIndex: 71,
+              animation: reducedMotion ? undefined : 'ncw-pop 280ms cubic-bezier(.2,.7,.3,1) both',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setDetail(null)}
+              aria-label="Close description"
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 14,
+                background: 'transparent',
+                border: 0,
+                color: 'rgba(252, 250, 246, 0.55)',
+                cursor: 'pointer',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 16,
+                lineHeight: 1,
+                padding: 6,
+              }}
+            >
+              ✕
+            </button>
+            <div
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--brass)',
+                marginBottom: 10,
+              }}
+            >
+              {detailContent.eyebrow}
+            </div>
+            <h3
+              style={{
+                fontFamily: "'Fraunces', serif",
+                fontSize: 26,
+                fontWeight: 500,
+                lineHeight: 1.2,
+                letterSpacing: '-0.01em',
+                margin: '0 0 6px',
+                color: 'var(--ink)',
+              }}
+            >
+              {detailContent.title}
+            </h3>
+            {detailContent.subtitle && (
+              <div
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(252, 250, 246, 0.55)',
+                  marginBottom: 18,
+                }}
+              >
+                {detailContent.subtitle}
+              </div>
+            )}
+            {detailContent.body && (
+              <p
+                style={{
+                  fontFamily: "'Crimson Pro', serif",
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                  color: 'rgba(252, 250, 246, 0.85)',
+                  margin: '14px 0 0',
+                }}
+              >
+                {detailContent.body}
+              </p>
+            )}
+            {detailContent.extras?.map((x) => (
+              <div key={x.label} style={{ marginTop: 18 }}>
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 9,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: 'var(--brass)',
+                    marginBottom: 6,
+                  }}
+                >
+                  {x.label}
+                </div>
+                <p
+                  style={{
+                    fontFamily: "'Crimson Pro', serif",
+                    fontSize: 15,
+                    lineHeight: 1.65,
+                    color: 'rgba(252, 250, 246, 0.78)',
+                    margin: 0,
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {x.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       <style>{`
         @keyframes ncw-rise {
           from { opacity: 0; transform: translateY(6px); }
@@ -577,6 +818,14 @@ export default function NatalChartWheel({
         @keyframes ncw-flash {
           0%   { r: 8;  opacity: 1;   stroke-width: 1.6; }
           100% { r: 22; opacity: 0;   stroke-width: 0.4; }
+        }
+        @keyframes ncw-veil {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes ncw-pop {
+          from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+          to   { opacity: 1; transform: translate(-50%, -50%); }
         }
         @media (prefers-reduced-motion: reduce) {
           svg [style*="ncw-rise"], svg [style*="ncw-draw"], svg [style*="ncw-flash"] {

@@ -14,6 +14,22 @@
 import { useState, useMemo, useEffect } from 'react';
 import { KABBALAH_SIGN_PATH_MEANING } from '@/lib/interp/tables';
 
+// Long-form sephira descriptions used in the click-to-expand panel. Keyed by
+// canonical sephira name (matches SEPHIROT below). Body is one or two
+// paragraphs of editorial prose, brand-voice. Source: hand-written, not AI.
+const SEPHIRA_PROFILE: Record<string, { body: string; pillar: string }> = {
+  Kether:    { body: 'Kether is the Crown — the unity that has not yet divided into anything. It is the single point from which the entire Tree unfolds, the originating breath before there is light to see by. To touch Kether is to touch the source the system itself rests on; the experience is rarely described and never owned.', pillar: 'Middle pillar — undifferentiated source.' },
+  Chokmah:   { body: 'Chokmah is Wisdom — the first masculine outpouring, the flash of insight that cannot be undone once it lands. It is the zodiac as living force, the dynamic principle that initiates without yet knowing what it is initiating. Chokmah is the moment the lightning leaves the cloud.', pillar: 'Right pillar — expansion, generative force.' },
+  Binah:     { body: 'Binah is Understanding — the great mother, the womb that gives form to what Chokmah set in motion. Saturn-ruled, Binah is the principle of structure, limitation, and time itself. She is the discipline that makes growth possible by enforcing edges; without Binah, Chokmah burns formless forever.', pillar: 'Left pillar — contraction, formative force.' },
+  Chesed:    { body: 'Chesed is Mercy — Jupiter\'s loving-kindness, the expansive principle that builds, gives, and forgives. Chesed is the open hand, the king who rules generously because he is genuinely full. Its risk is the kindness that has no limit and so loses its meaning.', pillar: 'Right pillar — moral expansion, the generous king.' },
+  Geburah:   { body: 'Geburah is Severity — Mars\'s judgement, the cutting force that removes what cannot be carried forward. Geburah is the warrior, the boundary, the necessary No. Without Geburah, Chesed bloats; without Chesed, Geburah destroys. The two need each other.', pillar: 'Left pillar — moral contraction, the just warrior.' },
+  Tiphareth: { body: 'Tiphareth is Beauty — the solar centre of the Tree, the harmonised self that holds all the other sephirot in proportion. Tiphareth is the king who has integrated mercy and severity, the heart that has become a mirror for the higher worlds. This is the sephira of the awakened conscience.', pillar: 'Middle pillar — the integrated self, the sacrificed and risen king.' },
+  Netzach:   { body: 'Netzach is Victory — Venus\'s endurance, the principle of feeling, beauty, art, and instinctual life. Netzach is what keeps going because it is in love with going. Its shadow is the sentimentality that refuses to face Hod\'s clear thinking.', pillar: 'Right pillar — the heart\'s persistence.' },
+  Hod:       { body: 'Hod is Splendour — Mercury\'s form-making, the principle of language, logic, structure, and named distinction. Hod is the mind that catalogues, names, and refines. Its shadow is the cleverness that has lost contact with Netzach\'s living feeling.', pillar: 'Left pillar — the mind\'s clarification.' },
+  Yesod:     { body: 'Yesod is Foundation — the lunar treasury, the astral storehouse where the imagination, the dream-life, and the sexual current converge. Everything that will manifest in Malkuth first passes through Yesod\'s shimmering vessel. This is the moon under which the unconscious moves.', pillar: 'Middle pillar — the astral foundation, the dreaming vessel.' },
+  Malkuth:   { body: 'Malkuth is Kingdom — the earth, the body, the incarnated world. Malkuth is where everything else becomes real, becomes tasteable, becomes bound by time. The whole Tree exists so that the divine can be expressed here, in this room, in this body, at this hour.', pillar: 'Middle pillar — the manifest world, the incarnate kingdom.' },
+};
+
 // ─── SEPHIROT (positions on a 500×700 canvas) ────────────────────────────────
 type Sephira = {
   name: string;
@@ -92,6 +108,11 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
   const [hoverPath, setHoverPath] = useState<number | null>(null);
   const [pulseSef, setPulseSef] = useState<string | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  // Click-to-expand description panel — one of these at a time.
+  type Detail =
+    | { kind: 'sefira'; name: string }
+    | { kind: 'path'; id: number };
+  const [detail, setDetail] = useState<Detail | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -117,8 +138,61 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
   function handleSefClick(name: string) {
     setPulseSef(name);
     onSefiraClick?.(name);
+    setDetail({ kind: 'sefira', name });
     window.setTimeout(() => setPulseSef((n) => (n === name ? null : n)), 1400);
   }
+
+  function handlePathClick(id: number) {
+    setDetail({ kind: 'path', id });
+  }
+
+  // ESC closes the detail panel.
+  useEffect(() => {
+    if (!detail) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDetail(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [detail]);
+
+  // Build the detail content for the panel.
+  type DetailContent = {
+    eyebrow: string;
+    title: string;
+    subtitle?: string;
+    body: string;
+    pillarRole?: string;
+  } | null;
+
+  const detailContent: DetailContent = (() => {
+    if (!detail) return null;
+    if (detail.kind === 'sefira') {
+      const s = byName[detail.name];
+      if (!s) return null;
+      const profile = SEPHIRA_PROFILE[detail.name];
+      return {
+        eyebrow: `Sephira ${s.number} · ${s.hebrew}`,
+        title: `${s.name} — ${s.title}`,
+        subtitle: s.attribute,
+        body: profile?.body ?? '',
+        pillarRole: profile?.pillar,
+      };
+    }
+    const p = PATHS.find((x) => x.id === detail.id);
+    if (!p) return null;
+    type PathTable = Record<string, { body?: string; pillarRole?: string }>;
+    const extra = p.sign ? (KABBALAH_SIGN_PATH_MEANING as unknown as PathTable)[p.sign] : null;
+    return {
+      eyebrow: `Path ${p.id} · ${p.from} ↔ ${p.to}`,
+      title: `${p.letter} · ${p.tarot}`,
+      subtitle: p.sign ? `Zodiac: ${p.sign}` : 'Non-zodiacal path',
+      body:
+        extra?.body ??
+        `The ${p.letter} path connects ${p.from} and ${p.to}, associated with ${p.tarot}. This is one of the twenty-two paths of the Tree, each a Hebrew letter and a tarot key — the ladder that carries consciousness between sephirot.`,
+      pillarRole: extra?.pillarRole,
+    };
+  })();
 
   // Tooltip state
   const tooltip = (() => {
@@ -207,7 +281,10 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
                   strokeWidth="14"
                   onMouseEnter={() => setHoverPath(p.id)}
                   onMouseLeave={() => setHoverPath((n) => (n === p.id ? null : n))}
-                  style={{ cursor: 'default' }}
+                  onClick={() => handlePathClick(p.id)}
+                  role="button"
+                  aria-label={`Path ${p.id} — ${p.letter} · ${p.tarot}`}
+                  style={{ cursor: 'pointer' }}
                 />
                 {/* visible line */}
                 <line
@@ -414,6 +491,147 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
         </div>
       )}
 
+      {/* ── DETAIL PANEL (click-to-expand) ── */}
+      {detailContent && (
+        <>
+          <div
+            onClick={() => setDetail(null)}
+            aria-hidden="true"
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(4, 6, 14, 0.62)',
+              backdropFilter: 'blur(4px)',
+              WebkitBackdropFilter: 'blur(4px)',
+              zIndex: 70,
+              animation: reducedMotion ? undefined : 'tol-veil 220ms ease-out both',
+            }}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={detailContent.title}
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'min(560px, 92vw)',
+              maxHeight: '82vh',
+              overflowY: 'auto',
+              background: 'rgba(10, 14, 26, 0.96)',
+              border: '1px solid rgba(200, 160, 82, 0.32)',
+              borderRadius: 6,
+              boxShadow: '0 20px 80px rgba(0, 0, 0, 0.55), 0 0 40px rgba(200, 160, 82, 0.12)',
+              padding: '32px 36px 36px',
+              zIndex: 71,
+              animation: reducedMotion ? undefined : 'tol-pop 280ms cubic-bezier(.2,.7,.3,1) both',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setDetail(null)}
+              aria-label="Close description"
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 14,
+                background: 'transparent',
+                border: 0,
+                color: 'rgba(252, 250, 246, 0.55)',
+                cursor: 'pointer',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 16,
+                lineHeight: 1,
+                padding: 6,
+              }}
+            >
+              ✕
+            </button>
+            <div
+              style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--brass)',
+                marginBottom: 10,
+              }}
+            >
+              {detailContent.eyebrow}
+            </div>
+            <h3
+              style={{
+                fontFamily: "'Fraunces', serif",
+                fontSize: 26,
+                fontWeight: 500,
+                lineHeight: 1.2,
+                letterSpacing: '-0.01em',
+                margin: '0 0 6px',
+                color: 'var(--ink)',
+              }}
+            >
+              {detailContent.title}
+            </h3>
+            {detailContent.subtitle && (
+              <div
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 10,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: 'rgba(252, 250, 246, 0.55)',
+                  marginBottom: 18,
+                }}
+              >
+                {detailContent.subtitle}
+              </div>
+            )}
+            {detailContent.body && (
+              <p
+                style={{
+                  fontFamily: "'Crimson Pro', serif",
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                  color: 'rgba(252, 250, 246, 0.85)',
+                  margin: '14px 0 0',
+                }}
+              >
+                {detailContent.body}
+              </p>
+            )}
+            {detailContent.pillarRole && (
+              <div style={{ marginTop: 18 }}>
+                <div
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 9,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: 'var(--brass)',
+                    marginBottom: 6,
+                  }}
+                >
+                  Pillar role
+                </div>
+                <p
+                  style={{
+                    fontFamily: "'Crimson Pro', serif",
+                    fontSize: 15,
+                    lineHeight: 1.65,
+                    color: 'rgba(252, 250, 246, 0.78)',
+                    margin: 0,
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {detailContent.pillarRole}
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       <style>{`
         @keyframes tol-rise {
           from { opacity: 0; transform: translateY(14px); }
@@ -429,6 +647,14 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
         @keyframes tol-halo-pulse {
           0%, 100% { opacity: 0.55; }
           50%      { opacity: 1; }
+        }
+        @keyframes tol-veil {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes tol-pop {
+          from { opacity: 0; transform: translate(-50%, calc(-50% + 12px)); }
+          to   { opacity: 1; transform: translate(-50%, -50%); }
         }
         @media (prefers-reduced-motion: reduce) {
           svg [style*="tol-rise"], svg [style*="tol-draw"], svg [style*="tol-pulse"], svg [style*="tol-halo-pulse"] {

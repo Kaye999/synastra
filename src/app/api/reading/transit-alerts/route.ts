@@ -111,14 +111,29 @@ export async function GET(req: Request) {
     });
   }
 
-  // List mode — detect next 30 days of significant transits, cross-reference
-  // with cache to know which are already generated.
+  // List mode — detect significant transits within the requested scope.
+  // scope=week (7d) | month (30d, default) | year (365d) | decade (~3650d).
+  // Longer windows only really make sense for the slow outer planets, so we
+  // already filter to those via detectOuterTransits in the detector.
+  const scopeParam = (url.searchParams.get('scope') || 'month').toLowerCase();
+  const days = scopeParam === 'week'
+    ? 7
+    : scopeParam === 'year'
+      ? 365
+      : scopeParam === 'decade'
+        ? 3650
+        : 30;
+  const maxResults = scopeParam === 'decade'
+    ? 30
+    : scopeParam === 'year'
+      ? 20
+      : 12;
   const start = new Date();
-  const end = new Date(start.getTime() + 30 * 86400 * 1000);
+  const end = new Date(start.getTime() + days * 86400 * 1000);
   const detected = detectSignificantTransits(chart, { start, end }, {
     includeEclipses: true,
     includeInnerStations: false,
-  }).slice(0, 12);
+  }).slice(0, maxResults);
 
   // Pull existing rows for these scope keys. We cast to `any` because the
   // generated Database type doesn't yet know about astral.readings.
