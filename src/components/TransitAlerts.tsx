@@ -111,7 +111,7 @@ async function streamSse(
   return full;
 }
 
-export default function TransitAlerts({ user: _user, firstName: _firstName, tier }: TransitAlertsProps) {
+export default function TransitAlerts({ user: _user, firstName, tier }: TransitAlertsProps) {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState<Scope>('month');
   const [alerts, setAlerts] = useState<UiAlert[]>([]);
@@ -244,19 +244,28 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
 
   return (
     <>
+      {/* Centred wrapper — flexbox is more robust than translateX, which
+          can be eaten by ancestor transforms or hover handlers. The wrapper
+          spans the viewport with pointer-events:none so it doesn't trap
+          clicks; the button restores pointer-events on itself. */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 14,
+          left: 0,
+          right: 0,
+          zIndex: 40,
+          display: 'flex',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+        }}
+      >
       <button
         type="button"
         aria-label={`Transit alerts${badgeCount ? `, ${badgeCount} unread` : ''}`}
         onClick={() => setOpen((o) => !o)}
         style={{
-          // Centred horizontally, sits above the 7-tradition top bar (which
-          // lives at top:68). Same row as the corner controls but anchored
-          // to viewport-centre so it reads as a primary navigation cue.
-          position: 'fixed',
-          top: 14,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 40,
+          pointerEvents: 'auto',
           background: 'rgba(200, 160, 82, 0.12)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
@@ -317,6 +326,7 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
           </span>
         )}
       </button>
+      </div>
 
       {open && (
         <div
@@ -375,7 +385,7 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
                 marginBottom: 6,
               }}
             >
-              Upcoming · Transits
+              {firstName ? `${firstName}’s sky` : 'Your sky'} · Transits & alignments
             </div>
             <h3
               style={{
@@ -388,10 +398,22 @@ export default function TransitAlerts({ user: _user, firstName: _firstName, tier
               }}
             >
               {scope === 'week' && 'This week'}
-              {scope === 'month' && 'What’s near'}
+              {scope === 'month' && 'This month'}
               {scope === 'year' && 'This year'}
               {scope === 'decade' && 'The next decade'}
             </h3>
+            <p
+              style={{
+                fontFamily: "'Crimson Pro', serif",
+                fontStyle: 'italic',
+                fontSize: 13,
+                lineHeight: 1.5,
+                color: 'rgba(252, 250, 246, 0.55)',
+                margin: '8px 0 0',
+              }}
+            >
+              Transiting planets crossing your natal chart — what the sky is doing TO YOU, not to everyone.
+            </p>
           </div>
           <button
             type="button"
