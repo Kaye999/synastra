@@ -245,7 +245,7 @@ export default async function LandingPage() {
       >
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%' }}>
           <Reveal>
-            <div className="mk-brand-eyebrow">EST · MMXXVI  ·  SYDNEY</div>
+            <div className="mk-brand-eyebrow">EST · 2026  ·  SYDNEY</div>
           </Reveal>
           <Reveal delay={60}>
             <div className="mk-wordmark">
@@ -492,7 +492,6 @@ export default async function LandingPage() {
         <div className="tag">Seven traditions. One chart. One Oracle.</div>
         <nav>
           <Link href="/how-it-works">How it works</Link>
-          <Link href="/field-notes">Field notes</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
           <Link href="/privacy">Privacy</Link>
