@@ -59,16 +59,40 @@ const DATE_FMT = new Intl.DateTimeFormat('en-AU', {
   year: 'numeric',
 });
 
-function prettyAspect(a: string): string {
-  if (!a) return '';
-  return a.replace(/[-_]/g, ' ');
+// Plain-English translations — the user reads "Saturn challenges how you
+// show up" instead of "Saturn square natal ASC". Each verb hints at the
+// FEEL of the aspect; each target phrase names what the natal point
+// actually means in lived experience.
+const ASPECT_VERB: Record<string, string> = {
+  conjunction: 'meets',
+  opposition:  'pulls against',
+  square:      'challenges',
+  trine:       'flows with',
+  sextile:     'sparks',
+};
+
+const TARGET_PHRASE: Record<string, string> = {
+  Sun:     'who you are',
+  Moon:    'your inner life',
+  Mercury: 'how you think and speak',
+  Venus:   'what you love and value',
+  Mars:    'your drive',
+  ASC:     'how you show up',
+  MC:      'your public path',
+};
+
+function humanTransit(planet: string, aspect: string, target: string): string {
+  const verb = ASPECT_VERB[aspect] ?? aspect;
+  const what = TARGET_PHRASE[target] ?? target;
+  return `${planet} ${verb} ${what}`;
 }
+
 function toUiAlert(r: RawAlert): UiAlert {
-  const name = `${r.planet} ${prettyAspect(r.aspect)} natal ${r.target}`;
+  const name = humanTransit(r.planet, r.aspect, r.target);
   let date = r.exactDate;
   const parsed = new Date(r.exactDate);
   if (!isNaN(parsed.getTime())) date = DATE_FMT.format(parsed);
-  const short = `Exact ${date}. Orb ${r.orb.toFixed(2)}° at crossing.`;
+  const short = `Peaks ${date}.`;
   return {
     id: r.scopeKey,
     name,
@@ -600,32 +624,32 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                   </button>
                   {/* Potency badge + intensity bar */}
                   <PotencyBadge tier={a.potencyTier} score={a.potency} isEclipse={a.isEclipse} />
-                  <div
+                  <h4
                     style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 10,
-                      letterSpacing: '0.22em',
-                      textTransform: 'uppercase',
-                      color: 'var(--brass)',
-                      marginBottom: 6,
+                      fontFamily: "'Fraunces', serif",
+                      fontSize: 19,
+                      fontWeight: 500,
+                      lineHeight: 1.3,
+                      letterSpacing: '-0.01em',
+                      color: 'var(--ink)',
+                      margin: '0 0 4px',
                       paddingRight: 28,
                     }}
                   >
                     {a.name}
-                    {a.date && <span style={{ color: 'var(--ink-faint)' }}> · {a.date}</span>}
-                  </div>
-                  <p
+                  </h4>
+                  <div
                     style={{
-                      fontFamily: "'Crimson Pro', serif",
-                      fontSize: 16,
-                      lineHeight: 1.55,
-                      color: 'var(--ink)',
-                      margin: '0 0 8px',
-                      paddingRight: 28,
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(252, 250, 246, 0.45)',
+                      marginBottom: 8,
                     }}
                   >
                     {a.short}
-                  </p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => toggleExpand(a.id)}
