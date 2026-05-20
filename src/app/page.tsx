@@ -270,7 +270,7 @@ export default async function LandingPage() {
           </Reveal>
           <Reveal delay={380}>
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
-              <Link href={primaryHref} className="mk-cta-primary">
+              <Link href={primaryHref} className="mk-cta-giant">
                 {primaryHeroLabel}
               </Link>
             </div>
