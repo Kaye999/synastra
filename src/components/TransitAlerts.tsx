@@ -81,23 +81,23 @@ const TARGET_PHRASE: Record<string, string> = {
   MC:      'your public path',
 };
 
-function humanTransit(planet: string, aspect: string, target: string): string {
+function humanTransit(planet: string, aspect: string, target: string, dateStr: string): string {
   const verb = ASPECT_VERB[aspect] ?? aspect;
   const what = TARGET_PHRASE[target] ?? target;
-  return `${planet} ${verb} ${what}`;
+  // Full sentence: "Saturn meets your sense of self on 28 June 2034"
+  return `${planet} ${verb} ${what} on ${dateStr}`;
 }
 
 function toUiAlert(r: RawAlert): UiAlert {
-  const name = humanTransit(r.planet, r.aspect, r.target);
-  let date = r.exactDate;
+  let dateStr = r.exactDate;
   const parsed = new Date(r.exactDate);
-  if (!isNaN(parsed.getTime())) date = DATE_FMT.format(parsed);
-  const short = `Peaks ${date}.`;
+  if (!isNaN(parsed.getTime())) dateStr = DATE_FMT.format(parsed);
+  const name = humanTransit(r.planet, r.aspect, r.target, dateStr);
   return {
     id: r.scopeKey,
     name,
-    date,
-    short,
+    date: dateStr,
+    short: 'Tap to read more →',
     body: '',
     loading: false,
     error: null,
@@ -624,32 +624,8 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                   </button>
                   {/* Potency badge + intensity bar */}
                   <PotencyBadge tier={a.potencyTier} score={a.potency} isEclipse={a.isEclipse} />
-                  <h4
-                    style={{
-                      fontFamily: "'Fraunces', serif",
-                      fontSize: 19,
-                      fontWeight: 500,
-                      lineHeight: 1.3,
-                      letterSpacing: '-0.01em',
-                      color: 'var(--ink)',
-                      margin: '0 0 4px',
-                      paddingRight: 28,
-                    }}
-                  >
-                    {a.name}
-                  </h4>
-                  <div
-                    style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(252, 250, 246, 0.45)',
-                      marginBottom: 8,
-                    }}
-                  >
-                    {a.short}
-                  </div>
+                  {/* Whole row is the click-to-expand affordance — title is
+                     the sentence, "tap to read more" is the visible CTA. */}
                   <button
                     type="button"
                     onClick={() => toggleExpand(a.id)}
@@ -658,15 +634,39 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                       background: 'transparent',
                       border: 0,
                       padding: 0,
-                      color: 'var(--brass)',
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: 10,
-                      letterSpacing: '0.22em',
-                      textTransform: 'uppercase',
+                      margin: 0,
+                      width: '100%',
+                      textAlign: 'left',
                       cursor: 'pointer',
+                      color: 'inherit',
+                      fontFamily: 'inherit',
                     }}
                   >
-                    {a.expanded ? 'Close' : 'Read more'}
+                    <h4
+                      style={{
+                        fontFamily: "'Fraunces', serif",
+                        fontSize: 19,
+                        fontWeight: 500,
+                        lineHeight: 1.3,
+                        letterSpacing: '-0.01em',
+                        color: 'var(--ink)',
+                        margin: '0 0 8px',
+                        paddingRight: 28,
+                      }}
+                    >
+                      {a.name}
+                    </h4>
+                    <div
+                      style={{
+                        color: 'var(--brass)',
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.22em',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {a.expanded ? '↑ Close' : a.short}
+                    </div>
                   </button>
                   <div
                     style={{
