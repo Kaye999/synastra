@@ -79,7 +79,7 @@ const INTELLIGENCE = [
   {
     title: 'Transit Alerts',
     body:
-      'When Saturn crosses your Sun or Jupiter lights your tenth house, you get a quiet ping. We watch the sky so you don\'t have to, and only speak when something in your chart is actually activated.',
+      'When Saturn crosses your Sun or Jupiter lights your tenth house, you get a quiet ping. We watch the sky so you don\'t have to, and only speak when something in your chart is actually activated. No daily noise, no zodiac-wide alerts — just the few moments per year that are genuinely yours.',
   },
 ] as const;
 
