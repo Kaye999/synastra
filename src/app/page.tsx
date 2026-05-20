@@ -219,7 +219,6 @@ export default async function LandingPage() {
           <Link href="/how-it-works">How it works</Link>
           <Link href="/now">Now</Link>
           <Link href="/pricing">Pricing</Link>
-          <Link href="/chart?demo=1">Sample chart</Link>
           {!isSignedIn && <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>}
           <Link href={primaryHref} className="mk-nav-cta">{primaryNavLabel}</Link>
         </div>
@@ -265,9 +264,6 @@ export default async function LandingPage() {
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
               <Link href={primaryHref} className="mk-cta-primary">
                 {primaryHeroLabel}
-              </Link>
-              <Link href="/chart?demo=1" className="mk-cta-ghost">
-                Try a sample chart
               </Link>
             </div>
           </Reveal>

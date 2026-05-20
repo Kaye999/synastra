@@ -66,31 +66,29 @@ async function loadProfile(clerkUserId: string): Promise<Profile | null> {
 export default async function ChartPage({
   searchParams,
 }: {
-  searchParams: Promise<{ demo?: string; upgraded?: string }>;
+  searchParams: Promise<{ upgraded?: string }>;
 }) {
   const sp = await searchParams;
-  const isDemo = sp.demo === '1';
   const isUpgraded = sp.upgraded === '1';
 
-  if (isDemo) {
-    return <ClientShell profile={DEMO_PROFILE} upgraded={false} demo />;
-  }
-
+  // Demo flow removed 2026-05-20 — free users land at /onboarding to cast
+  // their own chart instead of looking at someone else's. DEMO_PROFILE
+  // kept on disk for reference / re-use if a future "tour" feature lands.
   const { userId } = await auth();
   if (!userId) redirect('/sign-in');
 
   const profile = await loadProfile(userId);
   if (!profile) redirect('/onboarding');
 
-  return <ClientShell profile={profile} upgraded={isUpgraded} demo={false} />;
+  return <ClientShell profile={profile} upgraded={isUpgraded} />;
 }
 
-function ClientShell({ profile, upgraded, demo }: { profile: Profile; upgraded: boolean; demo: boolean }) {
+function ClientShell({ profile, upgraded }: { profile: Profile; upgraded: boolean }) {
   return (
     <>
       {upgraded && <UpgradeBanner tier={profile.tier} />}
       {/* No onReset from server component — Dashboard's SettingsCog handles reset via /api/profile DELETE + router.push */}
-      <Dashboard user={profile.birthData} tier={profile.tier} demo={demo} />
+      <Dashboard user={profile.birthData} tier={profile.tier} />
     </>
   );
 }

@@ -6,12 +6,10 @@ const isProtectedRoute = createRouteMatcher([
   '/api/chat(.*)',
 ]);
 
-// /chart?demo=1 must remain public (no auth) — it's the anonymous demo.
-// /api/ayurveda, /api/enneagram, /api/profile handle their own Clerk auth.
+// /chart is always auth-gated now (demo flow removed 2026-05-20 — free
+// users go through /onboarding and read their own Western + Numerology).
+// /api/profile handles its own Clerk auth check.
 export default clerkMiddleware(async (auth, req) => {
-  const url = new URL(req.url);
-  const isDemo = url.pathname.startsWith('/chart') && url.searchParams.get('demo') === '1';
-  if (isDemo) return;
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
