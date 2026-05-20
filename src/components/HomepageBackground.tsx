@@ -207,6 +207,30 @@ body:has(.homepage-bg-root) .cosmos-root {
   pointer-events: none;
 }
 
+/* ─── 6. Footer veil ─────────────────────────────────────────────────
+   The dawn at peak brightness leaves footer text (cream + italic + brass)
+   illegible against amber. This is a fixed dark band at the very bottom
+   of the viewport — sits ABOVE the dawn sky (so the sun stays visible),
+   BELOW any page content. Fades in proportional to scroll progress so
+   the bright midday-of-dawn moment lasts, but settles into a readable
+   plate by the time the footer is in view. */
+.homepage-bg-footer-veil {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 320px;
+  background: linear-gradient(
+    to top,
+    rgba(8, 12, 24, 0.82) 0%,
+    rgba(8, 12, 24, 0.55) 40%,
+    rgba(8, 12, 24, 0.25) 75%,
+    rgba(8, 12, 24, 0) 100%
+  );
+  opacity: var(--hp-scroll, 0);
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .homepage-bg-sky,
   .homepage-bg-stars,
@@ -309,6 +333,7 @@ export default function HomepageBackground() {
           <div className="homepage-bg-sun-corona" />
           <div className="homepage-bg-sun-core" />
         </div>
+        <div className="homepage-bg-footer-veil" />
       </div>
     </>
   );

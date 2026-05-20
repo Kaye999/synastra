@@ -1435,7 +1435,10 @@ body {
   font-size: 11px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
+  /* Subtle text-shadow on the homepage where the dawn sky can wash out
+     fine type. No-op on other pages where the bg is solid midnight. */
+  text-shadow: 0 1px 8px rgba(8, 12, 24, 0.45);
 }
 .mk-footer .wordmark {
   font-family: var(--font-display);
@@ -1444,6 +1447,9 @@ body {
   text-transform: none;
   color: var(--ink);
   margin-bottom: 8px;
+  /* Stronger shadow on the wordmark — it's the largest type on the warm
+     band and needs to anchor confidently. */
+  text-shadow: 0 1px 14px rgba(8, 12, 24, 0.6);
 }
 .mk-footer .tag {
   font-family: var(--font-body);
@@ -1451,17 +1457,18 @@ body {
   font-size: 14px;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--ink-dim);
+  color: var(--ink);
+  opacity: 0.88;
   margin-bottom: 24px;
 }
 .mk-footer nav a {
-  /* #7B7361 on starfield failed WCAG AA (~3.5:1) — bumped to --ink-dim (#CFC5B1, ~11:1). */
-  color: var(--ink-dim);
+  color: var(--ink);
+  opacity: 0.82;
   text-decoration: none;
   margin: 0 12px;
-  transition: color 0.2s;
+  transition: opacity 0.2s, color 0.2s;
 }
-.mk-footer nav a:hover { color: var(--brass); }
+.mk-footer nav a:hover { color: var(--brass); opacity: 1; }
 
 /* ─── Marketing: pricing page tier card extras ────────────────────── */
 .mk-pricing-tier-name {
