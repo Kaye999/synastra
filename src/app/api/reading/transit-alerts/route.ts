@@ -37,6 +37,8 @@ import { NextResponse } from 'next/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+type PotencyTier = 'intense' | 'strong' | 'moderate' | 'mild';
+
 type AlertRow = {
   planet: string;
   aspect: string;
@@ -47,7 +49,76 @@ type AlertRow = {
   orb: number;
   scopeKey: string;
   generated: boolean;
+  /** 0–100 score of how hard this transit hits this chart. */
+  potency: number;
+  /** Human label derived from `potency`. */
+  potencyTier: PotencyTier;
+  /** True if this is an eclipse landing on a natal point. */
+  isEclipse: boolean;
 };
+
+// Potency weights — calibrated for the post-filter dataset (outer planets
+// only, hard aspects only).
+//
+// Aspect: conjunction is the most intense because the transiting energy
+// merges with the natal point. Opposition and square are still hard
+// aspects but slightly less total-eclipse-of-the-self.
+const ASPECT_WEIGHT: Record<string, number> = {
+  conjunction: 1.00,
+  opposition:  0.92,
+  square:      0.85,
+  // soft aspects retained for completeness if filter loosens later
+  trine:       0.55,
+  sextile:     0.40,
+};
+
+// Transiting planet: slower planet = longer activation window = bigger
+// impact on biography. Pluto > Neptune > Uranus > Saturn > Jupiter.
+const PLANET_WEIGHT: Record<string, number> = {
+  Pluto:   1.00,
+  Neptune: 0.92,
+  Uranus:  0.85,
+  Saturn:  0.78,
+  Jupiter: 0.62,
+};
+
+// Natal target: angles + luminaries are the most personal points; the
+// other personal planets are still felt but less totally.
+const TARGET_WEIGHT: Record<string, number> = {
+  Sun:     1.00,
+  Moon:    1.00,
+  ASC:     1.00,
+  MC:      0.96,
+  Mars:    0.82,
+  Venus:   0.78,
+  Mercury: 0.74,
+};
+
+// Tight orb = stronger transit. We use the MINIMUM orb observed during the
+// transit window (i.e., how close to exact it gets). 0° exact -> 1.0, larger
+// orb -> falls off. We clamp at ORB_CEILING degrees since the detector orbs
+// are already ≤1.5°.
+const ORB_CEILING = 1.5;
+function orbTightness(orb: number): number {
+  const clamped = Math.max(0, Math.min(orb, ORB_CEILING));
+  return 1 - (clamped / ORB_CEILING) * 0.65; // ranges 0.35 .. 1.00
+}
+
+function scorePotency(t: DetectedTransit): { potency: number; tier: PotencyTier; isEclipse: boolean } {
+  const isEclipse = t.kind === 'eclipse';
+  const aspect = ASPECT_WEIGHT[t.aspect] ?? 0.5;
+  const planet = PLANET_WEIGHT[t.planet] ?? 0.6;
+  const target = TARGET_WEIGHT[t.target] ?? 0.7;
+  const tight = orbTightness(t.orb);
+  let raw = aspect * planet * target * tight * 100;
+  if (isEclipse) raw = Math.min(100, raw + 18); // eclipses kick up a tier
+  const potency = Math.round(raw);
+  const tier: PotencyTier =
+    potency >= 75 ? 'intense' :
+    potency >= 55 ? 'strong' :
+    potency >= 35 ? 'moderate' : 'mild';
+  return { potency, tier, isEclipse };
+}
 
 function transitScopeKey(t: DetectedTransit): string {
   return `${t.planet}|${t.aspect}|${t.target}|${t.exactDate}`;
@@ -136,13 +207,16 @@ export async function GET(req: Request) {
   // still returns trines and sextiles which feel like noise to a user.
   // Drop them. Keep hard aspects (conjunction/opposition/square) plus
   // eclipses (always significant when on a natal point).
+  //
+  // NOTE: maxResults slice happens AFTER potency-ranking below so a high
+  // potency hit late in the window can't be evicted by a low-potency hit
+  // early in the window.
   const HARD_ASPECTS = new Set(['conjunction', 'opposition', 'square']);
   const detected = detectSignificantTransits(chart, { start, end }, {
     includeEclipses: true,
     includeInnerStations: false,
   })
-    .filter((t) => t.kind === 'eclipse' || HARD_ASPECTS.has(t.aspect))
-    .slice(0, maxResults);
+    .filter((t) => t.kind === 'eclipse' || HARD_ASPECTS.has(t.aspect));
 
   // Pull existing rows for these scope keys. We cast to `any` because the
   // generated Database type doesn't yet know about astral.readings.
@@ -181,17 +255,31 @@ export async function GET(req: Request) {
 
   const alerts: AlertRow[] = detected
     .filter((t) => !dismissedKeys.has(transitScopeKey(t)))
-    .map((t) => ({
-      planet: t.planet,
-      aspect: t.aspect,
-      target: t.target,
-      exactDate: t.exactDate,
-      orbEnterDate: t.orbEnterDate,
-      orbExitDate: t.orbExitDate,
-      orb: t.orb,
-      scopeKey: transitScopeKey(t),
-      generated: cachedKeys.has(transitScopeKey(t)),
-    }));
+    .map((t) => {
+      const { potency, tier, isEclipse } = scorePotency(t);
+      return {
+        planet: t.planet,
+        aspect: t.aspect,
+        target: t.target,
+        exactDate: t.exactDate,
+        orbEnterDate: t.orbEnterDate,
+        orbExitDate: t.orbExitDate,
+        orb: t.orb,
+        scopeKey: transitScopeKey(t),
+        generated: cachedKeys.has(transitScopeKey(t)),
+        potency,
+        potencyTier: tier,
+        isEclipse,
+      };
+    })
+    // Rank by potency descending so the heaviest hits sit at the top of
+    // the panel. Within the same potency, earlier exactDate wins.
+    .sort((a, b) =>
+      b.potency !== a.potency
+        ? b.potency - a.potency
+        : a.exactDate.localeCompare(b.exactDate),
+    )
+    .slice(0, maxResults);
 
   return NextResponse.json({ alerts });
 }

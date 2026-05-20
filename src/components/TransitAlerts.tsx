@@ -15,6 +15,8 @@ export type TransitAlertsProps = {
   tier: Tier;
 };
 
+type PotencyTier = 'intense' | 'strong' | 'moderate' | 'mild';
+
 type RawAlert = {
   planet: string;
   aspect: string;
@@ -23,6 +25,9 @@ type RawAlert = {
   orb: number;
   scopeKey: string;
   generated: boolean;
+  potency?: number;
+  potencyTier?: PotencyTier;
+  isEclipse?: boolean;
 };
 
 type UiAlert = {
@@ -34,6 +39,9 @@ type UiAlert = {
   loading: boolean;
   error: string | null;
   expanded: boolean;
+  potency: number;          // 0..100
+  potencyTier: PotencyTier; // human label
+  isEclipse: boolean;
 };
 
 type Scope = 'week' | 'month' | 'year' | 'decade';
@@ -70,8 +78,20 @@ function toUiAlert(r: RawAlert): UiAlert {
     loading: false,
     error: null,
     expanded: false,
+    potency: typeof r.potency === 'number' ? r.potency : 0,
+    potencyTier: r.potencyTier ?? 'mild',
+    isEclipse: !!r.isEclipse,
   };
 }
+
+// Brass-tinted palette per potency tier — intense is brightest, mild is
+// faintest. Used by the potency badge next to each transit's title.
+const POTENCY_STYLE: Record<PotencyTier, { bg: string; border: string; ink: string; label: string }> = {
+  intense:  { bg: 'rgba(212, 80, 44, 0.18)',  border: 'rgba(212, 80, 44, 0.65)', ink: '#E07A56', label: 'Intense' },
+  strong:   { bg: 'rgba(200, 160, 82, 0.18)', border: 'rgba(200, 160, 82, 0.55)', ink: 'var(--brass)', label: 'Strong' },
+  moderate: { bg: 'rgba(200, 160, 82, 0.10)', border: 'rgba(200, 160, 82, 0.32)', ink: 'rgba(200,160,82,0.85)', label: 'Moderate' },
+  mild:     { bg: 'rgba(252, 250, 246, 0.05)', border: 'rgba(252, 250, 246, 0.16)', ink: 'rgba(252,250,246,0.55)', label: 'Mild' },
+};
 
 async function streamSse(
   url: string,
@@ -412,7 +432,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                 margin: '8px 0 0',
               }}
             >
-              Transiting planets crossing your natal chart — what the sky is doing TO YOU, not to everyone.
+              Ranked by potency to your natal chart — heaviest hits first. Score weighs aspect, transiting planet, the natal point it lands on, and tightness of orb.
             </p>
           </div>
           <button
@@ -578,6 +598,8 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                   >
                     ×
                   </button>
+                  {/* Potency badge + intensity bar */}
+                  <PotencyBadge tier={a.potencyTier} score={a.potency} isEclipse={a.isEclipse} />
                   <div
                     style={{
                       fontFamily: "'IBM Plex Mono', monospace",
@@ -677,6 +699,65 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
         </div>
       </aside>
     </>
+  );
+}
+
+function PotencyBadge({ tier, score, isEclipse }: { tier: PotencyTier; score: number; isEclipse: boolean }) {
+  const palette = POTENCY_STYLE[tier];
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 8,
+        paddingRight: 28,
+      }}
+    >
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '3px 9px',
+          borderRadius: 3,
+          background: palette.bg,
+          border: `1px solid ${palette.border}`,
+          color: palette.ink,
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: 9,
+          fontWeight: 600,
+          letterSpacing: '0.20em',
+          textTransform: 'uppercase',
+          lineHeight: 1,
+        }}
+      >
+        {isEclipse && <span style={{ fontSize: 10, lineHeight: 1 }} aria-hidden="true">☉</span>}
+        {palette.label} · {score}/100
+      </span>
+      <span
+        aria-hidden="true"
+        style={{
+          flex: 1,
+          height: 3,
+          background: 'rgba(252, 250, 246, 0.06)',
+          borderRadius: 2,
+          overflow: 'hidden',
+          maxWidth: 120,
+        }}
+      >
+        <span
+          style={{
+            display: 'block',
+            height: '100%',
+            width: `${Math.max(2, Math.min(100, score))}%`,
+            background: palette.ink,
+            opacity: 0.85,
+            transition: 'width 0.4s ease',
+          }}
+        />
+      </span>
+    </div>
   );
 }
 
