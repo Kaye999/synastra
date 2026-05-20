@@ -152,6 +152,17 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
   const [mode, setMode] = useState<Mode>('astro');
   const { userId } = useAuth();
 
+  // Scroll to top whenever the user switches tradition. Without this the
+  // page keeps its prior scroll position — read halfway through Western,
+  // click Tarot, and you'd land mid-page in the new content. Use 'auto'
+  // (instant) on first paint of a new mode so the user always sees the
+  // hero / chart wheel first; respect prefers-reduced-motion.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  }, [mode]);
+
   const firstName = user.name || user.fullName.split(' ')[0] || 'You';
   // activeGroup retained for future per-category routing — not currently rendered.
   void groupOfMode;
