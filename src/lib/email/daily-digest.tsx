@@ -4,6 +4,7 @@
 // feature ships; until then the cron skips sending).
 
 import { getResend, FROM, appUrl } from './client';
+import { DISCLAIMER } from '@/lib/disclaimer';
 
 type RenderArgs = {
   firstName: string;
@@ -64,6 +65,7 @@ export function renderDailyDigestHtml(args: RenderArgs): string {
       ${alertLine}
       <p><a class="cta" href="${appUrl('/chart')}">Open Synastra →</a></p>
       <div class="foot">
+        ${escape(DISCLAIMER)}<br /><br />
         You're receiving this because you enabled the Morning Cup digest. <a href="${appUrl('/settings')}">Adjust preferences</a>.
       </div>
     </div>
@@ -88,6 +90,8 @@ export function renderDailyDigestText(args: RenderArgs): string {
     `Open Synastra → ${appUrl('/chart')}`,
     '',
     '---',
+    DISCLAIMER,
+    '',
     `Adjust preferences: ${appUrl('/settings')}`,
   ].filter(Boolean).join('\n');
 }

@@ -9,6 +9,7 @@
 
 import type { ReactNode } from 'react';
 import Ornament from './Ornament';
+import { DISCLAIMER } from '@/lib/disclaimer';
 
 export type ReadingCardProps = {
   title: string;
@@ -149,6 +150,24 @@ export default function ReadingCard({
         >
           {footer}
         </div>
+      )}
+
+      {body && !isLoading && !error && (
+        <p
+          style={{
+            marginTop: footer ? 12 : 22,
+            marginBottom: 0,
+            paddingTop: footer ? 0 : 16,
+            borderTop: footer ? undefined : '1px solid var(--rule)',
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 9,
+            lineHeight: 1.7,
+            letterSpacing: '0.03em',
+            color: 'var(--ink-faint)',
+          }}
+        >
+          {DISCLAIMER}
+        </p>
       )}
     </article>
   );

@@ -12,6 +12,7 @@
 //   await sendTransitAlertEmail({ to, alert, firstName, interpretation });
 
 import { getResend, FROM, appUrl } from './client';
+import { DISCLAIMER } from '@/lib/disclaimer';
 import type { TransitAlert } from '@/lib/cron/transits';
 
 /* ============================================================
@@ -90,6 +91,7 @@ export function renderTransitAlertHtml(args: RenderArgs): string {
       <p>Exact on <strong>${escape(date)}</strong>. The orb tightens in the days before and loosens after.</p>
       <p><a class="cta" href="${dashboardUrl}">Read in Synastra →</a></p>
       <div class="foot">
+        ${escape(DISCLAIMER)}<br /><br />
         You're receiving this because you enabled transit alerts on Synastra Depth. Manage notifications in <a href="${appUrl('/settings')}">settings</a>.
       </div>
     </div>
@@ -116,6 +118,8 @@ export function renderTransitAlertText(args: RenderArgs): string {
     `Read in Synastra → ${appUrl('/chart')}`,
     '',
     '---',
+    DISCLAIMER,
+    '',
     `You're receiving this because you enabled transit alerts on Synastra Depth.`,
     `Manage notifications: ${appUrl('/settings')}`,
   ].join('\n');
