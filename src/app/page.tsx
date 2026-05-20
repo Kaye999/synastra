@@ -84,9 +84,18 @@ const INTELLIGENCE = [
 ] as const;
 
 const PERSONAS = [
-  { who: 'The Seeker', desc: 'Looking for language for something they already feel is true.' },
-  { who: 'The Strategist', desc: 'Treats timing as a variable — and wants a second read on the year.' },
-  { who: 'The Student', desc: 'Reads charts for themselves and their people; wants every system, cross-referenced.' },
+  {
+    who: 'The Seeker',
+    desc: 'Looking for language for something they already feel is true. The pull is older than the curiosity — they want the names the body has been carrying. Synastra gives them the cartography for the inner weather they have always lived inside.',
+  },
+  {
+    who: 'The Strategist',
+    desc: 'Treats timing as a variable — and wants a second read on the year. Reads the sky the way other people read the bond market: as signal, as season, as a quiet leading indicator. Synastra is the operator-grade chart they can plan a quarter against.',
+  },
+  {
+    who: 'The Student',
+    desc: 'Reads charts for themselves and their people; wants every system, cross-referenced. Builds the case slowly, comparing Western to Vedic to numerology until the pattern declares itself. Synastra is the only place that runs seven traditions in one motion.',
+  },
 ] as const;
 
 const QUOTES = [
@@ -217,7 +226,6 @@ export default async function LandingPage() {
         <Link href="/" className="mk-nav-brand">SYNASTRA</Link>
         <div className="mk-nav-links">
           <Link href="/how-it-works">How it works</Link>
-          <Link href="/now">Now</Link>
           <Link href="/pricing">Pricing</Link>
           {!isSignedIn && <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>}
           <Link href={primaryHref} className="mk-nav-cta">{primaryNavLabel}</Link>
@@ -484,7 +492,6 @@ export default async function LandingPage() {
         <div className="tag">Seven traditions. One chart. One Oracle.</div>
         <nav>
           <Link href="/how-it-works">How it works</Link>
-          <Link href="/now">Now</Link>
           <Link href="/field-notes">Field notes</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
