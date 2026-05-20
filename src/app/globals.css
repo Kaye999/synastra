@@ -658,19 +658,30 @@ body {
 .mk-cta-giant {
   display: inline-block;
   padding: 26px 64px;
+  /* Filled brass — the homepage dawn washes out an outline CTA. Solid
+     brass on midnight ink reads from anywhere on the page. */
+  background: var(--brass);
   border: 1px solid var(--brass);
-  color: var(--brass);
+  color: var(--bg-base);
   text-decoration: none;
   font-family: var(--font-display);
   font-size: 18px;
+  font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  /* Soft brass halo so it lifts off any backdrop (dawn or night). */
+  box-shadow: 0 0 0 1px rgba(200, 160, 82, 0.4),
+              0 8px 32px rgba(200, 160, 82, 0.28),
+              0 2px 12px rgba(0, 0, 0, 0.45);
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
 }
 .mk-cta-giant:hover {
-  background: var(--brass);
+  background: #DDB872;
   color: var(--bg-base);
-  box-shadow: 0 0 0 1px var(--brass), 0 0 60px rgba(200, 160, 82, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px var(--brass),
+              0 14px 48px rgba(200, 160, 82, 0.55),
+              0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 /* ─── Marketing: reveal-on-scroll ─────────────────────────────────── */
