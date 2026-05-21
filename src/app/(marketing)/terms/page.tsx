@@ -16,7 +16,7 @@ export default function TermsPage() {
           maxWidth: 720,
           margin: '0 auto',
           padding: '140px 24px 120px',
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           color: 'var(--ink-dim)',
           lineHeight: 1.72,
         }}
@@ -24,7 +24,7 @@ export default function TermsPage() {
         <div className="mk-eyebrow" style={{ marginBottom: 20 }}>§ Terms</div>
         <h1
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontSize: 'clamp(40px, 5vw, 56px)',
             fontWeight: 600,
             letterSpacing: '-0.02em',
@@ -35,24 +35,24 @@ export default function TermsPage() {
           Terms of service.
         </h1>
         <p>Last updated: 22 April 2026.</p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>The short version</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>The short version</h2>
         <p>
           Synastra provides personal chart readings across seven esoteric traditions and an AI oracle grounded
           in your chart. Readings are for self-reflection and entertainment. Nothing on Synastra constitutes
           medical, legal, financial, or psychiatric advice.
         </p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Subscriptions</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Subscriptions</h2>
         <p>
           Monthly and annual plans auto-renew unless cancelled. Cancel anytime in Settings — access continues
           to the end of your billing period. Refunds are handled case-by-case: email us within 14 days of
           purchase.
         </p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Acceptable use</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Acceptable use</h2>
         <p>
           Don&rsquo;t use Synastra to harm others. Don&rsquo;t scrape or redistribute our readings. Don&rsquo;t
           impersonate someone whose chart you don&rsquo;t have permission to cast.
         </p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Limitation of liability</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Limitation of liability</h2>
         <p>
           Synastra is provided as-is. We make no guarantees about the accuracy of astrological computations or
           AI interpretations. We&rsquo;re not liable for decisions made based on readings.

@@ -226,7 +226,7 @@ export default function DeepReadTabs({ user: _user, firstName: _firstName, tier 
 
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 36,
           fontWeight: 600,

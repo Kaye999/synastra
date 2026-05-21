@@ -135,7 +135,7 @@ export default function AyurvedaQuiz({ onComplete, onError }: AyurvedaQuizProps)
 
       <h1
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 40,
           fontWeight: 500,
@@ -149,7 +149,7 @@ export default function AyurvedaQuiz({ onComplete, onError }: AyurvedaQuizProps)
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 18,
           lineHeight: 1.55,
@@ -190,7 +190,7 @@ export default function AyurvedaQuiz({ onComplete, onError }: AyurvedaQuizProps)
 
             <p
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 26,
                 fontWeight: 500,
                 letterSpacing: '-0.01em',
@@ -216,7 +216,7 @@ export default function AyurvedaQuiz({ onComplete, onError }: AyurvedaQuizProps)
         <p
           style={{
             marginTop: 24,
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontStyle: 'italic',
             color: 'var(--ember)',
             fontSize: 15,
@@ -292,7 +292,7 @@ export default function AyurvedaQuiz({ onComplete, onError }: AyurvedaQuizProps)
               border: `1px solid ${hasAnsweredCurrent ? 'var(--brass)' : 'var(--rule)'}`,
               color: hasAnsweredCurrent ? 'var(--bg-base)' : 'var(--ink-faint)',
               padding: '12px 24px',
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontSize: 14,
               letterSpacing: '0.04em',
               cursor: hasAnsweredCurrent && !submitting ? 'pointer' : 'not-allowed',
@@ -423,7 +423,7 @@ function OptionGrid({
               border: `1px solid ${isSelected ? 'var(--brass)' : 'var(--rule)'}`,
               color: isSelected ? 'var(--ink)' : 'var(--ink-dim)',
               padding: '18px 18px',
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 16,
               lineHeight: 1.45,
               textAlign: 'left',

@@ -124,7 +124,7 @@ export default function EnneagramQuiz({ onComplete, onError }: EnneagramQuizProp
 
       <h1
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 40,
           fontWeight: 500,
@@ -138,7 +138,7 @@ export default function EnneagramQuiz({ onComplete, onError }: EnneagramQuizProp
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 18,
           lineHeight: 1.55,
@@ -178,7 +178,7 @@ export default function EnneagramQuiz({ onComplete, onError }: EnneagramQuizProp
 
             <p
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 26,
                 fontWeight: 500,
                 letterSpacing: '-0.01em',
@@ -201,7 +201,7 @@ export default function EnneagramQuiz({ onComplete, onError }: EnneagramQuizProp
         {!current && (
           <p
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 18,
               color: 'var(--ink-dim)',
             }}
@@ -215,7 +215,7 @@ export default function EnneagramQuiz({ onComplete, onError }: EnneagramQuizProp
         <p
           style={{
             marginTop: 24,
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontStyle: 'italic',
             color: 'var(--ember)',
             fontSize: 15,

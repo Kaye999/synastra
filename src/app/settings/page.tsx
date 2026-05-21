@@ -105,11 +105,11 @@ export default function SettingsPage() {
         .settings-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 48px; }
         .settings-back { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--brass, #C8A052); text-decoration: none; }
         .settings-back:hover { opacity: 0.85; }
-        .settings-title { font-family: 'Fraunces', Georgia, serif; font-size: 32px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; color: var(--ink, #FCFAF6); }
+        .settings-title { font-family: 'Alice', Georgia, serif; font-size: 32px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 8px; color: var(--ink, #FCFAF6); }
         .settings-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--brass, #C8A052); margin: 0 0 12px; }
         .settings-section { padding: 28px 0; border-top: 1px solid rgba(252, 250, 246, 0.08); }
         .settings-section:first-of-type { border-top: none; padding-top: 0; }
-        .settings-section h2 { font-family: 'Fraunces', Georgia, serif; font-size: 18px; font-weight: 600; letter-spacing: -0.005em; margin: 0 0 16px; color: var(--ink, #FCFAF6); }
+        .settings-section h2 { font-family: 'Alice', Georgia, serif; font-size: 18px; font-weight: 600; letter-spacing: -0.005em; margin: 0 0 16px; color: var(--ink, #FCFAF6); }
         .settings-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; gap: 24px; }
         .settings-row dt { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(252, 250, 246, 0.55); margin: 0; }
         .settings-row dd { margin: 0; font-size: 14px; color: var(--ink, #FCFAF6); text-align: right; }

@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           maxWidth: 720,
           margin: '0 auto',
           padding: '140px 24px 120px',
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           color: 'var(--ink-dim)',
           lineHeight: 1.72,
         }}
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         <div className="mk-eyebrow" style={{ marginBottom: 20 }}>§ Privacy</div>
         <h1
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontSize: 'clamp(40px, 5vw, 56px)',
             fontWeight: 600,
             letterSpacing: '-0.02em',
@@ -35,19 +35,19 @@ export default function PrivacyPage() {
           Privacy policy.
         </h1>
         <p>Last updated: 22 April 2026.</p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>What we collect</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>What we collect</h2>
         <p>
           Your birth data (name, date, time, place) to compute your chart. Your email to create an account.
           Payment data is handled by Stripe — we never see your card. AI chat messages are stored to remember
           context; you can delete your account at any time.
         </p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>How we use it</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>How we use it</h2>
         <p>
           Only to run Synastra. We don&rsquo;t sell data. We don&rsquo;t advertise to you. We don&rsquo;t share
           your chart with third parties beyond our infrastructure providers (Clerk for auth, Supabase for
           storage, Anthropic for AI, Stripe for billing, Resend for email).
         </p>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Your rights</h2>
+        <h2 style={{ fontFamily: "'Alice', serif", fontSize: 24, color: 'var(--ink)', marginTop: 32 }}>Your rights</h2>
         <p>
           You can export, edit, or delete your data at any time from Settings. Email
           <a href="mailto:hello@getsynastra.com" style={{ color: 'var(--brass)' }}> hello@getsynastra.com</a>

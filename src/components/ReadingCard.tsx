@@ -2,8 +2,8 @@
 
 // ReadingCard — generic editorial wrapper for any reading surface.
 //
-// Style: Fraunces title, Plex Mono tracking-wide eyebrow, hairline divider,
-// Crimson Pro body. Hover applies a gentle brass halo (pulse-halo). Supports
+// Style: Alice title, Plex Mono tracking-wide eyebrow, hairline divider,
+// Hanken Grotesk body. Hover applies a gentle brass halo (pulse-halo). Supports
 // loading shimmer and error states without mounting/unmounting (avoids layout
 // pop when readings stream in).
 
@@ -61,7 +61,7 @@ export default function ReadingCard({
 
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: dense ? 24 : 30,
           fontWeight: 500,
@@ -89,7 +89,7 @@ export default function ReadingCard({
         <div>
           <p
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontStyle: 'italic',
               color: 'var(--ember)',
               margin: '0 0 14px',
@@ -125,7 +125,7 @@ export default function ReadingCard({
       {!isLoading && !error && body && (
         <div
           style={{
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontSize: 18,
             lineHeight: 1.68,
             color: 'var(--ink-dim)',

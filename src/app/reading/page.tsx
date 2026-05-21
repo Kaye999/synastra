@@ -204,7 +204,7 @@ export default function ReadingPage() {
                   <div className="mk-eyebrow" style={{ marginBottom: 8 }}>§ Card {i + 1} of 4</div>
                   <h2
                     style={{
-                      fontFamily: "'Fraunces', serif",
+                      fontFamily: "'Alice', serif",
                       fontSize: 28,
                       fontWeight: 600,
                       letterSpacing: '-0.01em',
@@ -215,7 +215,7 @@ export default function ReadingPage() {
                   </h2>
                   <p
                     style={{
-                      fontFamily: "'Crimson Pro', serif",
+                      fontFamily: "'Hanken Grotesk', serif",
                       fontSize: 17,
                       lineHeight: 1.65,
                       color: 'var(--ink-dim)',
@@ -233,13 +233,13 @@ export default function ReadingPage() {
               border: '1px solid var(--brass)', background: 'rgba(200, 160, 82, 0.04)',
             }}>
               <h3 style={{
-                fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 600,
+                fontFamily: "'Alice', serif", fontSize: 24, fontWeight: 600,
                 margin: '0 0 12px', letterSpacing: '-0.01em',
               }}>
                 Keep this chart forever — free.
               </h3>
               <p style={{
-                fontFamily: "'Crimson Pro', serif", fontSize: 16, lineHeight: 1.6,
+                fontFamily: "'Hanken Grotesk', serif", fontSize: 16, lineHeight: 1.6,
                 color: 'var(--ink-dim)', margin: '0 0 22px', maxWidth: '44ch',
                 marginLeft: 'auto', marginRight: 'auto',
               }}>

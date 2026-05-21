@@ -931,7 +931,7 @@ export default function AstrocartoMap({
               {tooltip.subtitle && (
                 <div
                   style={{
-                    fontFamily: "'Crimson Pro', serif",
+                    fontFamily: "'Hanken Grotesk', serif",
                     fontStyle: 'italic',
                     fontSize: 13,
                     color: '#CFC5B1',
@@ -1014,7 +1014,7 @@ export default function AstrocartoMap({
                       alignItems: 'center',
                       gap: 10,
                       cursor: 'pointer',
-                      fontFamily: "'Crimson Pro', serif",
+                      fontFamily: "'Hanken Grotesk', serif",
                       fontSize: 15,
                       color: isOn ? '#FCFAF6' : 'rgba(252,250,246,0.45)',
                     }}

@@ -288,7 +288,7 @@ export default function HumanAnatomy({ hdResult }: HumanAnatomyProps) {
         </div>
         <h2
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontSize: 28,
             fontWeight: 500,
             lineHeight: 1.2,
@@ -568,7 +568,7 @@ function EmptyState() {
       </p>
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 14,
           lineHeight: 1.7,
           color: 'rgba(252, 250, 246, 0.55)',
@@ -637,7 +637,7 @@ function Title({ children }: { children: React.ReactNode }) {
   return (
     <h3
       style={{
-        fontFamily: "'Fraunces', serif",
+        fontFamily: "'Alice', serif",
         fontSize: 26,
         fontWeight: 500,
         letterSpacing: '-0.01em',
@@ -698,7 +698,7 @@ function Footer({ children }: { children: React.ReactNode }) {
         marginTop: 18,
         paddingTop: 14,
         borderTop: '1px solid rgba(200, 160, 82, 0.18)',
-        fontFamily: "'Crimson Pro', serif",
+        fontFamily: "'Hanken Grotesk', serif",
         fontStyle: 'italic',
         fontSize: 14,
         lineHeight: 1.7,

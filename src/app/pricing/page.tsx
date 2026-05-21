@@ -382,7 +382,7 @@ export default function PricingPage() {
             <Ornament kind="rule" width={220} style={{ marginBottom: 28 }} />
             <h3
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 30,
                 fontWeight: 600,
                 letterSpacing: '-0.02em',
@@ -393,7 +393,7 @@ export default function PricingPage() {
             </h3>
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontSize: 18,
                 lineHeight: 1.65,
                 color: 'var(--ink-dim)',
@@ -423,7 +423,7 @@ export default function PricingPage() {
           <Reveal delay={80}>
             <h3
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 36,
                 fontWeight: 600,
                 letterSpacing: '-0.02em',

@@ -403,7 +403,7 @@ function Starfield({ showLabels = false, className, style }: StarfieldProps) {
         {showLabels && (
           <g
             style={{ pointerEvents: 'none' }}
-            fontFamily="Fraunces, 'Fraunces', Georgia, serif"
+            fontFamily="'Alice', Georgia, serif"
             fontStyle="italic"
             fontSize={18}
             letterSpacing="0.12em"

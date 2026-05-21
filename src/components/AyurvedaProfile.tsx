@@ -206,7 +206,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
 
       <h1
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 'clamp(48px, 7vw, 88px)',
           fontWeight: 600,
@@ -220,7 +220,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 22,
           color: 'var(--ink-dim)',
@@ -253,7 +253,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
 
         <p
           style={{
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontSize: 19,
             lineHeight: 1.72,
             color: 'var(--ink)',
@@ -354,7 +354,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: 14,
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontSize: 18,
                 lineHeight: 1.6,
                 color: 'var(--ink)',
@@ -421,7 +421,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
               </div>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 16,
                   lineHeight: 1.6,
                   color: 'var(--ink)',
@@ -449,7 +449,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
               border: '1px solid var(--brass)',
               color: 'var(--brass)',
               padding: '16px 32px',
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontSize: 16,
               letterSpacing: '0.02em',
               cursor: 'pointer',
@@ -509,7 +509,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
             <div>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontStyle: 'italic',
                   fontSize: 17,
                   color: 'var(--ember)',
@@ -541,7 +541,7 @@ export default function AyurvedaProfile({ prakruti, firstName }: AyurvedaProfile
           {readingBody && !readingError && (
             <div
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontSize: 19,
                 lineHeight: 1.72,
                 color: 'var(--ink)',
@@ -613,7 +613,7 @@ function BalanceCard({
       </div>
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 17,
           lineHeight: 1.65,
           color: 'var(--ink)',
@@ -745,7 +745,7 @@ function BalanceBar({
         style={{
           marginTop: 14,
           minHeight: 28,
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 15,
           color: 'var(--ink-dim)',

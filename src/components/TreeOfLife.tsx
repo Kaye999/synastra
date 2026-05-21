@@ -562,7 +562,7 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
             </div>
             <h3
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 26,
                 fontWeight: 500,
                 lineHeight: 1.2,
@@ -590,7 +590,7 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
             {detailContent.body && (
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 16,
                   lineHeight: 1.7,
                   color: 'rgba(252, 250, 246, 0.85)',
@@ -616,7 +616,7 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
                 </div>
                 <p
                   style={{
-                    fontFamily: "'Crimson Pro', serif",
+                    fontFamily: "'Hanken Grotesk', serif",
                     fontSize: 15,
                     lineHeight: 1.65,
                     color: 'rgba(252, 250, 246, 0.78)',

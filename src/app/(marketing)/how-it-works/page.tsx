@@ -85,7 +85,7 @@ export default async function HowItWorksPage() {
           <Reveal delay={80}>
             <h1
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontVariationSettings: '"opsz" 144',
                 fontSize: 'clamp(56px, 9vw, 96px)',
                 fontWeight: 600,
@@ -101,7 +101,7 @@ export default async function HowItWorksPage() {
           <Reveal delay={160}>
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 fontSize: 22,
                 color: 'var(--ink-dim)',

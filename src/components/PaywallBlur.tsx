@@ -104,7 +104,7 @@ export default function PaywallBlur({ tier, required, children, teaser }: Paywal
           {teaser && (
             <p
               style={{
-                fontFamily: "'Crimson Pro', 'Crimson Text', serif",
+                fontFamily: "'Hanken Grotesk', 'Crimson Text', serif",
                 fontSize: 15,
                 fontStyle: 'italic',
                 lineHeight: 1.5,
@@ -131,7 +131,7 @@ export default function PaywallBlur({ tier, required, children, teaser }: Paywal
 
           <h2
             style={{
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontSize: 28,
               fontWeight: 500,
               letterSpacing: '-0.01em',
@@ -147,7 +147,7 @@ export default function PaywallBlur({ tier, required, children, teaser }: Paywal
               listStyle: 'none',
               padding: 0,
               margin: '0 0 24px',
-              fontFamily: "'Crimson Pro', 'Crimson Text', serif",
+              fontFamily: "'Hanken Grotesk', 'Crimson Text', serif",
               fontSize: 15,
               lineHeight: 1.6,
               color: 'var(--ink, #ECE4D2)',
@@ -212,7 +212,7 @@ export default function PaywallBlur({ tier, required, children, teaser }: Paywal
           </div>
           <div
             style={{
-              fontFamily: "'Crimson Pro', 'Crimson Text', serif",
+              fontFamily: "'Hanken Grotesk', 'Crimson Text', serif",
               fontStyle: 'italic',
               fontSize: 13,
               color: 'var(--ink-faint, #A89878)',

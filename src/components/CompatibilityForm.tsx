@@ -185,7 +185,7 @@ export default function CompatibilityForm({ user: _user, firstName: _firstName, 
       </div>
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 36,
           fontWeight: 600,
@@ -199,7 +199,7 @@ export default function CompatibilityForm({ user: _user, firstName: _firstName, 
       </h2>
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 16,
           color: 'var(--ink-dim)',
@@ -292,7 +292,7 @@ export default function CompatibilityForm({ user: _user, firstName: _firstName, 
           {fieldError && (
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 fontSize: 14,
                 color: 'var(--ember)',

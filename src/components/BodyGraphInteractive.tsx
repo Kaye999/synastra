@@ -875,7 +875,7 @@ export default function BodyGraphInteractive({
           {tooltip.subtitle && (
             <div
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 fontSize: 13,
                 color: '#CFC5B1',

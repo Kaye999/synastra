@@ -469,7 +469,7 @@ function CardBack() {
         x="130"
         y="78"
         textAnchor="middle"
-        fontFamily="'Fraunces', serif"
+        fontFamily="'Alice', serif"
         fontSize="16"
         letterSpacing="0.32em"
         fill="var(--brass)"
@@ -597,7 +597,7 @@ export default function TarotDailyCard({ userId, userContext: _userContext, tier
         <div className="tarot-reading">
           {error && (
             <div style={{ margin: '20px 0' }}>
-              <p style={{ fontFamily: "'Crimson Pro', serif", fontStyle: 'italic', color: 'var(--ember)' }}>{error}</p>
+              <p style={{ fontFamily: "'Hanken Grotesk', serif", fontStyle: 'italic', color: 'var(--ember)' }}>{error}</p>
               <button type="button" className="tarot-cta" onClick={readCard}>Try again</button>
             </div>
           )}
@@ -696,7 +696,7 @@ export default function TarotDailyCard({ userId, userContext: _userContext, tier
           letter-spacing: 0.14em;
         }
         .tarot-face-roman {
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-style: italic;
           font-size: 18px;
           letter-spacing: 0.12em;
@@ -711,7 +711,7 @@ export default function TarotDailyCard({ userId, userContext: _userContext, tier
           padding: 10px 0;
         }
         .tarot-face-name {
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-variation-settings: 'opsz' 144;
           font-size: 22px;
           font-weight: 600;
@@ -754,7 +754,7 @@ export default function TarotDailyCard({ userId, userContext: _userContext, tier
           border: 1px solid var(--brass);
           color: var(--brass);
           padding: 12px 28px;
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-size: 14px;
           letter-spacing: 0.22em;
           text-transform: uppercase;
@@ -776,14 +776,14 @@ export default function TarotDailyCard({ userId, userContext: _userContext, tier
           max-width: 56ch;
         }
         .tarot-reading-body {
-          font-family: 'Crimson Pro', serif;
+          font-family: 'Hanken Grotesk', serif;
           font-size: 19px;
           line-height: 1.72;
           color: var(--ink);
         }
         .tarot-drop-cap {
           float: left;
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-variation-settings: 'opsz' 144;
           font-size: 64px;
           line-height: 0.82;

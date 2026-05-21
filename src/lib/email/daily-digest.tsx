@@ -45,10 +45,10 @@ export function renderDailyDigestHtml(args: RenderArgs): string {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Synastra — Morning Cup</title>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Inter:wght@400;500&display=swap');
-      body { margin: 0; padding: 0; background: #0b0b12; color: #e8e6dc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+      @import url('https://fonts.googleapis.com/css2?family=Alice&family=Hanken+Grotesk:wght@400;500;600&display=swap');
+      body { margin: 0; padding: 0; background: #0b0b12; color: #e8e6dc; font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
       .wrap { max-width: 560px; margin: 0 auto; padding: 48px 28px; }
-      h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 8px; color: #f5f3ea; }
+      h1 { font-family: 'Alice', Georgia, serif; font-weight: 600; font-size: 28px; line-height: 1.15; letter-spacing: -0.01em; margin: 0 0 8px; color: #f5f3ea; }
       .sub { color: #8d8a7b; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 32px; }
       p { font-size: 16px; line-height: 1.75; color: #d8d5c6; margin: 0 0 18px; }
       .alerts { color: #e8dcb8; margin-top: 28px; }

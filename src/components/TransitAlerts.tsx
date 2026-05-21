@@ -433,7 +433,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
             </div>
             <h3
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontSize: 24,
                 fontWeight: 500,
                 letterSpacing: '-0.01em',
@@ -448,7 +448,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
             </h3>
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 fontSize: 13,
                 lineHeight: 1.5,
@@ -548,7 +548,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
             <div style={{ padding: '18px 0' }}>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontStyle: 'italic',
                   color: 'var(--ember)',
                   margin: '0 0 14px',
@@ -580,7 +580,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
           {!isLoading && !error && visible.length === 0 && (
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 color: 'var(--ink-faint)',
                 fontSize: 15,
@@ -644,7 +644,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                   >
                     <h4
                       style={{
-                        fontFamily: "'Fraunces', serif",
+                        fontFamily: "'Alice', serif",
                         fontSize: 19,
                         fontWeight: 500,
                         lineHeight: 1.3,
@@ -691,7 +691,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                       {a.error && !a.body && (
                         <p
                           style={{
-                            fontFamily: "'Crimson Pro', serif",
+                            fontFamily: "'Hanken Grotesk', serif",
                             fontStyle: 'italic',
                             color: 'var(--ember)',
                             fontSize: 14,
@@ -704,7 +704,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
                       {a.body && (
                         <p
                           style={{
-                            fontFamily: "'Crimson Pro', serif",
+                            fontFamily: "'Hanken Grotesk', serif",
                             fontSize: 15,
                             lineHeight: 1.6,
                             color: 'var(--ink-dim)',

@@ -207,7 +207,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
     >
       <div
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontStyle: 'italic',
           fontVariationSettings: '"opsz" 14',
           fontSize: 12,
@@ -222,7 +222,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
 
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 'clamp(40px, 6vw, 64px)',
           fontWeight: 600,
@@ -237,7 +237,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 17,
           color: 'var(--ink-dim)',
@@ -267,7 +267,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
         <div>
           <p
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontStyle: 'italic',
               fontSize: 17,
               color: 'var(--ember)',
@@ -300,7 +300,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
         <div>
           <div
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 20,
               lineHeight: 1.72,
               color: 'var(--ink)',
@@ -310,7 +310,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
               aria-hidden="true"
               style={{
                 float: 'left',
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontVariationSettings: '"opsz" 144',
                 fontSize: 72,
                 lineHeight: 0.82,
@@ -332,7 +332,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
                 margin: '36px 0 12px',
                 padding: '8px 0 8px 22px',
                 borderLeft: '1px solid var(--brass)',
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontStyle: 'italic',
                 fontVariationSettings: '"opsz" 144',
                 fontSize: 24,
@@ -385,7 +385,7 @@ export default function MorningCup({ user: _user, firstName: _firstName, demo = 
             <div style={{ paddingTop: 16 }}>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontStyle: 'italic',
                   color: 'var(--ink-faint)',
                   fontSize: 15,

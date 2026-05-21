@@ -213,7 +213,7 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
       </div>
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 26,
           fontWeight: 500,
           lineHeight: 1.25,
@@ -431,7 +431,7 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
               </div>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 16,
                   lineHeight: 1.7,
                   color: 'rgba(252, 250, 246, 0.78)',
@@ -442,7 +442,7 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
               </p>
               <p
                 style={{
-                  fontFamily: "'Crimson Pro', serif",
+                  fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 14,
                   lineHeight: 1.7,
                   color: 'rgba(252, 250, 246, 0.58)',
@@ -492,7 +492,7 @@ function ChakraDetail({
       </div>
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 22,
           fontWeight: 500,
           margin: '0 0 4px',
@@ -515,7 +515,7 @@ function ChakraDetail({
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 16,
           lineHeight: 1.7,
           color: 'rgba(252, 250, 246, 0.82)',
@@ -587,7 +587,7 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
       </div>
       <div
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 15,
           lineHeight: 1.6,
           color: 'rgba(252, 250, 246, 0.82)',

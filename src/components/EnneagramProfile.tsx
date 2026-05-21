@@ -277,7 +277,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
           >
             <div
               style={{
-                fontFamily: "'Fraunces', serif",
+                fontFamily: "'Alice', serif",
                 fontVariationSettings: '"opsz" 144',
                 fontSize: 140,
                 fontWeight: 500,
@@ -291,7 +291,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
             <div>
               <h1
                 style={{
-                  fontFamily: "'Fraunces', serif",
+                  fontFamily: "'Alice', serif",
                   fontVariationSettings: '"opsz" 144',
                   fontSize: 42,
                   fontWeight: 500,
@@ -335,7 +335,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
       {/* ── BODY interpretation ────────────────────────── */}
       <div
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 18,
           lineHeight: 1.72,
           color: 'var(--ink-dim)',
@@ -441,7 +441,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
         </div>
         <h3
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontVariationSettings: '"opsz" 144',
             fontSize: 28,
             fontWeight: 500,
@@ -498,7 +498,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
           <div>
             <p
               style={{
-                fontFamily: "'Crimson Pro', serif",
+                fontFamily: "'Hanken Grotesk', serif",
                 fontStyle: 'italic',
                 color: 'var(--ember)',
                 fontSize: 15,
@@ -530,7 +530,7 @@ export default function EnneagramProfile({ result }: EnneagramProfileProps) {
         {streamBody && (
           <div
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 18,
               lineHeight: 1.72,
               color: 'var(--ink-dim)',
@@ -689,7 +689,7 @@ function PullQuote({ text }: { text: string }) {
         margin: '36px 0 12px',
         padding: '18px 0 18px 22px',
         borderLeft: '2px solid var(--brass)',
-        fontFamily: "'Fraunces', serif",
+        fontFamily: "'Alice', serif",
         fontStyle: 'italic',
         fontSize: 26,
         lineHeight: 1.28,
@@ -746,7 +746,7 @@ function WingSection(props: {
       </div>
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 28,
           fontWeight: 500,
@@ -782,7 +782,7 @@ function WingSection(props: {
           opacity: wingVisible ? 1 : 0,
           transform: wingVisible ? 'translateY(0)' : 'translateY(6px)',
           transition: 'opacity 300ms ease, transform 300ms ease',
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 18,
           lineHeight: 1.72,
           color: 'var(--ink-dim)',
@@ -790,7 +790,7 @@ function WingSection(props: {
       >
         <div
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontStyle: 'italic',
             fontSize: 20,
             color: 'var(--ink)',
@@ -1054,7 +1054,7 @@ function SelectionCard(props: {
       </div>
       <div
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontStyle: 'italic',
           fontSize: 22,
           margin: '0 0 10px',
@@ -1064,7 +1064,7 @@ function SelectionCard(props: {
       </div>
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 16,
           lineHeight: 1.6,
           color: 'var(--ink-dim)',
@@ -1138,7 +1138,7 @@ function AccordionRow({
           </div>
           <div
             style={{
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontSize: 22,
               fontWeight: 500,
               letterSpacing: '-0.008em',
@@ -1175,7 +1175,7 @@ function AccordionRow({
         <p
           style={{
             margin: '14px 0 2px',
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontSize: 18,
             lineHeight: 1.72,
             color: 'var(--ink-dim)',

@@ -242,7 +242,7 @@ export default function CityAutocomplete({
             style={{
               padding: '10px 14px',
               cursor: 'pointer',
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 15,
               color: i === activeIdx ? 'var(--brass)' : 'var(--ink)',
               background:

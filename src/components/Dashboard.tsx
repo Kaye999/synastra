@@ -322,7 +322,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
             height: 40,
             display: 'inline-flex',
             alignItems: 'center',
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontSize: 16,
             fontWeight: 500,
             letterSpacing: '0.14em',
@@ -488,7 +488,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
               <div style={{ marginTop: 24, marginBottom: 24 }}>
                 <h2
                   style={{
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Alice', serif",
                     fontSize: 'clamp(28px, 3vw, 40px)',
                     fontWeight: 500,
                     letterSpacing: '-0.02em',
@@ -809,7 +809,7 @@ function ChartSignature({
       </div>
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 'clamp(24px, 3.2vw, 36px)',
           fontWeight: 500,
           letterSpacing: '-0.01em',
@@ -822,7 +822,7 @@ function ChartSignature({
       </h2>
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 15,
           color: 'var(--ink-dim)',
@@ -874,7 +874,7 @@ function ChartWeather({
       </div>
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 22,
           fontWeight: 500,
           letterSpacing: '-0.01em',
@@ -936,7 +936,7 @@ function EssayBlock({
       )}
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 26,
           fontWeight: 500,
           letterSpacing: '-0.01em',

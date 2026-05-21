@@ -299,7 +299,7 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
                 <h2
                   style={{
                     margin: 0,
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Alice', serif",
                     fontSize: 20,
                     fontWeight: 500,
                     letterSpacing: '-0.01em',
@@ -355,7 +355,7 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
               ) : visibleMessages.length === 0 ? (
                 <p
                   style={{
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Alice', serif",
                     fontSize: 16,
                     color: INK_FAINT,
                     lineHeight: 1.55,
@@ -390,7 +390,7 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
                     marginTop: 8,
                     padding: 14,
                     border: `1px solid ${BRASS}`,
-                    fontFamily: "'Fraunces', serif",
+                    fontFamily: "'Alice', serif",
                     fontSize: 15,
                     lineHeight: 1.5,
                   }}
@@ -458,7 +458,7 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
                       background: 'transparent',
                       border: `1px solid ${BRASS}`,
                       color: BRASS,
-                      fontFamily: "'Fraunces', serif",
+                      fontFamily: "'Alice', serif",
                       fontSize: 13,
                       padding: '6px 14px',
                       cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
@@ -509,7 +509,7 @@ function MessageBubble({ role, content }: { role: Role; content: string }) {
           maxWidth: '92%',
           background: RAISE,
           padding: '12px 14px',
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 15,
           lineHeight: 1.6,
           color: CREAM,
@@ -534,7 +534,7 @@ function FreeTierCTA({ firstName }: { firstName: string }) {
     >
       <p
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 18,
           lineHeight: 1.5,
           color: CREAM,
@@ -551,7 +551,7 @@ function FreeTierCTA({ firstName }: { firstName: string }) {
           border: `1px solid ${BRASS}`,
           color: BRASS,
           padding: '8px 16px',
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 14,
           textDecoration: 'none',
           letterSpacing: '0.04em',

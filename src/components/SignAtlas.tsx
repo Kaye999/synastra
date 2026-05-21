@@ -75,7 +75,7 @@ export default function SignAtlas({
         </div>
         <h2
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontSize: 28,
             fontWeight: 500,
             lineHeight: 1.2,
@@ -88,7 +88,7 @@ export default function SignAtlas({
         {intro && (
           <p
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontSize: 16,
               lineHeight: 1.7,
               color: 'rgba(252, 250, 246, 0.78)',
@@ -267,7 +267,7 @@ function SignAtlasTile({
 
       <div
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: tileShape === 'tall' ? 44 : 36,
           lineHeight: 1,
           color: isUser ? BRASS : 'var(--ink)',

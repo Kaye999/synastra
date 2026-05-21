@@ -254,7 +254,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
 
       <h2
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 32,
           fontWeight: 600,
@@ -269,7 +269,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
 
       <p
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontStyle: 'italic',
           fontSize: 16,
           color: 'var(--ink-dim)',
@@ -286,7 +286,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
         <div style={{ padding: '16px 0' }}>
           <p
             style={{
-              fontFamily: "'Crimson Pro', serif",
+              fontFamily: "'Hanken Grotesk', serif",
               fontStyle: 'italic',
               color: 'var(--ember)',
               margin: '0 0 14px',
@@ -360,7 +360,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
                     </span>
                     <span
                       style={{
-                        fontFamily: "'Fraunces', serif",
+                        fontFamily: "'Alice', serif",
                         fontVariationSettings: '"opsz" 144',
                         fontSize: 24,
                         fontWeight: 500,
@@ -374,7 +374,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
                     <span
                       className="mf-sub"
                       style={{
-                        fontFamily: "'Crimson Pro', serif",
+                        fontFamily: "'Hanken Grotesk', serif",
                         fontStyle: 'italic',
                         fontSize: 14,
                         color: 'var(--ink-faint)',
@@ -410,7 +410,7 @@ export default function MonthlyForecast({ user: _user, firstName: _firstName, de
                       <p
                         key={j}
                         style={{
-                          fontFamily: "'Crimson Pro', serif",
+                          fontFamily: "'Hanken Grotesk', serif",
                           fontSize: 17,
                           lineHeight: 1.68,
                           color: 'var(--ink-dim)',

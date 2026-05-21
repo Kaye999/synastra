@@ -128,7 +128,7 @@ function MiniCardBack() {
         })}
         <circle r="2.5" fill="var(--brass)" />
       </g>
-      <text x="80" y="46" textAnchor="middle" fontFamily="'Fraunces', serif" fontSize="10" letterSpacing="0.28em" fill="var(--brass)" fontWeight="600">
+      <text x="80" y="46" textAnchor="middle" fontFamily="'Alice', serif" fontSize="10" letterSpacing="0.28em" fill="var(--brass)" fontWeight="600">
         SYNASTRA
       </text>
     </svg>
@@ -147,16 +147,16 @@ function MiniCardFront({ draw }: { draw: TarotDraw }) {
       <g transform="translate(80 130)" stroke="var(--brass)" strokeWidth="0.9" fill="none">
         <circle r="28" opacity="0.55" />
         {draw.card.arcana === 'major' ? (
-          <text textAnchor="middle" y="6" fontFamily="'Fraunces', serif" fontStyle="italic" fontSize="22" fill="var(--brass)">
+          <text textAnchor="middle" y="6" fontFamily="'Alice', serif" fontStyle="italic" fontSize="22" fill="var(--brass)">
             {romanFor(draw.card.id)}
           </text>
         ) : (
-          <text textAnchor="middle" y="6" fontFamily="'Fraunces', serif" fontSize="18" fill="var(--brass)">
+          <text textAnchor="middle" y="6" fontFamily="'Alice', serif" fontSize="18" fill="var(--brass)">
             {draw.card.number}
           </text>
         )}
       </g>
-      <text x="80" y="212" textAnchor="middle" fontFamily="'Fraunces', serif" fontSize="13" fontWeight="600" fill="var(--ink)" letterSpacing="-0.01em">
+      <text x="80" y="212" textAnchor="middle" fontFamily="'Alice', serif" fontSize="13" fontWeight="600" fill="var(--ink)" letterSpacing="-0.01em">
         <NameTspans name={draw.card.name} />
       </text>
       {draw.card.zodiacal && (
@@ -459,7 +459,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
 
       {error && (
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <p style={{ fontFamily: "'Crimson Pro', serif", fontStyle: 'italic', color: 'var(--ember)' }}>{error}</p>
+          <p style={{ fontFamily: "'Hanken Grotesk', serif", fontStyle: 'italic', color: 'var(--ember)' }}>{error}</p>
         </div>
       )}
 
@@ -483,7 +483,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           margin-bottom: 14px;
         }
         .tarot-spread-title {
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-variation-settings: 'opsz' 144;
           font-size: clamp(32px, 5vw, 52px);
           font-weight: 600;
@@ -493,7 +493,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           margin: 0 0 10px;
         }
         .tarot-spread-sub {
-          font-family: 'Crimson Pro', serif;
+          font-family: 'Hanken Grotesk', serif;
           font-style: italic;
           font-size: 17px;
           color: var(--ink-dim);
@@ -521,7 +521,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           border: 0;
           border-bottom: 1px solid var(--rule);
           color: var(--ink);
-          font-family: 'Crimson Pro', serif;
+          font-family: 'Hanken Grotesk', serif;
           font-size: 18px;
           padding: 8px 0;
           outline: none;
@@ -550,7 +550,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           border: 1px solid var(--brass);
           color: var(--brass);
           padding: 12px 28px;
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-size: 14px;
           letter-spacing: 0.22em;
           text-transform: uppercase;
@@ -604,14 +604,14 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
           margin-right: auto;
         }
         .tarot-reading-body {
-          font-family: 'Crimson Pro', serif;
+          font-family: 'Hanken Grotesk', serif;
           font-size: 19px;
           line-height: 1.72;
           color: var(--ink);
         }
         .tarot-drop-cap {
           float: left;
-          font-family: 'Fraunces', serif;
+          font-family: 'Alice', serif;
           font-variation-settings: 'opsz' 144;
           font-size: 72px;
           line-height: 0.82;

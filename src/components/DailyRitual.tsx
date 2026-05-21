@@ -117,7 +117,7 @@ function RitualCard({
       </div>
       <div
         style={{
-          fontFamily: italic ? "'Crimson Pro', serif" : "'Fraunces', serif",
+          fontFamily: italic ? "'Hanken Grotesk', serif" : "'Alice', serif",
           fontStyle: italic ? 'italic' : 'normal',
           fontSize: italic ? 19 : 18,
           fontWeight: 500,
@@ -131,7 +131,7 @@ function RitualCard({
       {body ? (
         <div
           style={{
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontSize: 14.5,
             lineHeight: 1.55,
             color: 'var(--ink-dim)',

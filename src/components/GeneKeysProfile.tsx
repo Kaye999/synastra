@@ -200,7 +200,7 @@ function Header() {
       <h2
         id="gk-profile-heading"
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontVariationSettings: '"opsz" 144',
           fontSize: 'clamp(34px, 4.4vw, 52px)',
           fontWeight: 500,
@@ -214,7 +214,7 @@ function Header() {
       </h2>
       <p
         style={{
-          fontFamily: "'Crimson Pro', Georgia, serif",
+          fontFamily: "'Hanken Grotesk', Georgia, serif",
           fontStyle: 'italic',
           fontSize: 18,
           color: 'var(--ink-dim)',
@@ -333,7 +333,7 @@ function GeneKeyCard({
       >
         <span
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontVariationSettings: '"opsz" 144',
             fontSize: 72,
             fontWeight: 700,
@@ -347,7 +347,7 @@ function GeneKeyCard({
         <div style={{ flex: 1, minWidth: 0 }}>
           <div
             style={{
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontSize: 20,
               fontWeight: 500,
               color: 'var(--ink)',
@@ -358,7 +358,7 @@ function GeneKeyCard({
           </div>
           <div
             style={{
-              fontFamily: "'Crimson Pro', Georgia, serif",
+              fontFamily: "'Hanken Grotesk', Georgia, serif",
               fontStyle: 'italic',
               fontSize: 16,
               color: 'var(--ink-dim)',
@@ -447,7 +447,7 @@ function GeneKeyCard({
           </div>
           <p
             style={{
-              fontFamily: "'Crimson Pro', Georgia, serif",
+              fontFamily: "'Hanken Grotesk', Georgia, serif",
               fontSize: 16,
               lineHeight: 1.62,
               color: 'var(--ink-dim)',
@@ -527,7 +527,7 @@ function PullQuote({ body, attribution }: { body: string; attribution: string })
     >
       <blockquote
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontStyle: 'italic',
           fontSize: 'clamp(22px, 2.6vw, 28px)',
           fontWeight: 500,
@@ -630,7 +630,7 @@ function LockedCard({
       </div>
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 22,
           fontWeight: 500,
           letterSpacing: '-0.01em',
@@ -642,7 +642,7 @@ function LockedCard({
       </h3>
       <p
         style={{
-          fontFamily: "'Crimson Pro', Georgia, serif",
+          fontFamily: "'Hanken Grotesk', Georgia, serif",
           fontStyle: 'italic',
           fontSize: 15,
           lineHeight: 1.55,
@@ -666,7 +666,7 @@ function LockedCard({
       <p
         style={{
           marginTop: 10,
-          fontFamily: "'Crimson Pro', Georgia, serif",
+          fontFamily: "'Hanken Grotesk', Georgia, serif",
           fontSize: 13,
           lineHeight: 1.5,
           color: 'var(--ink-faint)',

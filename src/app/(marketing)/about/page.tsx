@@ -23,7 +23,7 @@ export default function AboutPage() {
         <div className="mk-eyebrow" style={{ marginBottom: 20 }}>§ About</div>
         <h1
           style={{
-            fontFamily: "'Fraunces', serif",
+            fontFamily: "'Alice', serif",
             fontVariationSettings: '"opsz" 144',
             fontSize: 'clamp(44px, 6vw, 68px)',
             fontWeight: 600,
@@ -36,7 +36,7 @@ export default function AboutPage() {
         </h1>
         <div
           style={{
-            fontFamily: "'Crimson Pro', serif",
+            fontFamily: "'Hanken Grotesk', serif",
             fontSize: 19,
             color: 'var(--ink-dim)',
             lineHeight: 1.72,
@@ -66,7 +66,7 @@ export default function AboutPage() {
           </p>
           <blockquote
             style={{
-              fontFamily: "'Fraunces', serif",
+              fontFamily: "'Alice', serif",
               fontStyle: 'italic',
               fontSize: 22,
               borderLeft: '2px solid var(--brass)',

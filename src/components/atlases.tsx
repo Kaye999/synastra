@@ -257,7 +257,7 @@ function Headline({
     <header style={{ marginBottom: 18 }}>
       <h3
         style={{
-          fontFamily: "'Fraunces', serif",
+          fontFamily: "'Alice', serif",
           fontSize: 26,
           fontWeight: 500,
           letterSpacing: '-0.01em',
@@ -368,7 +368,7 @@ function FamousRow({ names }: { names: string[] }) {
       </div>
       <div
         style={{
-          fontFamily: "'Crimson Pro', serif",
+          fontFamily: "'Hanken Grotesk', serif",
           fontSize: 15,
           lineHeight: 1.7,
           color: 'rgba(252, 250, 246, 0.78)',
