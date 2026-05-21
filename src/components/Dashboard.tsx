@@ -886,10 +886,11 @@ function ChartWeather({
       <p
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 11,
-          letterSpacing: '0.08em',
-          color: 'var(--ink-faint)',
-          margin: '0 0 14px',
+          fontSize: 14,
+          letterSpacing: '0.06em',
+          lineHeight: 1.5,
+          color: 'var(--ink-dim)',
+          margin: '0 0 18px',
         }}
       >
         elements: {elementSummary} &nbsp;·&nbsp; modalities: {modalitySummary}
