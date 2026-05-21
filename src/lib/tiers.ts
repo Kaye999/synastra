@@ -1,6 +1,6 @@
 // Tier definitions, access helpers, and editorial copy for paywall overlays.
 //
-// Synastra has three tiers (2026-05-18 collapse 12 → 7 traditions):
+// Synastra has four tiers (2026-05-21 — added The Nine + repriced 2026-05-18 collapse):
 //   - free   → The Two:   preview of Western + Numerology
 //   - reader → The Five:  full Western + Numerology + Vedic + Kabbalah + Human Design.
 //                         Daily, Monthly, 10 Oracle AI questions/day.
@@ -8,9 +8,12 @@
 //                         Unlimited Master Oracle (trained across all 7 traditions
 //                         + general astrology + astronomy + traditional archetypes),
 //                         transit alerts, compatibility, cross-tradition synthesis.
+//   - master → The Nine:  everything in The Seven + two monthly rituals — guided
+//                         meditation audios, Zodiac Season Workbook PDF, printable
+//                         Moon journals, explicit Sun · Moon · Rising personalization.
 //
-// Internal tier IDs (free/reader/depth) intentionally NOT renamed — they back
-// the DB column and Stripe env var names. Renaming them is a coordinated
+// Internal tier IDs (free/reader/depth/master) intentionally NOT renamed — they
+// back the DB column and Stripe env var names. Renaming them is a coordinated
 // migration tracked separately.
 //
 // Traditions removed in this collapse (engines kept on disk for optionality):
@@ -19,12 +22,13 @@
 // `canAccess` gates by tier rank. `canAccessTradition` gates by per-tradition
 // minimum tier using TRADITION_MIN_TIER as the single source of truth.
 
-export type Tier = 'free' | 'reader' | 'depth';
+export type Tier = 'free' | 'reader' | 'depth' | 'master';
 
 export const TIER_ORDER: Record<Tier, number> = {
   free: 0,
   reader: 1,
   depth: 2,
+  master: 3,
 };
 
 export function canAccess(userTier: Tier, required: Tier): boolean {
@@ -104,9 +108,24 @@ export const TIER_COPY: Record<Tier, TierCopy> = {
       'Cross-tradition synthesis essays',
       'Unlimited Master Oracle — trained across all 7 traditions, general astrology, astronomy & traditional archetypes',
     ],
-    ctaLabel: 'Upgrade — A$39/mo',
+    ctaLabel: 'Upgrade — A$22.20/mo',
     ctaHref: '/pricing#depth',
     priceNote: 'Monthly · cancel anytime',
     fineprint: 'Seven traditions. One chart. One Oracle.',
+  },
+  master: {
+    headline: 'Unlock The Nine',
+    bullets: [
+      'Everything in The Seven',
+      'Personalised for your Sun · Moon · Rising trinity',
+      'Monthly Zodiac Season Workbook (printable PDF)',
+      'Guided meditation audios — 2 per month',
+      'New Moon & Full Moon guided ceremonies',
+      'Printable Moon journals — track your cycles',
+    ],
+    ctaLabel: 'Upgrade — A$33.30/mo',
+    ctaHref: '/pricing#master',
+    priceNote: 'Monthly · cancel anytime',
+    fineprint: 'Nine sacred practices. The full ritual year.',
   },
 };

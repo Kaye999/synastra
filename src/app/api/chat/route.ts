@@ -34,14 +34,16 @@ const UI_HISTORY_MAX = 10; // messages sent to the API per request (client also 
 
 // Tier-based usage caps. `null` means unlimited for that period.
 type Caps = { day: number | null; month: number | null };
-// Per-tier Oracle limits (2026-05-18 — aligned to the 2/5/7 collapse):
+// Per-tier Oracle limits (2026-05-21 — aligned to 2/5/7/9 ladder):
 //   free   → 3/day, 10/month  (taste of the Oracle to drive upgrade)
 //   reader → 10/day, 300/month
 //   depth  → unlimited (Master Oracle)
+//   master → unlimited (The Nine — inherits Seven, adds ritual layer)
 const TIER_CAPS: Record<Tier, Caps> = {
   free: { day: 3, month: 10 },
   reader: { day: 10, month: 300 },
   depth: { day: null, month: null },
+  master: { day: null, month: null },
 };
 
 type IncomingMessage = { role: 'user' | 'assistant'; content: string };

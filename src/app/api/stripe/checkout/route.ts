@@ -10,7 +10,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function isTier(value: string | null | undefined): value is Tier {
-  return value === 'reader' || value === 'depth';
+  return value === 'reader' || value === 'depth' || value === 'master';
 }
 
 function isCadence(value: string | null | undefined): value is Cadence {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
 
   if (!isTier(body.tier) || !isCadence(body.interval)) {
     return NextResponse.json(
-      { error: 'Expected {tier: "reader"|"depth", interval: "monthly"|"onetime"}' },
+      { error: 'Expected {tier: "reader"|"depth"|"master", interval: "monthly"|"onetime"}' },
       { status: 400 },
     );
   }
@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
 
   if (!isTier(tier) || !isCadence(interval)) {
     return NextResponse.json(
-      { error: 'Expected ?tier=reader|depth&interval=monthly|onetime' },
+      { error: 'Expected ?tier=reader|depth|master&interval=monthly|onetime' },
       { status: 400 },
     );
   }

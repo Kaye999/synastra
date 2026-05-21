@@ -7,14 +7,15 @@ import { useUser, UserButton } from '@clerk/nextjs';
 
 type Profile = {
   birth_data: { date?: string; time?: string; place?: string } | null;
-  tier: 'free' | 'reader' | 'depth' | null;
+  tier: 'free' | 'reader' | 'depth' | 'master' | null;
   first_name: string | null;
 } | null;
 
 const TIER_LABEL: Record<string, string> = {
-  free: 'The Three',
-  reader: 'The Six',
-  depth: 'The Nine',
+  free: 'The Two',
+  reader: 'The Five',
+  depth: 'The Seven',
+  master: 'The Nine',
 };
 
 export default function SettingsPage() {
@@ -52,7 +53,7 @@ export default function SettingsPage() {
     ?? user?.emailAddresses[0]?.emailAddress
     ?? '—';
   const tier = profile?.tier ?? 'free';
-  const tierLabel = TIER_LABEL[tier] ?? 'The Three';
+  const tierLabel = TIER_LABEL[tier] ?? 'The Two';
   const birth = profile?.birth_data;
 
   const handleDelete = async () => {

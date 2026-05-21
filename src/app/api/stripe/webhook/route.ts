@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 type ProfileUpdate = {
   user_id: string;
-  tier?: 'free' | 'reader' | 'depth';
+  tier?: 'free' | 'reader' | 'depth' | 'master';
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   payment_failed?: boolean;
@@ -46,9 +46,9 @@ async function upsertProfile(patch: ProfileUpdate) {
   }
 }
 
-function tierFromMetadata(metadata: Stripe.Metadata | null | undefined): 'reader' | 'depth' | null {
+function tierFromMetadata(metadata: Stripe.Metadata | null | undefined): 'reader' | 'depth' | 'master' | null {
   const raw = metadata?.tier;
-  if (raw === 'reader' || raw === 'depth') return raw;
+  if (raw === 'reader' || raw === 'depth' || raw === 'master') return raw;
   return null;
 }
 

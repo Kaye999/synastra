@@ -41,7 +41,7 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const storageKey = `synastra.chat.${userId}`;
-  const canChat = tier === 'reader' || tier === 'depth';
+  const canChat = tier === 'reader' || tier === 'depth' || tier === 'master';
 
   // Load persisted history
   useEffect(() => {
@@ -190,11 +190,13 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
   };
 
   const quotaLabel =
-    tier === 'depth'
-      ? 'Depth · unlimited'
-      : tier === 'reader'
-        ? 'Reader · 10/day'
-        : 'Free';
+    tier === 'master'
+      ? 'The Nine · unlimited'
+      : tier === 'depth'
+        ? 'The Seven · unlimited'
+        : tier === 'reader'
+          ? 'The Five · 10/day'
+          : 'The Two · 3/day teaser';
 
   const visibleMessages = messages.slice(-UI_HISTORY_MAX);
 

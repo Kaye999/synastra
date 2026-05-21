@@ -22,6 +22,7 @@ import PaywallBlur from './PaywallBlur';
 import ChatWidget from './ChatWidget';
 import SettingsCog from './SettingsCog';
 import MorningCup from './MorningCup';
+import DailyRitual from './DailyRitual';
 import MonthlyForecast from './MonthlyForecast';
 import DeepReadTabs from './DeepReadTabs';
 import CompatibilityForm from './CompatibilityForm';
@@ -348,6 +349,11 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
       <TransitAlerts user={user} firstName={firstName} tier={tier} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '150px 24px 120px' }}>
+        {/* ─── Daily Ritual strip — planet, affirmation, weekly aspect ──── */}
+        <div className="reveal" style={{ animationDelay: '60ms' }}>
+          <DailyRitual />
+        </div>
+
         {/* ─── Morning Cup + Monthly Forecast (two columns on desktop) ──── */}
         <div
           className="dash-top-grid"

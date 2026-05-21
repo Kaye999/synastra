@@ -262,8 +262,8 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
 
   const canRun =
     spreadType === 'three-card'
-      ? tier === 'reader' || tier === 'depth'
-      : tier === 'depth';
+      ? tier === 'reader' || tier === 'depth' || tier === 'master'
+      : tier === 'depth' || tier === 'master';
 
   const clearTimers = () => {
     dealTimersRef.current.forEach(clearTimeout);
@@ -648,7 +648,7 @@ export default function TarotSpread({ spreadType, userId, userContext, tier }: T
 }
 
 function canAccessTier(userTier: Tier, required: Tier): boolean {
-  const rank: Record<Tier, number> = { free: 0, reader: 1, depth: 2 };
+  const rank: Record<Tier, number> = { free: 0, reader: 1, depth: 2, master: 3 };
   return rank[userTier] >= rank[required];
 }
 

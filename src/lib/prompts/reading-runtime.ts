@@ -49,7 +49,7 @@ export type ReadingType =
  * Tier gate helpers
  * ============================================================ */
 
-const TIER_RANK: Record<Tier, number> = { free: 0, reader: 1, depth: 2 };
+const TIER_RANK: Record<Tier, number> = { free: 0, reader: 1, depth: 2, master: 3 };
 
 export function hasTier(userTier: Tier, required: Tier): boolean {
   return TIER_RANK[userTier] >= TIER_RANK[required];

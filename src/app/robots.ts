@@ -15,12 +15,11 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           '/',
           '/pricing',
+          '/reading',
           '/about',
           '/how-it-works',
           '/privacy',
           '/terms',
-          '/field-notes',
-          '/now',
         ],
         disallow: [
           '/api/',

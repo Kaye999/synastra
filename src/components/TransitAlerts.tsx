@@ -194,7 +194,7 @@ export default function TransitAlerts({ user: _user, firstName, tier }: TransitA
   }, [tier, scope]);
 
   useEffect(() => {
-    if (tier === 'depth' && !fetchedRef.current) {
+    if ((tier === 'depth' || tier === 'master') && !fetchedRef.current) {
       fetchedRef.current = true;
       load();
     }

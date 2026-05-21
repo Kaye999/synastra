@@ -78,7 +78,7 @@ export type Mahadasha = {
   allDashas: DashaPeriod[];
 };
 
-export type Tier = 'free' | 'reader' | 'depth';
+export type Tier = 'free' | 'reader' | 'depth' | 'master';
 
 export type CityCoords = {
   lat: number;

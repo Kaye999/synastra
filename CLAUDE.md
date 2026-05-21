@@ -12,14 +12,17 @@ This file is auto-loaded by Claude Code (and read by other AI assistants). Anyth
 
 **Tagline:** *Seven traditions. One chart. One Oracle.*
 
-### Pricing — locked
+### Pricing — locked (re-priced + added The Nine 2026-05-21)
 | Tier | Monthly | Yearly | What you get |
 |------|---------|--------|--------------|
-| **The Two** | Free | Free | Western (Sun/Moon/Rising) + Numerology preview · 3 Oracle questions/day teaser |
-| **The Five** | A$19 | A$129 | + Vedic (Lagna, Nakshatra, mahadasha), Kabbalah, Human Design · daily guidance · monthly forecast · 10 Oracle questions/day |
-| **The Seven** | A$39 | A$259 | + Tarot, Astrocartography · transit alerts · compatibility · cross-tradition synthesis · **unlimited Master Oracle** (expert across all 7 traditions + general astrology + astronomy + traditional archetypes) |
+| **The Two** | Free | Free | Western (Sun/Moon/Rising) + Numerology preview · daily planet · daily affirmation · weekly aspect · 3 Oracle questions/day teaser |
+| **The Five** | A$11.10 | A$77.70 | + Vedic (Lagna, Nakshatra, mahadasha), Kabbalah, Human Design · daily guidance · monthly forecast · 10 Oracle questions/day |
+| **The Seven** | A$22.20 | A$155.40 | + Tarot, Astrocartography · transit alerts · compatibility · cross-tradition synthesis · **unlimited Master Oracle** (expert across all 7 traditions + general astrology + astronomy + traditional archetypes) |
+| **The Nine** | A$33.30 | A$233.10 | + Sun · Moon · Rising trinity personalisation · Monthly Zodiac Season Workbook PDF · 2 guided meditation audios/mo · New & Full Moon ceremonies · printable Moon journals |
 
-**Don't propose pricing changes** without owner approval. **Rebrand history:** 12 traditions (Three/Six/Nine) → 7 traditions (Two/Five/Seven), 2026-05-18. Cut: BaZi (Chinese), Mayan Tzolk'in, Enneagram, Gene Keys, Ayurveda. Engine files for the cut traditions remain in `src/lib/engines/` for future optionality but are not wired into the UI.
+**Tier codenames in code/DB:** `free` → The Two · `reader` → The Five · `depth` → The Seven · `master` → The Nine.
+
+**Don't propose pricing changes** without owner approval. **Rebrand history:** 12 traditions (Three/Six/Nine) → 7 traditions (Two/Five/Seven) on 2026-05-18 · re-priced and added The Nine on 2026-05-21 (Moon Omens-inspired ritual layer). Cut traditions in 12→7 collapse: BaZi (Chinese), Mayan Tzolk'in, Enneagram, Gene Keys, Ayurveda. Engine files for the cut traditions remain in `src/lib/engines/` for future optionality but are not wired into the UI.
 
 ---
 

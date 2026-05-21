@@ -11,7 +11,7 @@ import Ornament from '@/components/Ornament';
 import Reveal from '../_marketing/Reveal';
 
 type Cadence = 'monthly' | 'onetime';
-type PaidTier = 'reader' | 'depth';
+type PaidTier = 'reader' | 'depth' | 'master';
 
 type TierDef =
   | {
@@ -45,6 +45,7 @@ const TIERS: TierDef[] = [
       'Western astrology — Sun, Moon & Rising preview',
       'Numerology — Life Path number (preview)',
       'Full natal chart + starfield view',
+      'Daily planet · daily affirmation · weekly aspect',
       'Keep your chart forever',
     ],
     cta: { label: 'Start free →', href: '/sign-up', kind: 'link' },
@@ -53,9 +54,8 @@ const TIERS: TierDef[] = [
     id: 'reader',
     name: 'The Five',
     tagline: 'Five traditions, fully unlocked.',
-    price: { monthly: 'A$19 / mo', onetime: 'A$129 / year' },
-    savingsPercent: 43, // ((228-129)/228)
-    featured: true,
+    price: { monthly: 'A$11.10 / mo', onetime: 'A$77.70 / year' },
+    savingsPercent: 42, // ((11.10*12 - 77.70) / (11.10*12))
     features: [
       '§ Everything in The Two',
       'Full Western chart — houses, aspects, personal planets',
@@ -74,8 +74,9 @@ const TIERS: TierDef[] = [
     id: 'depth',
     name: 'The Seven',
     tagline: 'All seven. Cross-woven.',
-    price: { monthly: 'A$39 / mo', onetime: 'A$259 / year' },
-    savingsPercent: 45, // ((468-259)/468)
+    price: { monthly: 'A$22.20 / mo', onetime: 'A$155.40 / year' },
+    savingsPercent: 42, // ((22.20*12 - 155.40) / (22.20*12))
+    featured: true,
     features: [
       '§ Everything in The Five',
       'Tarot — daily card + three-card + celtic cross',
@@ -87,6 +88,23 @@ const TIERS: TierDef[] = [
       'Unlimited Master Oracle — trained across all 7 traditions plus general astrology, astronomy, and the traditional archetypes',
     ],
     cta: { label: 'Go deep →', kind: 'checkout', tier: 'depth' },
+  },
+  {
+    id: 'master',
+    name: 'The Nine',
+    tagline: 'Nine sacred practices. The full ritual year.',
+    price: { monthly: 'A$33.30 / mo', onetime: 'A$233.10 / year' },
+    savingsPercent: 42, // ((33.30*12 - 233.10) / (33.30*12))
+    features: [
+      '§ Everything in The Seven',
+      'Personalised for your Sun · Moon · Rising trinity',
+      'Monthly Zodiac Season Workbook (printable PDF)',
+      'Guided meditation audios — 2 per month',
+      'New Moon & Full Moon guided ceremonies',
+      'Printable Moon journals — track your cycles',
+      'First access to new traditions as they ship',
+    ],
+    cta: { label: 'Step in →', kind: 'checkout', tier: 'master' },
   },
 ];
 
@@ -170,7 +188,7 @@ export default function PricingPage() {
           </Reveal>
           <Reveal delay={80}>
             <h1 className="mk-section-title" style={{ fontSize: 'clamp(48px, 7vw, 80px)' }}>
-              Three readings.
+              Four readings.
             </h1>
           </Reveal>
           <Reveal delay={160}>
@@ -178,7 +196,7 @@ export default function PricingPage() {
               className="mk-hero-sub"
               style={{ margin: '10px auto 0', textAlign: 'center', maxWidth: '42ch' }}
             >
-              One glance. One full reading. One that goes to the depth of every tradition.
+              One glance. One full reading. One that crosses all seven. One that turns the year into a practice.
             </p>
           </Reveal>
         </div>
@@ -256,7 +274,12 @@ export default function PricingPage() {
             return (
               <Reveal key={tier.id} delay={120 + i * 100}>
                 <article
-                  id={tier.id === 'reader' ? 'the-five' : tier.id === 'depth' ? 'the-seven' : 'the-two'}
+                  id={
+                    tier.id === 'reader' ? 'the-five'
+                    : tier.id === 'depth' ? 'the-seven'
+                    : tier.id === 'master' ? 'the-nine'
+                    : 'the-two'
+                  }
                   style={{
                     position: 'relative',
                     border: isFeatured ? '1px solid var(--brass)' : '1px solid var(--rule)',
@@ -382,8 +405,10 @@ export default function PricingPage() {
               adds Tarot and Astrocartography on top, then opens the live layer: transit alerts,
               compatibility, wealth timing, and the Master Oracle — unlimited, trained across all
               seven traditions plus general astrology, astronomy, and the traditional archetypes.
-              Monthly is right when you want the sky watched for you. One-time is right when you
-              want the reading as a keepsake — exported, portable, yours.
+              The Nine turns the year into a practice — every zodiac season arrives with a printable
+              workbook, two guided meditation audios, and New / Full Moon ceremonies you can move
+              through alone or with others. Monthly is right when you want the sky watched for you.
+              One-time is right when you want the reading as a keepsake — exported, portable, yours.
             </p>
           </div>
         </Reveal>

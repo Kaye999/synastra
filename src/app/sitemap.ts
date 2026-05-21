@@ -14,10 +14,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${APP_URL}/`,              lastModified, changeFrequency: 'weekly',  priority: 1.0 },
     { url: `${APP_URL}/pricing`,       lastModified, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${APP_URL}/reading`,       lastModified, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${APP_URL}/about`,         lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${APP_URL}/how-it-works`,  lastModified, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${APP_URL}/field-notes`,   lastModified, changeFrequency: 'weekly',  priority: 0.6 },
-    { url: `${APP_URL}/now`,           lastModified, changeFrequency: 'daily',   priority: 0.5 },
     { url: `${APP_URL}/privacy`,       lastModified, changeFrequency: 'yearly',  priority: 0.3 },
     { url: `${APP_URL}/terms`,         lastModified, changeFrequency: 'yearly',  priority: 0.3 },
   ];

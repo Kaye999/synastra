@@ -196,9 +196,9 @@ export default function DeepReadTabs({ user: _user, firstName: _firstName, tier 
     [load, readings],
   );
 
-  // Kick off the first tab once, only if depth (otherwise the paywall covers
+  // Kick off the first tab once, only on Seven+ (otherwise the paywall covers
   // everything and we avoid wasting a fetch).
-  if (tier === 'depth' && !kickedOff.current) {
+  if ((tier === 'depth' || tier === 'master') && !kickedOff.current) {
     kickedOff.current = true;
     const t = TABS.find((x) => x.key === active)!;
     if (!readings[t.key].body && !readings[t.key].loading) {

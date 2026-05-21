@@ -94,7 +94,14 @@ function ClientShell({ profile, upgraded }: { profile: Profile; upgraded: boolea
 }
 
 function UpgradeBanner({ tier }: { tier: Tier }) {
-  const label = tier === 'depth' ? 'Depth' : tier === 'reader' ? 'Reader' : 'Synastra';
+  const label =
+    tier === 'master'
+      ? 'The Nine'
+      : tier === 'depth'
+        ? 'The Seven'
+        : tier === 'reader'
+          ? 'The Five'
+          : 'Synastra';
   return (
     <div
       role="status"
