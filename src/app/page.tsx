@@ -225,7 +225,9 @@ export default async function LandingPage() {
       <nav className="mk-nav">
         <Link href="/" className="mk-nav-brand">SYNASTRA</Link>
         <div className="mk-nav-links">
+          <Link href="/reading">Free reading</Link>
           <Link href="/how-it-works">How it works</Link>
+          <Link href="/about">About</Link>
           <Link href="/pricing">Pricing</Link>
           {!isSignedIn && <Link href="/sign-in" className="mk-nav-signin">Sign in</Link>}
           <Link href={primaryHref} className="mk-nav-cta">{primaryNavLabel}</Link>

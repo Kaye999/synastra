@@ -1062,7 +1062,7 @@ body {
 }
 .mk-nav-links {
   display: flex;
-  gap: 28px;
+  gap: 22px;
   align-items: center;
 }
 .mk-nav-links a {
