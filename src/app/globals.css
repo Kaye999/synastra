@@ -1042,8 +1042,8 @@ body {
   left: 0;
   right: 0;
   z-index: 50;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 18px 32px;
   background: rgba(10, 14, 26, 0.82);
@@ -1051,6 +1051,8 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--rule);
 }
+.mk-nav-links-center { justify-self: center; }
+.mk-nav-links-actions { justify-self: end; }
 .mk-nav-brand {
   font-family: var(--font-display);
   font-weight: 800;
@@ -1085,6 +1087,13 @@ body {
 .mk-nav-cta:hover {
   background: var(--brass);
   color: var(--bg-base) !important;
+}
+@media (max-width: 900px) {
+  /* Below 900px the centered tab group collides with brand/CTA — collapse
+     to a two-section nav (brand left, actions right) and hide the tab row. */
+  .mk-nav { grid-template-columns: auto 1fr; }
+  .mk-nav-links-center { display: none; }
+  .mk-nav-links-actions { justify-self: end; }
 }
 @media (max-width: 720px) {
   .mk-nav { padding: 14px 20px; }
