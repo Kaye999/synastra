@@ -6,9 +6,9 @@
 // channel topology between them, and — on tap/hover — reveals the organs
 // each centre governs and the cause-and-effect of it being defined or open.
 //
-// The base render lives at `public/hd-anatomy.png` (portrait 2:3, front-
-// facing full body, centred). Until it exists the overlay still works on
-// the deep-celestial background — nothing breaks.
+// The base render lives at `public/hd-anatomy.png` (square 1:1, a
+// head-to-pelvis crop of a front-facing anatomy figure). Until it exists
+// the overlay still works on the deep-celestial background — nothing breaks.
 //
 // Defined centres glow brass (your own consistent current). Open centres
 // are faint rings (where you absorb and amplify others' energy).
@@ -25,8 +25,8 @@ type CenterMeta = {
   name: string;
   /** Common chakra label users will recognise. */
   chakra: string;
-  /** Position on the 1000×1500 viewBox (matches a 2:3 portrait render).
-   *  Tune these to your generated image if the body framing differs. */
+  /** Position on the 1024×1024 viewBox (matches the square head-to-pelvis
+   *  crop). Tune these if you swap the render for a differently-framed one. */
   x: number;
   y: number;
   /** Visual radius of the centre marker. */
@@ -47,7 +47,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Head',
     chakra: 'Crown',
-    x: 500, y: 70, r: 40,
+    x: 512, y: 75, r: 40,
     region: 'Top of the skull',
     organs: ['Pineal gland'],
     theme: 'Pressure to know — inspiration, doubt, wonder.',
@@ -57,7 +57,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Ajna',
     chakra: 'Third Eye',
-    x: 500, y: 172, r: 36,
+    x: 512, y: 150, r: 34,
     region: 'Forehead, behind the eyes',
     organs: ['Pituitary gland', 'Cerebral cortex'],
     theme: 'Conceptualisation — how the mind makes sense of things.',
@@ -67,7 +67,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Throat',
     chakra: 'Throat',
-    x: 500, y: 300, r: 42,
+    x: 512, y: 258, r: 42,
     region: 'Throat, larynx, jaw',
     organs: ['Thyroid', 'Parathyroid', 'Larynx', 'Vocal cords'],
     theme: 'Manifestation and voice — where energy becomes action.',
@@ -77,7 +77,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'G',
     chakra: 'Heart · Identity',
-    x: 500, y: 512, r: 44,
+    x: 512, y: 382, r: 42,
     region: 'Sternum, centre of the chest',
     organs: ['Liver', 'Blood', 'Heart (as vessel)'],
     theme: 'Identity, direction and love — your magnetic centre.',
@@ -87,7 +87,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Heart',
     chakra: 'Will / Ego',
-    x: 600, y: 567, r: 34,
+    x: 615, y: 452, r: 32,
     region: 'Right of the chest cavity',
     organs: ['Heart muscle', 'Gallbladder', 'Stomach', 'Thymus'],
     theme: 'Will, ego, material courage — the seat of "I can".',
@@ -97,7 +97,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Solar Plexus',
     chakra: 'Solar Plexus',
-    x: 600, y: 746, r: 40,
+    x: 615, y: 580, r: 38,
     region: 'Upper abdomen, right of the navel',
     organs: ['Pancreas', 'Kidneys', 'Nervous system'],
     theme: 'Emotional awareness — the wave that asks for time.',
@@ -107,7 +107,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Spleen',
     chakra: 'Spleen',
-    x: 400, y: 746, r: 40,
+    x: 410, y: 580, r: 38,
     region: 'Left side, under the ribs',
     organs: ['Spleen', 'Lymphatic system', 'Immune system', 'T-cells'],
     theme: 'Intuition, immunity and survival — the body that knows now.',
@@ -117,7 +117,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Sacral',
     chakra: 'Sacral',
-    x: 500, y: 893, r: 46,
+    x: 512, y: 705, r: 46,
     region: 'Lower abdomen, below the navel',
     organs: ['Ovaries', 'Testes', 'Reproductive system'],
     theme: 'Life-force, work and response — the generative engine.',
@@ -127,7 +127,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Root',
     chakra: 'Root',
-    x: 500, y: 1055, r: 40,
+    x: 512, y: 838, r: 40,
     region: 'Base of the pelvis, perineum',
     organs: ['Adrenal glands'],
     theme: 'Pressure and fuel — the deadline body, the survival pulse.',
@@ -253,7 +253,7 @@ export default function AnatomicalChakraMap({
             style={{
               position: 'relative',
               width: '100%',
-              aspectRatio: '2 / 3',
+              aspectRatio: '1 / 1',
               borderRadius: 8,
               overflow: 'hidden',
               background:
@@ -288,7 +288,7 @@ export default function AnatomicalChakraMap({
             />
 
             <svg
-              viewBox="0 0 1000 1500"
+              viewBox="0 0 1024 1024"
               width="100%"
               height="100%"
               preserveAspectRatio="xMidYMid slice"
