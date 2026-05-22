@@ -1,16 +1,17 @@
 "use client";
 
 // AnatomicalChakraMap.tsx — anatomical companion to the canonical Human
-// Design BodyGraph. Renders the same 9 centres mapped to their position on
-// a stylised human silhouette, with the organ associations each centre
-// governs. Sits BELOW <BodyGraphInteractive /> in the HD tab — purists
-// still get the abstract HD geometry; everyone else gets "what does this
-// look like in my body?"
+// Design BodyGraph. A photoreal anatomy render sits underneath; an
+// interactive overlay places the 9 HD centres on the body, draws the
+// channel topology between them, and — on tap/hover — reveals the organs
+// each centre governs and the cause-and-effect of it being defined or open.
 //
-// Defined centres glow brass (your activated energy). Undefined centres
-// are faint outlines (the open chakras you absorb from others). Hover any
-// centre to see: name, defined/undefined status, the organs it governs,
-// the HD theme, and your active gates in that centre.
+// The base render lives at `public/hd-anatomy.png` (portrait 2:3, front-
+// facing full body, centred). Until it exists the overlay still works on
+// the deep-celestial background — nothing breaks.
+//
+// Defined centres glow brass (your own consistent current). Open centres
+// are faint rings (where you absorb and amplify others' energy).
 
 import { useState } from 'react';
 
@@ -24,17 +25,20 @@ type CenterMeta = {
   name: string;
   /** Common chakra label users will recognise. */
   chakra: string;
-  /** Position on the 400×820 viewBox, anchor of the circle. */
-  cx: number;
-  cy: number;
-  /** Visual size of the centre marker. */
+  /** Position on the 1000×1500 viewBox (matches a 2:3 portrait render).
+   *  Tune these to your generated image if the body framing differs. */
+  x: number;
+  y: number;
+  /** Visual radius of the centre marker. */
   r: number;
-  /** Anatomical region label that shows on hover. */
+  /** Anatomical region label. */
   region: string;
   /** Organs/glands the centre governs in HD's biological model. */
   organs: string[];
   /** Short HD theme. */
   theme: string;
+  /** Short noun phrase for the cause-and-effect copy. */
+  domain: string;
   /** Gates that live in this centre. */
   gates: number[];
 };
@@ -43,161 +47,151 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Head',
     chakra: 'Crown',
-    cx: 200, cy: 38, r: 22,
+    x: 500, y: 70, r: 40,
     region: 'Top of the skull',
     organs: ['Pineal gland'],
     theme: 'Pressure to know — inspiration, doubt, wonder.',
+    domain: 'mental pressure and the questions you chase',
     gates: [64, 61, 63],
   },
   {
     name: 'Ajna',
     chakra: 'Third Eye',
-    cx: 200, cy: 94, r: 20,
+    x: 500, y: 172, r: 36,
     region: 'Forehead, behind the eyes',
     organs: ['Pituitary gland', 'Cerebral cortex'],
-    theme: 'Conceptualisation — how the mind makes sense.',
+    theme: 'Conceptualisation — how the mind makes sense of things.',
+    domain: 'the way thoughts get organised into certainty',
     gates: [47, 24, 4, 17, 43, 11],
   },
   {
     name: 'Throat',
     chakra: 'Throat',
-    cx: 200, cy: 162, r: 24,
+    x: 500, y: 300, r: 42,
     region: 'Throat, larynx, jaw',
     organs: ['Thyroid', 'Parathyroid', 'Larynx', 'Vocal cords'],
     theme: 'Manifestation and voice — where energy becomes action.',
+    domain: 'the urge to speak, and to turn energy into action',
     gates: [62, 23, 56, 35, 12, 45, 33, 8, 31, 20, 16],
   },
   {
     name: 'G',
     chakra: 'Heart · Identity',
-    cx: 200, cy: 280, r: 24,
-    region: 'Sternum, centre of chest',
-    organs: ['Liver', 'Blood', 'Heart (vessel)'],
-    theme: 'Identity · direction · love — your magnetic centre.',
+    x: 500, y: 512, r: 44,
+    region: 'Sternum, centre of the chest',
+    organs: ['Liver', 'Blood', 'Heart (as vessel)'],
+    theme: 'Identity, direction and love — your magnetic centre.',
+    domain: 'identity, direction and a sense of who you are',
     gates: [7, 1, 13, 25, 10, 15, 46, 2],
   },
   {
     name: 'Heart',
     chakra: 'Will / Ego',
-    cx: 250, cy: 310, r: 18,
-    region: 'Right side of the chest cavity',
+    x: 600, y: 567, r: 34,
+    region: 'Right of the chest cavity',
     organs: ['Heart muscle', 'Gallbladder', 'Stomach', 'Thymus'],
     theme: 'Will, ego, material courage — the seat of "I can".',
+    domain: 'willpower, self-worth and what you are willing to prove',
     gates: [21, 40, 26, 51],
   },
   {
     name: 'Solar Plexus',
     chakra: 'Solar Plexus',
-    cx: 250, cy: 408, r: 22,
-    region: 'Upper abdomen, right of navel',
+    x: 600, y: 746, r: 40,
+    region: 'Upper abdomen, right of the navel',
     organs: ['Pancreas', 'Kidneys', 'Nervous system'],
     theme: 'Emotional awareness — the wave that asks for time.',
+    domain: 'emotional weather — the moods, the highs and lows',
     gates: [36, 22, 37, 6, 49, 55, 30],
   },
   {
     name: 'Spleen',
     chakra: 'Spleen',
-    cx: 150, cy: 408, r: 22,
+    x: 400, y: 746, r: 40,
     region: 'Left side, under the ribs',
     organs: ['Spleen', 'Lymphatic system', 'Immune system', 'T-cells'],
-    theme: 'Intuition · immunity · survival — the body that knows now.',
+    theme: 'Intuition, immunity and survival — the body that knows now.',
+    domain: 'instinct, timing and the body’s quiet alarm',
     gates: [48, 57, 44, 50, 32, 28, 18],
   },
   {
     name: 'Sacral',
     chakra: 'Sacral',
-    cx: 200, cy: 488, r: 26,
+    x: 500, y: 893, r: 46,
     region: 'Lower abdomen, below the navel',
     organs: ['Ovaries', 'Testes', 'Reproductive system'],
-    theme: 'Life-force · work · response — the generative engine.',
+    theme: 'Life-force, work and response — the generative engine.',
+    domain: 'raw life-force and the energy to work and create',
     gates: [34, 5, 14, 29, 59, 9, 3, 42, 27],
   },
   {
     name: 'Root',
     chakra: 'Root',
-    cx: 200, cy: 580, r: 22,
+    x: 500, y: 1055, r: 40,
     region: 'Base of the pelvis, perineum',
     organs: ['Adrenal glands'],
     theme: 'Pressure and fuel — the deadline body, the survival pulse.',
+    domain: 'stress, drive and the pressure to be done',
     gates: [58, 38, 54, 53, 60, 52, 19, 39, 41],
   },
 ];
 
-/* ─── Body silhouette — a stylised front-view path. Stroked only, no fill,
-   so the chakra circles read on top. */
-const BODY_PATH = `
-  M 200 14
-  C 232 14 254 36 254 70
-  C 254 96 240 116 226 124
-  L 226 134
-  C 246 138 264 148 280 162
-  L 296 218
-  C 308 248 314 280 312 312
-  L 308 396
-  C 308 416 304 432 296 444
-  L 300 600
-  C 300 640 296 700 286 760
-  L 252 800
-  L 244 800
-  L 236 700
-  L 220 530
-  L 200 530
-  L 180 530
-  L 164 700
-  L 156 800
-  L 148 800
-  L 114 760
-  C 104 700 100 640 100 600
-  L 104 444
-  C 96 432 92 416 92 396
-  L 88 312
-  C 86 280 92 248 104 218
-  L 120 162
-  C 136 148 154 138 174 134
-  L 174 124
-  C 160 116 146 96 146 70
-  C 146 36 168 14 200 14
-  Z
-`;
+/* The HD bodygraph topology — every centre pair a channel can run between.
+   A pair lights up when both its centres are defined: energy flows there. */
+const CENTER_LINKS: readonly [string, string][] = [
+  ['Head', 'Ajna'],
+  ['Ajna', 'Throat'],
+  ['Throat', 'G'],
+  ['Throat', 'Heart'],
+  ['Throat', 'Spleen'],
+  ['Throat', 'Solar Plexus'],
+  ['Throat', 'Sacral'],
+  ['G', 'Heart'],
+  ['G', 'Sacral'],
+  ['G', 'Spleen'],
+  ['Heart', 'Spleen'],
+  ['Heart', 'Solar Plexus'],
+  ['Spleen', 'Sacral'],
+  ['Spleen', 'Root'],
+  ['Sacral', 'Solar Plexus'],
+  ['Sacral', 'Root'],
+  ['Solar Plexus', 'Root'],
+];
 
-const ARM_LEFT = `
-  M 110 178
-  C 80 200 64 240 56 290
-  L 50 380
-  C 48 420 52 460 60 500
-  L 70 500
-  L 68 460
-  L 72 380
-  C 78 332 90 250 116 200
-`;
+const BY_NAME: Record<string, CenterMeta> = Object.fromEntries(
+  CENTERS.map((c) => [c.name, c]),
+);
 
-const ARM_RIGHT = `
-  M 290 178
-  C 320 200 336 240 344 290
-  L 350 380
-  C 352 420 348 460 340 500
-  L 330 500
-  L 332 460
-  L 328 380
-  C 322 332 310 250 284 200
-`;
+function neighboursOf(name: string): string[] {
+  return CENTER_LINKS.flatMap(([a, b]) =>
+    a === name ? [b] : b === name ? [a] : [],
+  );
+}
 
 export type AnatomicalChakraMapProps = {
   hdResult: HdLike;
+  /** Path to the photoreal anatomy render. */
+  imageSrc?: string;
 };
 
-export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapProps) {
+export default function AnatomicalChakraMap({
+  hdResult,
+  imageSrc = '/hd-anatomy.png',
+}: AnatomicalChakraMapProps) {
   const activated = new Set<number>(hdResult?.activatedGates ?? []);
   const defined = new Set<string>(hdResult?.definedCenters ?? []);
-  const [hover, setHover] = useState<CenterMeta | null>(null);
+
+  // `pinned` survives a click; `hovered` is transient. Shown = hovered ?? pinned.
+  const [pinned, setPinned] = useState<CenterMeta | null>(null);
+  const [hovered, setHovered] = useState<CenterMeta | null>(null);
+  const shown = hovered ?? pinned;
 
   const BRASS = 'var(--brass, #C8A052)';
-  const INK_FAINT = 'rgba(252, 250, 246, 0.18)';
-  const INK_DIM = 'rgba(252, 250, 246, 0.65)';
   const INK = 'var(--ink, #FCFAF6)';
+  const INK_DIM = 'rgba(252, 250, 246, 0.65)';
 
   return (
-    <section style={{ marginTop: 64, maxWidth: 960, margin: '64px auto 0' }}>
+    <section style={{ maxWidth: 960, margin: '64px auto 0' }}>
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
@@ -226,20 +220,19 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
       </h2>
       <p
         className="chapter-body"
-        style={{
-          maxWidth: 560,
-          margin: '0 auto 32px',
-          textAlign: 'center',
-        }}
+        style={{ maxWidth: 560, margin: '0 auto 32px', textAlign: 'center' }}
       >
-        The same nine centres from the BodyGraph above — placed where they live in your body, with the organs and glands each governs. Hover any centre to read the anatomy.
+        The nine centres from the BodyGraph above — placed where they live in
+        your body, wired by the channels that carry energy between them. Tap any
+        centre to read the organs it governs and what its definition sets in
+        motion.
       </p>
 
       <div
         className="anatomical-chakra-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(260px, 380px) 1fr',
+          gridTemplateColumns: 'minmax(260px, 400px) 1fr',
           gap: 40,
           alignItems: 'start',
           padding: '24px 0',
@@ -253,108 +246,166 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
             }
           }
         `}</style>
-        {/* ─── BODY + CHAKRA SVG ─── */}
-        <div style={{ position: 'relative' }}>
-          <svg
-            viewBox="0 0 400 820"
-            width="100%"
-            height="auto"
-            aria-label="Anatomical map of nine Human Design centres"
-            role="img"
-            style={{ display: 'block' }}
+
+        {/* ─── FIGURE: photoreal render + interactive overlay ─── */}
+        <div>
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              aspectRatio: '2 / 3',
+              borderRadius: 8,
+              overflow: 'hidden',
+              background:
+                'radial-gradient(ellipse at 50% 38%, #161228 0%, #0a0a14 78%)',
+              border: '1px solid rgba(200, 160, 82, 0.16)',
+            }}
           >
-            <defs>
-              <radialGradient id="acm-defined-fill" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(200, 160, 82, 0.55)" />
-                <stop offset="60%" stopColor="rgba(200, 160, 82, 0.22)" />
-                <stop offset="100%" stopColor="rgba(200, 160, 82, 0)" />
-              </radialGradient>
-              <filter id="acm-glow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="3" result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+            {/* Base render. If absent, the celestial background shows through. */}
+            <img
+              src={imageSrc}
+              alt="Photoreal anatomy showing the organs each Human Design centre governs"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = 'none';
+              }}
+            />
+            {/* Dark wash — keeps the brass overlay legible over any render. */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background:
+                  'linear-gradient(180deg, rgba(10,10,20,0.55) 0%, rgba(10,10,20,0.15) 35%, rgba(10,10,20,0.55) 100%)',
+              }}
+            />
 
-            {/* Body silhouette */}
-            <g fill="none" stroke={INK_FAINT} strokeWidth={1.2} strokeLinejoin="round" strokeLinecap="round">
-              <path d={BODY_PATH} />
-              <path d={ARM_LEFT} />
-              <path d={ARM_RIGHT} />
-              {/* Spine — subtle vertical guide */}
-              <line x1={200} y1={130} x2={200} y2={600} stroke={INK_FAINT} strokeDasharray="2 6" />
-            </g>
+            <svg
+              viewBox="0 0 1000 1500"
+              width="100%"
+              height="100%"
+              preserveAspectRatio="xMidYMid slice"
+              aria-label="Interactive map of the nine Human Design centres"
+              role="img"
+              style={{ position: 'absolute', inset: 0, display: 'block' }}
+            >
+              <defs>
+                <radialGradient id="acm-defined-fill" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(200, 160, 82, 0.7)" />
+                  <stop offset="55%" stopColor="rgba(200, 160, 82, 0.28)" />
+                  <stop offset="100%" stopColor="rgba(200, 160, 82, 0)" />
+                </radialGradient>
+                <filter id="acm-glow" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="6" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
 
-            {/* Connections — faint lines between defined centres only */}
-            <g stroke="rgba(200, 160, 82, 0.35)" strokeWidth={1} fill="none">
-              {CENTERS.flatMap((a, i) =>
-                CENTERS.slice(i + 1)
-                  .filter((b) => defined.has(a.name) && defined.has(b.name))
-                  .map((b) => (
+              {/* Channel topology — faint by default, brass where energy flows. */}
+              <g fill="none" strokeLinecap="round">
+                {CENTER_LINKS.map(([an, bn]) => {
+                  const a = BY_NAME[an];
+                  const b = BY_NAME[bn];
+                  const live = defined.has(an) && defined.has(bn);
+                  const touchesShown =
+                    shown != null && (shown.name === an || shown.name === bn);
+                  return (
                     <line
-                      key={`${a.name}-${b.name}`}
-                      x1={a.cx}
-                      y1={a.cy}
-                      x2={b.cx}
-                      y2={b.cy}
+                      key={`${an}-${bn}`}
+                      x1={a.x}
+                      y1={a.y}
+                      x2={b.x}
+                      y2={b.y}
+                      stroke={
+                        live
+                          ? 'rgba(200, 160, 82, 0.75)'
+                          : 'rgba(252, 250, 246, 0.16)'
+                      }
+                      strokeWidth={touchesShown ? 5 : live ? 3.5 : 2}
                     />
-                  )),
-              )}
-            </g>
+                  );
+                })}
+              </g>
 
-            {/* Chakra centres */}
-            {CENTERS.map((c) => {
-              const isDefined = defined.has(c.name);
-              const isHover = hover?.name === c.name;
-              return (
-                <g
-                  key={c.name}
-                  onMouseEnter={() => setHover(c)}
-                  onMouseLeave={() => setHover(null)}
-                  style={{ cursor: 'pointer' }}
-                  tabIndex={0}
-                  onFocus={() => setHover(c)}
-                  onBlur={() => setHover(null)}
-                  aria-label={`${c.chakra} centre — ${isDefined ? 'defined' : 'undefined'}`}
-                >
-                  {/* Hit area (invisible but wider than the visible circle) */}
-                  <circle cx={c.cx} cy={c.cy} r={c.r + 8} fill="transparent" />
-                  {/* Defined: filled glow. Undefined: ring only. */}
-                  {isDefined && (
-                    <circle
-                      cx={c.cx}
-                      cy={c.cy}
-                      r={c.r + 4}
-                      fill="url(#acm-defined-fill)"
-                      filter="url(#acm-glow)"
-                    />
-                  )}
-                  <circle
-                    cx={c.cx}
-                    cy={c.cy}
-                    r={c.r}
-                    fill={isDefined ? 'rgba(200, 160, 82, 0.18)' : 'rgba(10, 14, 26, 0.7)'}
-                    stroke={isDefined ? BRASS : 'rgba(252, 250, 246, 0.35)'}
-                    strokeWidth={isHover ? 2.2 : 1.4}
-                  />
-                  <text
-                    x={c.cx}
-                    y={c.cy + 4}
-                    textAnchor="middle"
-                    fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={9}
-                    letterSpacing="0.12em"
-                    fill={isDefined ? INK : INK_DIM}
-                    style={{ pointerEvents: 'none', textTransform: 'uppercase' }}
+              {/* Centre nodes */}
+              {CENTERS.map((c) => {
+                const isDefined = defined.has(c.name);
+                const isShown = shown?.name === c.name;
+                return (
+                  <g
+                    key={c.name}
+                    onMouseEnter={() => setHovered(c)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() =>
+                      setPinned((p) => (p?.name === c.name ? null : c))
+                    }
+                    onFocus={() => setHovered(c)}
+                    onBlur={() => setHovered(null)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setPinned((p) => (p?.name === c.name ? null : c));
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${c.chakra} centre — ${
+                      isDefined ? 'defined' : 'open'
+                    }`}
+                    style={{ cursor: 'pointer' }}
                   >
-                    {c.name === 'Solar Plexus' ? 'SP' : c.name.slice(0, 4).toUpperCase()}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+                    {/* Generous invisible hit area */}
+                    <circle cx={c.x} cy={c.y} r={c.r + 16} fill="transparent" />
+                    {isDefined && (
+                      <circle
+                        cx={c.x}
+                        cy={c.y}
+                        r={c.r + 12}
+                        fill="url(#acm-defined-fill)"
+                        filter="url(#acm-glow)"
+                      />
+                    )}
+                    <circle
+                      cx={c.x}
+                      cy={c.y}
+                      r={c.r}
+                      fill={
+                        isDefined
+                          ? 'rgba(200, 160, 82, 0.30)'
+                          : 'rgba(10, 14, 26, 0.78)'
+                      }
+                      stroke={isDefined ? BRASS : 'rgba(252, 250, 246, 0.5)'}
+                      strokeWidth={isShown ? 5 : 2.6}
+                    />
+                    <text
+                      x={c.x}
+                      y={c.y + 6}
+                      textAnchor="middle"
+                      fontFamily="'IBM Plex Mono', monospace"
+                      fontSize={17}
+                      letterSpacing="0.1em"
+                      fill={isDefined ? INK : INK_DIM}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {c.name === 'Solar Plexus'
+                        ? 'SP'
+                        : c.name.slice(0, 3).toUpperCase()}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
 
           {/* Legend */}
           <div
@@ -370,32 +421,16 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
               textTransform: 'uppercase',
             }}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: '50%',
-                  background: 'rgba(200, 160, 82, 0.5)',
-                  border: `1px solid ${BRASS}`,
-                  display: 'inline-block',
-                }}
-              />
-              Defined
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <span
-                style={{
-                  width: 10,
-                  height: 10,
-                  borderRadius: '50%',
-                  background: 'rgba(10, 14, 26, 0.7)',
-                  border: '1px solid rgba(252, 250, 246, 0.35)',
-                  display: 'inline-block',
-                }}
-              />
-              Open
-            </span>
+            <LegendDot
+              fill="rgba(200, 160, 82, 0.5)"
+              stroke={BRASS}
+              label="Defined"
+            />
+            <LegendDot
+              fill="rgba(10, 14, 26, 0.7)"
+              stroke="rgba(252, 250, 246, 0.5)"
+              label="Open"
+            />
           </div>
         </div>
 
@@ -410,11 +445,15 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
             background: 'rgba(8, 12, 24, 0.55)',
             backdropFilter: 'blur(6px)',
             WebkitBackdropFilter: 'blur(6px)',
-            minHeight: 280,
+            minHeight: 300,
           }}
         >
-          {hover ? (
-            <ChakraDetail c={hover} activated={activated} defined={defined.has(hover.name)} />
+          {shown ? (
+            <ChakraDetail
+              c={shown}
+              activated={activated}
+              defined={defined.has(shown.name)}
+            />
           ) : (
             <div>
               <div
@@ -438,7 +477,9 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
                   margin: '0 0 12px',
                 }}
               >
-                Hover any centre on the figure to read its anatomy — the gland it speaks through, the organs it animates, the theme it carries.
+                Tap any centre on the figure to read its anatomy — the glands
+                and organs it governs, the channels it feeds, and the
+                cause-and-effect of it being defined or open in you.
               </p>
               <p
                 style={{
@@ -450,14 +491,41 @@ export default function AnatomicalChakraMap({ hdResult }: AnatomicalChakraMapPro
                   fontStyle: 'italic',
                 }}
               >
-                Brass = defined, your own energy.<br />
-                Open = where you take the world in.
+                Brass = defined, your own consistent current.
+                <br />
+                Open = where you take the world in and amplify it.
               </p>
             </div>
           )}
         </aside>
       </div>
     </section>
+  );
+}
+
+function LegendDot({
+  fill,
+  stroke,
+  label,
+}: {
+  fill: string;
+  stroke: string;
+  label: string;
+}) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <span
+        style={{
+          width: 10,
+          height: 10,
+          borderRadius: '50%',
+          background: fill,
+          border: `1px solid ${stroke}`,
+          display: 'inline-block',
+        }}
+      />
+      {label}
+    </span>
   );
 }
 
@@ -475,6 +543,15 @@ function ChakraDetail({
   const BRASS = 'var(--brass, #C8A052)';
   const INK_DIM = 'rgba(252, 250, 246, 0.62)';
   const userGates = c.gates.filter((g) => activated.has(g));
+  const neighbours = neighboursOf(c.name);
+
+  const causeEffect = defined
+    ? `This centre runs on its own current. The ${organList(
+        c.organs,
+      )} keep a steady rhythm — ${c.domain} is something you reliably generate, and the people around you consistently feel it coming from you.`
+    : `This centre has no fixed current of its own. The ${organList(
+        c.organs,
+      )} stay porous — ${c.domain} is something you absorb, amplify and reflect from whoever you are with. The wisdom here is learning not to take the borrowed personally.`;
 
   return (
     <div>
@@ -510,7 +587,8 @@ function ChakraDetail({
           marginBottom: 18,
         }}
       >
-        {c.name === c.chakra ? '' : `HD: ${c.name}`} {c.name !== c.chakra && '·'} {c.region}
+        {c.name !== c.chakra ? `HD: ${c.name} · ` : ''}
+        {c.region}
       </div>
 
       <p
@@ -525,12 +603,17 @@ function ChakraDetail({
         {c.theme}
       </p>
 
-      <DetailRow label="Governs">
-        {c.organs.join(' · ')}
-      </DetailRow>
+      <DetailRow label="Governs">{c.organs.join(' · ')}</DetailRow>
+
+      <DetailRow label="Cause & effect">{causeEffect}</DetailRow>
+
+      <DetailRow label="Channels into">{neighbours.join(' · ')}</DetailRow>
 
       <DetailRow label="Gates here">
-        {c.gates.length} total · <span style={{ color: BRASS, fontWeight: 500 }}>{userGates.length} active in you</span>
+        {c.gates.length} total ·{' '}
+        <span style={{ color: BRASS, fontWeight: 500 }}>
+          {userGates.length} active in you
+        </span>
       </DetailRow>
 
       {userGates.length > 0 && (
@@ -570,7 +653,19 @@ function ChakraDetail({
   );
 }
 
-function DetailRow({ label, children }: { label: string; children: React.ReactNode }) {
+function organList(organs: string[]): string {
+  const lower = organs.map((o) => o.toLowerCase());
+  if (lower.length === 1) return lower[0];
+  return `${lower.slice(0, -1).join(', ')} and ${lower[lower.length - 1]}`;
+}
+
+function DetailRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div style={{ marginBottom: 12 }}>
       <div
