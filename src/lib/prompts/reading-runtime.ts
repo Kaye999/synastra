@@ -40,10 +40,7 @@ export type ReadingType =
   | 'transit-alerts'
   | 'tarot-daily'
   | 'tarot-three'
-  | 'tarot-celtic'
-  | 'enneagram'
-  | 'gene-keys'
-  | 'ayurveda';
+  | 'tarot-celtic';
 
 /* ============================================================
  * Tier gate helpers

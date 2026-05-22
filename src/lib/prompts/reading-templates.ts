@@ -542,76 +542,6 @@ Write the Celtic Cross reading now.`;
 }
 
 /* ============================================================
- * 11. Gene Keys Activation Sequence (~650 words)
- * ============================================================ */
-
-export type GeneKeyBrief = {
-  number: number;
-  name: string;
-  hexagram: string;
-  line: number;
-  shadow: { name: string; body: string };
-  gift: { name: string; body: string };
-  siddhi: { name: string; body: string };
-};
-
-export type GeneKeysReadingInput = CommonInput & {
-  lifesWork: GeneKeyBrief;
-  evolution: GeneKeyBrief;
-  radiance: GeneKeyBrief;
-  purpose: GeneKeyBrief;
-  humanDesignType?: string | null; // e.g. 'Generator', 'Projector' — optional
-};
-
-export function geneKeysReading(input: GeneKeysReadingInput): ReadingPromptResult {
-  const name = input.firstName || 'the reader';
-  const hdLine = input.humanDesignType
-    ? `\nHuman Design type: ${input.humanDesignType}. Reference this once if it strengthens the synthesis.`
-    : '';
-
-  const system = `${BASE_VOICE}
-
-TASK: Weave ${name}'s four Activation Sequence Gene Keys into a single contemplative essay of roughly 650 words. This is not a list of four mini-readings — it is one braided portrait.
-
-Structure:
-1. One opening paragraph (4-6 sentences) introducing the shape of the life this quartet describes. Name all four Gene Keys by number and gift-name in this paragraph.
-
-2. Four labelled sections, in this order, each 3-5 sentences of tight prose. Use exact headings followed by a blank line:
-
-Life's Work — Gene Key ${input.lifesWork.number}
-Evolution — Gene Key ${input.evolution.number}
-Radiance — Gene Key ${input.radiance.number}
-Purpose — Gene Key ${input.purpose.number}
-
-In each section: show how the Shadow (name it) currently hides the Gift (name it), and what integration looks like at Siddhi frequency (name it). Be specific. Reference the Gene Key's hexagram when it sharpens the image. Do not copy the codex prose — metabolise it.
-
-3. A closing paragraph (3-5 sentences) on the synthesis: what these four keys together are initiating. Include exactly one pull-quote-worthy sentence somewhere in the essay.${hdLine}
-
-No hedging. No self-help register. Write like an essayist, not a course instructor.`;
-
-  function brief(label: string, k: GeneKeyBrief): string {
-    return `${label} — Gene Key ${k.number} (${k.name}), Hexagram: ${k.hexagram}, Line ${k.line}
-  Shadow — ${k.shadow.name}: ${k.shadow.body}
-  Gift — ${k.gift.name}: ${k.gift.body}
-  Siddhi — ${k.siddhi.name}: ${k.siddhi.body}`;
-  }
-
-  const userMessage = `Subject: ${name}
-
-${brief("Life's Work", input.lifesWork)}
-
-${brief('Evolution', input.evolution)}
-
-${brief('Radiance', input.radiance)}
-
-${brief('Purpose', input.purpose)}${withContext(input.userContext)}
-
-Write the Gene Keys Activation Sequence reading now.`;
-
-  return { system, userMessage, maxTokens: 1400 };
-}
-
-/* ============================================================
  * Registry
  * ============================================================ */
 
@@ -626,7 +556,6 @@ export const READING_TEMPLATES = {
   tarotDaily,
   tarotThreeCard,
   tarotCelticCross,
-  geneKeysReading,
 } as const;
 
 export type ReadingTemplateKey = keyof typeof READING_TEMPLATES;
