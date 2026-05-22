@@ -1327,20 +1327,37 @@ body {
 .mk-intel-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Force all rows to share the tallest row's height so the 2x2 reads
+     as four equal-sized cells instead of two short + two tall. */
+  grid-auto-rows: 1fr;
   gap: 2px;
   background: var(--rule);
   border: 1px solid var(--rule);
   margin-top: 36px;
 }
+/* The Reveal wrapper sits between the grid and the cell; stretch it so
+   the cell can fill the full grid track. */
+.mk-intel-grid > .mk-reveal {
+  display: flex;
+  height: 100%;
+}
 @media (max-width: 720px) {
   .mk-intel-grid {
     grid-template-columns: 1fr;
+    /* Don't force equal-height when stacked — each cell hugs its own
+       content vertically on mobile. */
+    grid-auto-rows: auto;
+  }
+  .mk-intel-grid > .mk-reveal {
+    height: auto;
   }
 }
 .mk-intel-cell {
   padding: 28px 26px;
   background: var(--bg-base);
   position: relative;
+  width: 100%;
+  flex: 1;
 }
 .mk-intel-cell .ornament {
   color: var(--brass);
