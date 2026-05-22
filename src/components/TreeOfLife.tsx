@@ -234,13 +234,27 @@ export default function TreeOfLife({ userConvergence, onSefiraClick }: TreeOfLif
   })();
 
   return (
-    <div style={{ width: '100%', position: 'relative', fontFamily: 'var(--font-body)' }}>
+    <div
+      style={{
+        width: '100%',
+        position: 'relative',
+        fontFamily: 'var(--font-body)',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
       <svg
         viewBox="0 0 500 700"
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="Kabbalah Tree of Life"
-        style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
+        style={{
+          height: 'min(76vh, 760px)',
+          width: 'auto',
+          maxWidth: '100%',
+          display: 'block',
+          overflow: 'visible',
+        }}
       >
         <defs>
           <filter id="tol-glow" x="-60%" y="-60%" width="220%" height="220%">

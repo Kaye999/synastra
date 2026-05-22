@@ -2,16 +2,16 @@
 
 // HumanAnatomy.tsx — the anatomical face of the Human Design BodyGraph.
 // A photoreal anatomy render sits underneath; an interactive overlay
-// places the 9 HD centres on the body, draws the channel topology between
-// them, and — on tap/hover — reveals the organs each centre governs and
-// the cause-and-effect of it being defined or open.
+// places the 9 HD centres on the body in their chakra colours, draws the
+// channel topology between them, and — on tap/hover — reveals the organs
+// each centre governs and the cause-and-effect of it being defined or open.
 //
 // The base render lives at `public/hd-anatomy.png` (square 1:1, a
 // head-to-pelvis crop of a front-facing anatomy figure). Until it exists
 // the overlay still works on the deep-celestial background — nothing breaks.
 //
-// Defined centres glow brass (your own consistent current). Open centres
-// are faint rings (where you absorb and amplify others' energy).
+// Each centre carries its traditional chakra colour and symbol. Defined
+// centres glow; open centres are faint rings — where you absorb others'.
 
 import { useState } from 'react';
 
@@ -25,6 +25,8 @@ type CenterMeta = {
   name: string;
   /** Common chakra label users will recognise. */
   chakra: string;
+  /** Traditional chakra colour. */
+  color: string;
   /** Position on the 1024×1024 viewBox (matches the square head-to-pelvis
    *  crop). Tune these if you swap the render for a differently-framed one. */
   x: number;
@@ -47,6 +49,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Head',
     chakra: 'Crown',
+    color: '#A98BD9',
     x: 512, y: 75, r: 40,
     region: 'Top of the skull',
     organs: ['Pineal gland'],
@@ -57,6 +60,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Ajna',
     chakra: 'Third Eye',
+    color: '#7B7FD4',
     x: 512, y: 150, r: 34,
     region: 'Forehead, behind the eyes',
     organs: ['Pituitary gland', 'Cerebral cortex'],
@@ -67,6 +71,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Throat',
     chakra: 'Throat',
+    color: '#52A9D4',
     x: 512, y: 258, r: 42,
     region: 'Throat, larynx, jaw',
     organs: ['Thyroid', 'Parathyroid', 'Larynx', 'Vocal cords'],
@@ -77,6 +82,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'G',
     chakra: 'Heart · Identity',
+    color: '#5FB98A',
     x: 512, y: 382, r: 42,
     region: 'Sternum, centre of the chest',
     organs: ['Liver', 'Blood', 'Heart (as vessel)'],
@@ -87,6 +93,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Heart',
     chakra: 'Will / Ego',
+    color: '#E0A857',
     x: 615, y: 452, r: 32,
     region: 'Right of the chest cavity',
     organs: ['Heart muscle', 'Gallbladder', 'Stomach', 'Thymus'],
@@ -97,6 +104,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Solar Plexus',
     chakra: 'Solar Plexus',
+    color: '#E6C75C',
     x: 615, y: 580, r: 38,
     region: 'Upper abdomen, right of the navel',
     organs: ['Pancreas', 'Kidneys', 'Nervous system'],
@@ -107,6 +115,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Spleen',
     chakra: 'Spleen',
+    color: '#BFC8D2',
     x: 410, y: 580, r: 38,
     region: 'Left side, under the ribs',
     organs: ['Spleen', 'Lymphatic system', 'Immune system', 'T-cells'],
@@ -117,6 +126,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Sacral',
     chakra: 'Sacral',
+    color: '#E08A4F',
     x: 512, y: 705, r: 46,
     region: 'Lower abdomen, below the navel',
     organs: ['Ovaries', 'Testes', 'Reproductive system'],
@@ -127,6 +137,7 @@ const CENTERS: readonly CenterMeta[] = [
   {
     name: 'Root',
     chakra: 'Root',
+    color: '#D15F52',
     x: 512, y: 838, r: 40,
     region: 'Base of the pelvis, perineum',
     organs: ['Adrenal glands'],
@@ -166,6 +177,121 @@ function neighboursOf(name: string): string[] {
   return CENTER_LINKS.flatMap(([a, b]) =>
     a === name ? [b] : b === name ? [a] : [],
   );
+}
+
+/* ─── Chakra symbol — a simplified glyph per centre, centred at (cx, cy). ─── */
+function CenterGlyph({
+  name,
+  cx,
+  cy,
+  s,
+  color,
+}: {
+  name: string;
+  cx: number;
+  cy: number;
+  s: number;
+  color: string;
+}) {
+  const stroke = {
+    stroke: color,
+    strokeWidth: 3.2,
+    fill: 'none',
+    strokeLinejoin: 'round' as const,
+    strokeLinecap: 'round' as const,
+  };
+
+  switch (name) {
+    case 'Head': // Crown — radiant sun
+      return (
+        <g>
+          <circle cx={cx} cy={cy} r={s * 0.32} {...stroke} />
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = (i * Math.PI) / 4;
+            return (
+              <line
+                key={i}
+                x1={cx + Math.cos(a) * s * 0.52}
+                y1={cy + Math.sin(a) * s * 0.52}
+                x2={cx + Math.cos(a) * s}
+                y2={cy + Math.sin(a) * s}
+                {...stroke}
+              />
+            );
+          })}
+        </g>
+      );
+    case 'Ajna': // Third Eye — eye
+      return (
+        <g>
+          <path
+            d={`M ${cx - s} ${cy} Q ${cx} ${cy - s * 0.66} ${cx + s} ${cy} Q ${cx} ${cy + s * 0.66} ${cx - s} ${cy} Z`}
+            {...stroke}
+          />
+          <circle cx={cx} cy={cy} r={s * 0.26} fill={color} />
+        </g>
+      );
+    case 'Throat': // concentric rings
+      return (
+        <g>
+          <circle cx={cx} cy={cy} r={s * 0.86} {...stroke} />
+          <circle cx={cx} cy={cy} r={s * 0.36} {...stroke} />
+        </g>
+      );
+    case 'G': // Heart — hexagram
+      return (
+        <g>
+          <polygon
+            points={`${cx},${cy - s} ${cx - s * 0.87},${cy + s * 0.5} ${cx + s * 0.87},${cy + s * 0.5}`}
+            {...stroke}
+          />
+          <polygon
+            points={`${cx},${cy + s} ${cx - s * 0.87},${cy - s * 0.5} ${cx + s * 0.87},${cy - s * 0.5}`}
+            {...stroke}
+          />
+        </g>
+      );
+    case 'Heart': // Will — diamond
+      return (
+        <polygon
+          points={`${cx},${cy - s} ${cx + s},${cy} ${cx},${cy + s} ${cx - s},${cy}`}
+          {...stroke}
+        />
+      );
+    case 'Solar Plexus': // downward triangle
+      return (
+        <polygon
+          points={`${cx - s * 0.95},${cy - s * 0.72} ${cx + s * 0.95},${cy - s * 0.72} ${cx},${cy + s * 0.92}`}
+          {...stroke}
+        />
+      );
+    case 'Spleen': // four-point star
+      return (
+        <polygon
+          points={`${cx},${cy - s} ${cx + s * 0.26},${cy - s * 0.26} ${cx + s},${cy} ${cx + s * 0.26},${cy + s * 0.26} ${cx},${cy + s} ${cx - s * 0.26},${cy + s * 0.26} ${cx - s},${cy} ${cx - s * 0.26},${cy - s * 0.26}`}
+          {...stroke}
+        />
+      );
+    case 'Sacral': // crescent moon
+      return (
+        <path
+          d={`M ${cx + s * 0.28} ${cy - s} A ${s} ${s} 0 1 0 ${cx + s * 0.28} ${cy + s} A ${s * 0.7} ${s * 0.7} 0 1 1 ${cx + s * 0.28} ${cy - s} Z`}
+          fill={color}
+        />
+      );
+    case 'Root': // square
+      return (
+        <rect
+          x={cx - s * 0.82}
+          y={cy - s * 0.82}
+          width={s * 1.64}
+          height={s * 1.64}
+          {...stroke}
+        />
+      );
+    default:
+      return null;
+  }
 }
 
 export type HumanAnatomyProps = {
@@ -222,10 +348,10 @@ export default function HumanAnatomy({
         className="chapter-body"
         style={{ maxWidth: 560, margin: '0 auto 32px', textAlign: 'center' }}
       >
-        The nine centres from the BodyGraph above — placed where they live in
-        your body, wired by the channels that carry energy between them. Tap any
-        centre to read the organs it governs and what its definition sets in
-        motion.
+        The nine centres from the BodyGraph above — in their chakra colours,
+        placed where they live in your body, wired by the channels that carry
+        energy between them. Tap any centre to read the organs it governs and
+        what its definition sets in motion.
       </p>
 
       <div
@@ -254,11 +380,9 @@ export default function HumanAnatomy({
               position: 'relative',
               width: '100%',
               aspectRatio: '1 / 1',
-              borderRadius: 8,
               overflow: 'hidden',
               background:
                 'radial-gradient(ellipse at 50% 38%, #161228 0%, #0a0a14 78%)',
-              border: '1px solid rgba(200, 160, 82, 0.16)',
             }}
           >
             {/* Base render. If absent, the celestial background shows through. */}
@@ -276,14 +400,14 @@ export default function HumanAnatomy({
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
               }}
             />
-            {/* Dark wash — keeps the brass overlay legible over any render. */}
+            {/* Dark wash — keeps the overlay legible over any render. */}
             <div
               aria-hidden="true"
               style={{
                 position: 'absolute',
                 inset: 0,
                 background:
-                  'linear-gradient(180deg, rgba(10,10,20,0.55) 0%, rgba(10,10,20,0.15) 35%, rgba(10,10,20,0.55) 100%)',
+                  'linear-gradient(180deg, rgba(10,10,20,0.5) 0%, rgba(10,10,20,0.12) 35%, rgba(10,10,20,0.5) 100%)',
               }}
             />
 
@@ -297,13 +421,8 @@ export default function HumanAnatomy({
               style={{ position: 'absolute', inset: 0, display: 'block' }}
             >
               <defs>
-                <radialGradient id="acm-defined-fill" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(200, 160, 82, 0.7)" />
-                  <stop offset="55%" stopColor="rgba(200, 160, 82, 0.28)" />
-                  <stop offset="100%" stopColor="rgba(200, 160, 82, 0)" />
-                </radialGradient>
-                <filter id="acm-glow" x="-60%" y="-60%" width="220%" height="220%">
-                  <feGaussianBlur stdDeviation="6" result="b" />
+                <filter id="acm-glow" x="-70%" y="-70%" width="240%" height="240%">
+                  <feGaussianBlur stdDeviation="7" result="b" />
                   <feMerge>
                     <feMergeNode in="b" />
                     <feMergeNode in="SourceGraphic" />
@@ -311,7 +430,7 @@ export default function HumanAnatomy({
                 </filter>
               </defs>
 
-              {/* Channel topology — faint by default, brass where energy flows. */}
+              {/* Channel topology — faint by default, lit where energy flows. */}
               <g fill="none" strokeLinecap="round">
                 {CENTER_LINKS.map(([an, bn]) => {
                   const a = BY_NAME[an];
@@ -328,8 +447,8 @@ export default function HumanAnatomy({
                       y2={b.y}
                       stroke={
                         live
-                          ? 'rgba(200, 160, 82, 0.75)'
-                          : 'rgba(252, 250, 246, 0.16)'
+                          ? 'rgba(224, 196, 128, 0.7)'
+                          : 'rgba(252, 250, 246, 0.14)'
                       }
                       strokeWidth={touchesShown ? 5 : live ? 3.5 : 2}
                     />
@@ -366,12 +485,14 @@ export default function HumanAnatomy({
                   >
                     {/* Generous invisible hit area */}
                     <circle cx={c.x} cy={c.y} r={c.r + 16} fill="transparent" />
+                    {/* Defined: a soft chakra-coloured halo. */}
                     {isDefined && (
                       <circle
                         cx={c.x}
                         cy={c.y}
-                        r={c.r + 12}
-                        fill="url(#acm-defined-fill)"
+                        r={c.r + 8}
+                        fill={c.color}
+                        opacity={0.34}
                         filter="url(#acm-glow)"
                       />
                     )}
@@ -379,28 +500,20 @@ export default function HumanAnatomy({
                       cx={c.x}
                       cy={c.y}
                       r={c.r}
-                      fill={
-                        isDefined
-                          ? 'rgba(200, 160, 82, 0.30)'
-                          : 'rgba(10, 14, 26, 0.78)'
-                      }
-                      stroke={isDefined ? BRASS : 'rgba(252, 250, 246, 0.5)'}
-                      strokeWidth={isShown ? 5 : 2.6}
+                      fill="rgba(8, 10, 16, 0.66)"
+                      stroke={c.color}
+                      strokeWidth={isShown ? 5 : isDefined ? 3.6 : 2.2}
+                      strokeOpacity={isDefined ? 1 : 0.5}
                     />
-                    <text
-                      x={c.x}
-                      y={c.y + 6}
-                      textAnchor="middle"
-                      fontFamily="'IBM Plex Mono', monospace"
-                      fontSize={17}
-                      letterSpacing="0.1em"
-                      fill={isDefined ? INK : INK_DIM}
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      {c.name === 'Solar Plexus'
-                        ? 'SP'
-                        : c.name.slice(0, 3).toUpperCase()}
-                    </text>
+                    <g opacity={isDefined ? 1 : 0.5}>
+                      <CenterGlyph
+                        name={c.name}
+                        cx={c.x}
+                        cy={c.y}
+                        s={c.r * 0.56}
+                        color={c.color}
+                      />
+                    </g>
                   </g>
                 );
               })}
@@ -421,16 +534,8 @@ export default function HumanAnatomy({
               textTransform: 'uppercase',
             }}
           >
-            <LegendDot
-              fill="rgba(200, 160, 82, 0.5)"
-              stroke={BRASS}
-              label="Defined"
-            />
-            <LegendDot
-              fill="rgba(10, 14, 26, 0.7)"
-              stroke="rgba(252, 250, 246, 0.5)"
-              label="Open"
-            />
+            <LegendDot filled label="Defined" />
+            <LegendDot filled={false} label="Open" />
           </div>
         </div>
 
@@ -491,9 +596,9 @@ export default function HumanAnatomy({
                   fontStyle: 'italic',
                 }}
               >
-                Brass = defined, your own consistent current.
+                A lit centre is defined — your own consistent current.
                 <br />
-                Open = where you take the world in and amplify it.
+                A faint one is open — where you take the world in.
               </p>
             </div>
           )}
@@ -503,15 +608,7 @@ export default function HumanAnatomy({
   );
 }
 
-function LegendDot({
-  fill,
-  stroke,
-  label,
-}: {
-  fill: string;
-  stroke: string;
-  label: string;
-}) {
+function LegendDot({ filled, label }: { filled: boolean; label: string }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
       <span
@@ -519,8 +616,8 @@ function LegendDot({
           width: 10,
           height: 10,
           borderRadius: '50%',
-          background: fill,
-          border: `1px solid ${stroke}`,
+          background: filled ? 'rgba(232, 224, 206, 0.85)' : 'transparent',
+          border: '1px solid rgba(232, 224, 206, 0.7)',
           display: 'inline-block',
         }}
       />
@@ -540,7 +637,6 @@ function ChakraDetail({
   activated: Set<number>;
   defined: boolean;
 }) {
-  const BRASS = 'var(--brass, #C8A052)';
   const INK_DIM = 'rgba(252, 250, 246, 0.62)';
   const userGates = c.gates.filter((g) => activated.has(g));
   const neighbours = neighboursOf(c.name);
@@ -561,7 +657,7 @@ function ChakraDetail({
           fontSize: 10,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
-          color: defined ? BRASS : INK_DIM,
+          color: defined ? c.color : INK_DIM,
           marginBottom: 8,
         }}
       >
@@ -574,6 +670,7 @@ function ChakraDetail({
           fontWeight: 500,
           margin: '0 0 4px',
           letterSpacing: '-0.01em',
+          color: c.color,
         }}
       >
         {c.chakra}
@@ -611,7 +708,7 @@ function ChakraDetail({
 
       <DetailRow label="Gates here">
         {c.gates.length} total ·{' '}
-        <span style={{ color: BRASS, fontWeight: 500 }}>
+        <span style={{ color: c.color, fontWeight: 500 }}>
           {userGates.length} active in you
         </span>
       </DetailRow>
@@ -636,11 +733,11 @@ function ChakraDetail({
                 key={g}
                 style={{
                   padding: '4px 10px',
-                  border: `1px solid ${BRASS}`,
+                  border: `1px solid ${c.color}`,
                   borderRadius: 999,
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 11,
-                  color: BRASS,
+                  color: c.color,
                 }}
               >
                 {g}
