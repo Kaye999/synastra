@@ -213,6 +213,35 @@ const LINE_THEMES: Record<
   },
 };
 
+// ─── Line-type guide — what each of the four lines means ────────────────────
+
+const LINE_GUIDE = [
+  {
+    code: 'MC',
+    area: 'Career & calling',
+    line: 'solid vertical',
+    meaning: 'where you are seen and what you become known for',
+  },
+  {
+    code: 'IC',
+    area: 'Home & roots',
+    line: 'dashed vertical',
+    meaning: 'family, belonging and the private self',
+  },
+  {
+    code: 'AC',
+    area: 'Self & vitality',
+    line: 'solid curve',
+    meaning: 'how you come across and feel in your body',
+  },
+  {
+    code: 'DC',
+    area: 'Relationships',
+    line: 'dashed curve',
+    meaning: 'partnership and the people you attract',
+  },
+] as const;
+
 // ─── Major cities (lat, lon) ────────────────────────────────────────────────
 
 const CITIES: { name: string; lat: number; lon: number }[] = [
@@ -646,6 +675,108 @@ export default function AstrocartoMap({
         color: 'var(--ink)',
       }}
     >
+      {/* ── How to read this map ── */}
+      <div
+        style={{
+          padding: '20px 24px 22px',
+          borderBottom: '1px solid rgba(200,160,82,0.12)',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: '#C8A052',
+            marginBottom: 8,
+          }}
+        >
+          § Reading your map
+        </div>
+        <p
+          style={{
+            fontFamily: "'Hanken Grotesk', serif",
+            fontSize: 14.5,
+            lineHeight: 1.65,
+            color: 'rgba(252,250,246,0.78)',
+            margin: '0 0 16px',
+            maxWidth: 780,
+          }}
+        >
+          Astrocartography projects your birth chart onto the world. Every
+          planet draws lines across the map — stand near one and that
+          planet&apos;s energy grows louder in a particular part of your life.
+          Each planet can draw four kinds of line. Hover or tap any line on the
+          map to read what it carries for you.
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {LINE_GUIDE.map((g) => (
+            <div
+              key={g.code}
+              style={{
+                flex: '1 1 160px',
+                minWidth: 160,
+                padding: '10px 13px',
+                border: '1px solid rgba(200,160,82,0.16)',
+                background: 'rgba(200,160,82,0.04)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 8,
+                  marginBottom: 4,
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 12,
+                    letterSpacing: '0.1em',
+                    color: '#C8A052',
+                  }}
+                >
+                  {g.code}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "'Hanken Grotesk', serif",
+                    fontSize: 13,
+                    color: '#FCFAF6',
+                  }}
+                >
+                  {g.area}
+                </span>
+              </div>
+              <div
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: 8.5,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: '#7B7361',
+                  marginBottom: 5,
+                }}
+              >
+                {g.line}
+              </div>
+              <div
+                style={{
+                  fontFamily: "'Hanken Grotesk', serif",
+                  fontSize: 12.5,
+                  lineHeight: 1.5,
+                  color: 'rgba(252,250,246,0.62)',
+                }}
+              >
+                {g.meaning}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div
         style={{
           display: 'flex',
@@ -1074,10 +1205,10 @@ export default function AstrocartoMap({
               lineHeight: 1.6,
             }}
           >
-            <div>MC · solid vertical</div>
-            <div>IC · dashed vertical</div>
-            <div>AC · solid curve</div>
-            <div>DC · dashed curve</div>
+            <div>MC · solid vertical · career</div>
+            <div>IC · dashed vertical · home</div>
+            <div>AC · solid curve · self</div>
+            <div>DC · dashed curve · partners</div>
           </div>
         </aside>
       </div>
