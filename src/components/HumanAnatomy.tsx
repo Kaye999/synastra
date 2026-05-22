@@ -6,12 +6,9 @@
 // channel topology between them, and — on tap/hover — reveals the organs
 // each centre governs and the cause-and-effect of it being defined or open.
 //
-// The base render lives at `public/hd-anatomy.png` (square 1:1, a
-// head-to-pelvis crop of a front-facing anatomy figure). Until it exists
-// the overlay still works on the deep-celestial background — nothing breaks.
-//
-// Each centre carries its traditional chakra colour and symbol. Defined
-// centres glow; open centres are faint rings — where you absorb others'.
+// Selecting a centre enters focus mode: its channels and neighbouring
+// centres brighten, the rest recede. The base render lives at
+// `public/hd-anatomy.png` (square 1:1, head-to-pelvis crop).
 
 import { useState } from 'react';
 
@@ -186,16 +183,18 @@ function CenterGlyph({
   cy,
   s,
   color,
+  strokeWidth = 3.2,
 }: {
   name: string;
   cx: number;
   cy: number;
   s: number;
   color: string;
+  strokeWidth?: number;
 }) {
   const stroke = {
     stroke: color,
-    strokeWidth: 3.2,
+    strokeWidth,
     fill: 'none',
     strokeLinejoin: 'round' as const,
     strokeLinecap: 'round' as const,
@@ -312,12 +311,35 @@ export default function HumanAnatomy({
   const [hovered, setHovered] = useState<CenterMeta | null>(null);
   const shown = hovered ?? pinned;
 
+  // Focus mode — when a centre is shown, its channels + neighbours stay lit.
+  const focus = shown?.name ?? null;
+  const focusNeighbours = focus ? neighboursOf(focus) : [];
+  const centreLit = (name: string) =>
+    focus == null || name === focus || focusNeighbours.includes(name);
+  const linkLit = (an: string, bn: string) =>
+    focus == null || an === focus || bn === focus;
+
   const BRASS = 'var(--brass, #C8A052)';
   const INK = 'var(--ink, #FCFAF6)';
   const INK_DIM = 'rgba(252, 250, 246, 0.65)';
 
   return (
-    <section style={{ maxWidth: 960, margin: '64px auto 0' }}>
+    <section style={{ maxWidth: 980, margin: '64px auto 0' }}>
+      <style>{`
+        @keyframes hd-pulse {
+          0%, 100% { opacity: 0.28; }
+          50%      { opacity: 0.5; }
+        }
+        .hd-halo { animation: hd-pulse 4s ease-in-out infinite; }
+        .hd-node, .hd-link { transition: opacity 0.3s ease; }
+        @media (max-width: 760px) {
+          .anatomical-chakra-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+        }
+      `}</style>
+
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
@@ -348,31 +370,20 @@ export default function HumanAnatomy({
         className="chapter-body"
         style={{ maxWidth: 560, margin: '0 auto 32px', textAlign: 'center' }}
       >
-        The nine centres from the BodyGraph above — in their chakra colours,
-        placed where they live in your body, wired by the channels that carry
-        energy between them. Tap any centre to read the organs it governs and
-        what its definition sets in motion.
+        The nine centres in their chakra colours, placed where they live in your
+        body. Tap a centre to trace its channels and read what it governs.
       </p>
 
       <div
         className="anatomical-chakra-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(260px, 400px) 1fr',
-          gap: 40,
+          gridTemplateColumns: 'minmax(280px, 420px) 1fr',
+          gap: 44,
           alignItems: 'start',
-          padding: '24px 0',
+          padding: '8px 0',
         }}
       >
-        <style>{`
-          @media (max-width: 720px) {
-            .anatomical-chakra-grid {
-              grid-template-columns: 1fr !important;
-              gap: 24px !important;
-            }
-          }
-        `}</style>
-
         {/* ─── FIGURE: photoreal render + interactive overlay ─── */}
         <div>
           <div
@@ -385,7 +396,6 @@ export default function HumanAnatomy({
                 'radial-gradient(ellipse at 50% 38%, #161228 0%, #0a0a14 78%)',
             }}
           >
-            {/* Base render. If absent, the celestial background shows through. */}
             <img
               src={imageSrc}
               alt="Photoreal anatomy showing the organs each Human Design centre governs"
@@ -400,14 +410,13 @@ export default function HumanAnatomy({
                 (e.currentTarget as HTMLImageElement).style.display = 'none';
               }}
             />
-            {/* Dark wash — keeps the overlay legible over any render. */}
             <div
               aria-hidden="true"
               style={{
                 position: 'absolute',
                 inset: 0,
                 background:
-                  'linear-gradient(180deg, rgba(10,10,20,0.5) 0%, rgba(10,10,20,0.12) 35%, rgba(10,10,20,0.5) 100%)',
+                  'linear-gradient(180deg, rgba(10,10,20,0.5) 0%, rgba(10,10,20,0.1) 35%, rgba(10,10,20,0.52) 100%)',
               }}
             />
 
@@ -421,8 +430,13 @@ export default function HumanAnatomy({
               style={{ position: 'absolute', inset: 0, display: 'block' }}
             >
               <defs>
-                <filter id="acm-glow" x="-70%" y="-70%" width="240%" height="240%">
-                  <feGaussianBlur stdDeviation="7" result="b" />
+                <radialGradient id="hd-vignette" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(6, 8, 14, 0.82)" />
+                  <stop offset="62%" stopColor="rgba(6, 8, 14, 0.55)" />
+                  <stop offset="100%" stopColor="rgba(6, 8, 14, 0)" />
+                </radialGradient>
+                <filter id="hd-glow" x="-80%" y="-80%" width="260%" height="260%">
+                  <feGaussianBlur stdDeviation="8" result="b" />
                   <feMerge>
                     <feMergeNode in="b" />
                     <feMergeNode in="SourceGraphic" />
@@ -430,27 +444,28 @@ export default function HumanAnatomy({
                 </filter>
               </defs>
 
-              {/* Channel topology — faint by default, lit where energy flows. */}
+              {/* Channel topology */}
               <g fill="none" strokeLinecap="round">
                 {CENTER_LINKS.map(([an, bn]) => {
                   const a = BY_NAME[an];
                   const b = BY_NAME[bn];
                   const live = defined.has(an) && defined.has(bn);
-                  const touchesShown =
-                    shown != null && (shown.name === an || shown.name === bn);
+                  const lit = linkLit(an, bn);
                   return (
                     <line
                       key={`${an}-${bn}`}
+                      className="hd-link"
                       x1={a.x}
                       y1={a.y}
                       x2={b.x}
                       y2={b.y}
                       stroke={
                         live
-                          ? 'rgba(224, 196, 128, 0.7)'
-                          : 'rgba(252, 250, 246, 0.14)'
+                          ? 'rgba(224, 196, 128, 0.8)'
+                          : 'rgba(252, 250, 246, 0.16)'
                       }
-                      strokeWidth={touchesShown ? 5 : live ? 3.5 : 2}
+                      strokeWidth={focus && lit ? 4.5 : live ? 3.5 : 2}
+                      opacity={lit ? 1 : 0.1}
                     />
                   );
                 })}
@@ -460,9 +475,11 @@ export default function HumanAnatomy({
               {CENTERS.map((c) => {
                 const isDefined = defined.has(c.name);
                 const isShown = shown?.name === c.name;
+                const lit = centreLit(c.name);
                 return (
                   <g
                     key={c.name}
+                    className="hd-node"
                     onMouseEnter={() => setHovered(c)}
                     onMouseLeave={() => setHovered(null)}
                     onClick={() =>
@@ -481,31 +498,39 @@ export default function HumanAnatomy({
                     aria-label={`${c.chakra} centre — ${
                       isDefined ? 'defined' : 'open'
                     }`}
+                    opacity={lit ? 1 : 0.2}
                     style={{ cursor: 'pointer' }}
                   >
                     {/* Generous invisible hit area */}
-                    <circle cx={c.x} cy={c.y} r={c.r + 16} fill="transparent" />
-                    {/* Defined: a soft chakra-coloured halo. */}
+                    <circle cx={c.x} cy={c.y} r={c.r + 18} fill="transparent" />
+                    {/* Defined: a soft pulsing chakra-coloured halo */}
                     {isDefined && (
                       <circle
+                        className="hd-halo"
                         cx={c.x}
                         cy={c.y}
-                        r={c.r + 8}
+                        r={c.r + 9}
                         fill={c.color}
-                        opacity={0.34}
-                        filter="url(#acm-glow)"
+                        filter="url(#hd-glow)"
                       />
                     )}
+                    {/* Soft vignette so the symbol reads without a hard disc */}
+                    <circle
+                      cx={c.x}
+                      cy={c.y}
+                      r={c.r * 1.18}
+                      fill="url(#hd-vignette)"
+                    />
                     <circle
                       cx={c.x}
                       cy={c.y}
                       r={c.r}
-                      fill="rgba(8, 10, 16, 0.66)"
+                      fill="none"
                       stroke={c.color}
-                      strokeWidth={isShown ? 5 : isDefined ? 3.6 : 2.2}
+                      strokeWidth={isShown ? 5 : isDefined ? 3.6 : 2}
                       strokeOpacity={isDefined ? 1 : 0.5}
                     />
-                    <g opacity={isDefined ? 1 : 0.5}>
+                    <g opacity={isDefined ? 1 : 0.6}>
                       <CenterGlyph
                         name={c.name}
                         cx={c.x}
@@ -526,7 +551,7 @@ export default function HumanAnatomy({
               display: 'flex',
               gap: 18,
               justifyContent: 'center',
-              marginTop: 12,
+              marginTop: 14,
               fontFamily: "'IBM Plex Mono', monospace",
               fontSize: 10,
               letterSpacing: '0.18em',
@@ -544,13 +569,13 @@ export default function HumanAnatomy({
           style={{
             position: 'sticky',
             top: 24,
-            padding: '24px 28px',
-            border: '1px solid rgba(200, 160, 82, 0.18)',
-            borderRadius: 6,
-            background: 'rgba(8, 12, 24, 0.55)',
-            backdropFilter: 'blur(6px)',
-            WebkitBackdropFilter: 'blur(6px)',
-            minHeight: 300,
+            padding: '26px 30px',
+            border: '1px solid rgba(255, 255, 255, 0.07)',
+            borderRadius: 10,
+            background: 'rgba(8, 12, 24, 0.62)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            minHeight: 320,
           }}
         >
           {shown ? (
@@ -568,7 +593,7 @@ export default function HumanAnatomy({
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
                   color: BRASS,
-                  marginBottom: 10,
+                  marginBottom: 12,
                 }}
               >
                 Read the body
@@ -578,27 +603,26 @@ export default function HumanAnatomy({
                   fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 16,
                   lineHeight: 1.7,
-                  color: 'rgba(252, 250, 246, 0.78)',
-                  margin: '0 0 12px',
+                  color: 'rgba(252, 250, 246, 0.8)',
+                  margin: '0 0 14px',
                 }}
               >
-                Tap any centre on the figure to read its anatomy — the glands
-                and organs it governs, the channels it feeds, and the
-                cause-and-effect of it being defined or open in you.
+                Tap any centre on the figure. Its channels light up and the
+                panel reveals the organs it governs, what its definition sets in
+                motion, and which of its gates your chart activates.
               </p>
               <p
                 style={{
                   fontFamily: "'Hanken Grotesk', serif",
                   fontSize: 14,
                   lineHeight: 1.7,
-                  color: 'rgba(252, 250, 246, 0.58)',
+                  color: 'rgba(252, 250, 246, 0.56)',
                   margin: 0,
                   fontStyle: 'italic',
                 }}
               >
-                A lit centre is defined — your own consistent current.
-                <br />
-                A faint one is open — where you take the world in.
+                A lit centre is defined — your own steady current. A faint one
+                is open, where you take the world in and amplify it.
               </p>
             </div>
           )}
@@ -649,32 +673,55 @@ function ChakraDetail({
         c.organs,
       )} stay porous — ${c.domain} is something you absorb, amplify and reflect from whoever you are with. The wisdom here is learning not to take the borrowed personally.`;
 
+  const gatesLine =
+    userGates.length > 0
+      ? `Your planets activate ${userGates.length} of the ${c.gates.length} gates in this centre — specific themes you carry, even though they don't form a full channel:`
+      : `None of the ${c.gates.length} gates in this centre are activated by a planet in your chart.`;
+
   return (
     <div>
-      <div
-        style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: 10,
-          letterSpacing: '0.22em',
-          textTransform: 'uppercase',
-          color: defined ? c.color : INK_DIM,
-          marginBottom: 8,
-        }}
-      >
-        {defined ? 'Defined · your own' : 'Open · absorbs others'}
+      {/* Header: symbol + status */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <svg width={40} height={40} viewBox="0 0 40 40" aria-hidden="true">
+          <circle
+            cx={20}
+            cy={20}
+            r={18}
+            fill="none"
+            stroke={c.color}
+            strokeWidth={1.4}
+            strokeOpacity={0.5}
+          />
+          <CenterGlyph name={c.name} cx={20} cy={20} s={11} color={c.color} strokeWidth={2} />
+        </svg>
+        <div>
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9.5,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: defined ? c.color : INK_DIM,
+              marginBottom: 3,
+            }}
+          >
+            {defined ? 'Defined · your own current' : 'Open · absorbs others'}
+          </div>
+          <h3
+            style={{
+              fontFamily: "'Alice', serif",
+              fontSize: 23,
+              fontWeight: 500,
+              margin: 0,
+              letterSpacing: '-0.01em',
+              color: c.color,
+            }}
+          >
+            {c.chakra}
+          </h3>
+        </div>
       </div>
-      <h3
-        style={{
-          fontFamily: "'Alice', serif",
-          fontSize: 22,
-          fontWeight: 500,
-          margin: '0 0 4px',
-          letterSpacing: '-0.01em',
-          color: c.color,
-        }}
-      >
-        {c.chakra}
-      </h3>
+
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
@@ -684,7 +731,7 @@ function ChakraDetail({
           marginBottom: 18,
         }}
       >
-        {c.name !== c.chakra ? `HD: ${c.name} · ` : ''}
+        {c.name !== c.chakra ? `HD centre: ${c.name} · ` : ''}
         {c.region}
       </div>
 
@@ -693,7 +740,7 @@ function ChakraDetail({
           fontFamily: "'Hanken Grotesk', serif",
           fontSize: 16,
           lineHeight: 1.7,
-          color: 'rgba(252, 250, 246, 0.82)',
+          color: 'rgba(252, 250, 246, 0.84)',
           margin: '0 0 18px',
         }}
       >
@@ -701,49 +748,29 @@ function ChakraDetail({
       </p>
 
       <DetailRow label="Governs">{c.organs.join(' · ')}</DetailRow>
-
       <DetailRow label="Cause & effect">{causeEffect}</DetailRow>
-
       <DetailRow label="Channels into">{neighbours.join(' · ')}</DetailRow>
 
-      <DetailRow label="Gates here">
-        {c.gates.length} total ·{' '}
-        <span style={{ color: c.color, fontWeight: 500 }}>
-          {userGates.length} active in you
-        </span>
+      <DetailRow label="Gates your chart activates">
+        {gatesLine}
       </DetailRow>
-
       {userGates.length > 0 && (
-        <div style={{ marginTop: 8 }}>
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 9,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: INK_DIM,
-              marginBottom: 6,
-            }}
-          >
-            Your gates
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {userGates.map((g) => (
-              <span
-                key={g}
-                style={{
-                  padding: '4px 10px',
-                  border: `1px solid ${c.color}`,
-                  borderRadius: 999,
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11,
-                  color: c.color,
-                }}
-              >
-                {g}
-              </span>
-            ))}
-          </div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+          {userGates.map((g) => (
+            <span
+              key={g}
+              style={{
+                padding: '4px 11px',
+                border: `1px solid ${c.color}`,
+                borderRadius: 999,
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 11,
+                color: c.color,
+              }}
+            >
+              Gate {g}
+            </span>
+          ))}
         </div>
       )}
     </div>
@@ -764,7 +791,7 @@ function DetailRow({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 14 }}>
       <div
         style={{
           fontFamily: "'IBM Plex Mono', monospace",
@@ -772,7 +799,7 @@ function DetailRow({
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
           color: 'rgba(252, 250, 246, 0.45)',
-          marginBottom: 4,
+          marginBottom: 5,
         }}
       >
         {label}
@@ -781,7 +808,7 @@ function DetailRow({
         style={{
           fontFamily: "'Hanken Grotesk', serif",
           fontSize: 15,
-          lineHeight: 1.6,
+          lineHeight: 1.62,
           color: 'rgba(252, 250, 246, 0.82)',
         }}
       >
