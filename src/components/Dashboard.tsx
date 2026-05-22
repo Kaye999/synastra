@@ -68,6 +68,7 @@ import {
 import { computeChartBalance, formatBalanceSummary } from '@/lib/interp/helpers';
 
 import type { BirthData, Tier, Planet } from '@/lib/types';
+import { canAccessTradition, type Tradition } from '@/lib/tiers';
 
 // ─── Mode & group taxonomy ──────────────────────────────────────────────────
 // Seven traditions across four groups (2026-05-18 — collapsed from 12).
@@ -85,6 +86,17 @@ const MODE_LABELS: Record<Mode, string> = {
   hd: 'Human Design',
   astrocarto: 'Astrocartography',
   tarot: 'Tarot',
+};
+
+// Maps a chart Mode to its tiers.ts Tradition key — used to gate tabs per tier.
+const MODE_TRADITION: Record<Mode, Tradition> = {
+  astro: 'western',
+  vedic: 'vedic',
+  kab: 'kabbalah',
+  numerology: 'numerology',
+  hd: 'humanDesign',
+  astrocarto: 'astrocartography',
+  tarot: 'tarot',
 };
 
 const MODE_GROUPS: Record<ModeGroup, { label: string; modes: Mode[] }> = {
@@ -297,7 +309,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
       <Starfield />
 
       {/* ── Tradition tabs — fixed at top, always visible while reading. ── */}
-      <TraditionTopBar mode={mode} setMode={setMode} />
+      <TraditionTopBar mode={mode} setMode={setMode} tier={tier} />
 
       {/* Top-left identity cluster: home link + avatar, in one row so they
           can never collide with each other or with the top-right controls
@@ -1008,12 +1020,31 @@ const TRADITION_TAB_ORDER: readonly Mode[] = [
   'astrocarto',   // Astrocartography
 ];
 
+// Small padlock glyph shown on tradition tabs the current tier cannot open.
+function LockGlyph() {
+  return (
+    <svg
+      width="9"
+      height="9"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      style={{ marginLeft: 5, flexShrink: 0 }}
+    >
+      <rect x="5" y="11" width="14" height="9" rx="1.6" fill="currentColor" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="2.4" fill="none" />
+    </svg>
+  );
+}
+
 function TraditionTopBar({
   mode,
   setMode,
+  tier,
 }: {
   mode: Mode;
   setMode: (m: Mode) => void;
+  tier: Tier;
 }) {
   return (
     <nav
@@ -1051,6 +1082,7 @@ function TraditionTopBar({
       >
         {TRADITION_TAB_ORDER.map((m, i) => {
           const active = mode === m;
+          const locked = !canAccessTradition(tier, MODE_TRADITION[m]);
           return (
             <span key={m} style={{ display: 'inline-flex', alignItems: 'center' }}>
               {i > 0 && (
@@ -1072,10 +1104,16 @@ function TraditionTopBar({
                 style={{
                   background: 'transparent',
                   border: 0,
+                  display: 'inline-flex',
+                  alignItems: 'center',
                   // Vertical padding 14px gives a 44px touch target on mobile
                   // (Apple HIG minimum) while keeping the typography compact.
                   padding: '14px 6px',
-                  color: active ? 'var(--brass)' : 'rgba(252, 250, 246, 0.62)',
+                  color: active
+                    ? 'var(--brass)'
+                    : locked
+                      ? 'rgba(252, 250, 246, 0.40)'
+                      : 'rgba(252, 250, 246, 0.62)',
                   fontFamily: "'IBM Plex Mono', monospace",
                   fontSize: 11,
                   fontWeight: active ? 600 : 500,
@@ -1093,11 +1131,14 @@ function TraditionTopBar({
                 }}
                 onMouseLeave={(e) => {
                   if (!active) {
-                    (e.currentTarget as HTMLButtonElement).style.color = 'rgba(252, 250, 246, 0.62)';
+                    (e.currentTarget as HTMLButtonElement).style.color = locked
+                      ? 'rgba(252, 250, 246, 0.40)'
+                      : 'rgba(252, 250, 246, 0.62)';
                   }
                 }}
               >
                 {MODE_LABELS[m]}
+                {locked && <LockGlyph />}
                 {active && (
                   <span
                     aria-hidden="true"
