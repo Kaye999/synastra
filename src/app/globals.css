@@ -1512,6 +1512,19 @@ body {
 .mk-footer nav a:hover { color: var(--brass); opacity: 1; }
 
 /* ─── Marketing: pricing page tier card extras ────────────────────── */
+/* 4-up at desktop, 2x2 at tablet, single column at mobile. Shrink the
+   tier name a touch at narrower widths so "The Seven"/"The Nine"
+   don't crowd the price line on a 4-up row. */
+@media (max-width: 1100px) {
+  .mk-pricing-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 620px) {
+  .mk-pricing-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
 .mk-pricing-tier-name {
   font-family: var(--font-display);
   font-size: 40px;
@@ -1520,6 +1533,11 @@ body {
   line-height: 1;
   margin: 0 0 10px;
   color: var(--ink);
+}
+@media (max-width: 1280px) {
+  .mk-pricing-tier-name {
+    font-size: 32px;
+  }
 }
 .mk-pricing-tier-tag {
   font-family: var(--font-body);

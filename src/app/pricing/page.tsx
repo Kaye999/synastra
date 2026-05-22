@@ -259,12 +259,16 @@ export default function PricingPage() {
           </div>
         ) : null}
 
-        {/* Tier grid (editorial cards) */}
+        {/* Tier grid (editorial cards) — fixed 4 columns at desktop so
+            all four tiers sit on a single row. Collapses to 2-up on
+            medium screens and 1-up on mobile via the .mk-pricing-grid
+            media queries in globals.css. */}
         <div
+          className="mk-pricing-grid"
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
+            gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+            gap: 18,
           }}
         >
           {TIERS.map((tier, i) => {
