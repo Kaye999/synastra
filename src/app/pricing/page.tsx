@@ -99,8 +99,7 @@ const TIERS: TierDef[] = [
       '§ Everything in The Seven',
       'Personalised for your Sun · Moon · Rising trinity',
       'Monthly Zodiac Season Workbook (printable PDF)',
-      'Guided meditation audios — 2 per month',
-      'New Moon & Full Moon guided ceremonies',
+      'Guided meditation + breathing audios — 2 per month',
       'Printable Moon journals — track your cycles',
       'First access to new traditions as they ship',
     ],
@@ -410,8 +409,8 @@ export default function PricingPage() {
               compatibility, wealth timing, and the Master Oracle — unlimited, trained across all
               seven traditions plus general astrology, astronomy, and the traditional archetypes.
               The Nine turns the year into a practice — every zodiac season arrives with a printable
-              workbook, two guided meditation audios, and New / Full Moon ceremonies you can move
-              through alone or with others. Monthly is right when you want the sky watched for you.
+              workbook, two guided meditation and breathing audios, and printable Moon journals to
+              track your cycles. Monthly is right when you want the sky watched for you.
               One-time is right when you want the reading as a keepsake — exported, portable, yours.
             </p>
           </div>
