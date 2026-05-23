@@ -30,6 +30,28 @@ const CREAM = '#FCFAF6';
 const INK_FAINT = 'rgba(252,250,246,0.55)';
 const RULE = 'rgba(252,250,246,0.08)';
 
+type SpeechRecognitionLike = {
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (e: { results: { isFinal: boolean; 0: { transcript: string } }[] & { length: number } }) => void;
+  onerror: (e: { error?: string }) => void;
+  onend: () => void;
+};
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+function getSpeechRecognitionCtor(): SpeechRecognitionCtor | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+
 export default function ChatWidget({ chartContext, firstName, tier, userId }: Props) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -37,11 +59,33 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [quotaHit, setQuotaHit] = useState(false);
+  // Voice mode — when on, the mic button captures speech and the
+  // assistant's reply is spoken aloud after it finishes streaming.
+  const [voiceMode, setVoiceMode] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const storageKey = `synastra.chat.${userId}`;
   const canChat = tier === 'reader' || tier === 'depth' || tier === 'master';
+  const canVoice = canChat; // same gate as text chat
+
+  // Initialise the audio element once for TTS playback.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const a = new Audio();
+    a.preload = 'none';
+    a.addEventListener('ended', () => setSpeaking(false));
+    a.addEventListener('error', () => setSpeaking(false));
+    audioElRef.current = a;
+    return () => {
+      a.pause();
+      audioElRef.current = null;
+    };
+  }, []);
 
   // Load persisted history
   useEffect(() => {
@@ -79,6 +123,44 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
       requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [open, canChat]);
+
+  // ── Voice helpers ────────────────────────────────────────────────────
+  const speak = useCallback(async (text: string) => {
+    if (!text.trim()) return;
+    try {
+      setSpeaking(true);
+      const res = await fetch('/api/voice/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+      if (!res.ok || !res.body) {
+        setSpeaking(false);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = audioElRef.current;
+      if (!a) return;
+      a.src = url;
+      a.onended = () => {
+        URL.revokeObjectURL(url);
+        setSpeaking(false);
+      };
+      await a.play();
+    } catch {
+      setSpeaking(false);
+    }
+  }, []);
+
+  const stopSpeaking = useCallback(() => {
+    const a = audioElRef.current;
+    if (a) {
+      a.pause();
+      a.currentTime = 0;
+    }
+    setSpeaking(false);
+  }, []);
 
   const send = useCallback(async () => {
     const trimmed = input.trim();
@@ -179,8 +261,88 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
       });
     } finally {
       setLoading(false);
+      // If voice mode is on, speak the final assistant message.
+      if (voiceMode && assistantBuf.trim()) {
+        void speak(assistantBuf);
+      }
     }
-  }, [input, loading, messages, chartContext]);
+  }, [input, loading, messages, chartContext, voiceMode, speak]);
+
+  // ── Speech-to-text via the browser's Web Speech API ──────────────────
+  // No external API call — Web Speech API uses the browser's built-in
+  // recogniser (Chrome/Edge: Google; Safari: Apple). Falls back to a
+  // disabled mic if unavailable.
+  const startListening = useCallback(() => {
+    if (loading || quotaHit) return;
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      setError('Voice input is not supported in this browser yet.');
+      return;
+    }
+    // Stop the assistant if it's mid-speech so the user can interrupt.
+    stopSpeaking();
+    const rec = new Ctor();
+    rec.continuous = false;
+    rec.interimResults = true;
+    rec.lang = 'en-AU';
+    rec.onresult = (e) => {
+      let transcript = '';
+      for (let i = 0; i < e.results.length; i++) {
+        transcript += e.results[i][0].transcript;
+      }
+      setInput(transcript);
+    };
+    rec.onerror = (e) => {
+      if (e.error && e.error !== 'aborted' && e.error !== 'no-speech') {
+        setError(`Microphone: ${e.error}`);
+      }
+      setListening(false);
+    };
+    rec.onend = () => {
+      setListening(false);
+      // Auto-send if voice mode is on and we have something to send.
+      if (voiceMode) {
+        // setInput is async; defer to next tick before checking.
+        setTimeout(() => {
+          if (inputRef.current?.value.trim()) {
+            void send();
+          }
+        }, 50);
+      }
+    };
+    recognitionRef.current = rec;
+    setListening(true);
+    try {
+      rec.start();
+    } catch {
+      setListening(false);
+    }
+  }, [loading, quotaHit, voiceMode, send, stopSpeaking]);
+
+  const stopListening = useCallback(() => {
+    try {
+      recognitionRef.current?.stop();
+    } catch {
+      /* noop */
+    }
+    setListening(false);
+  }, []);
+
+  const toggleListen = useCallback(() => {
+    if (listening) stopListening();
+    else startListening();
+  }, [listening, startListening, stopListening]);
+
+  const toggleVoiceMode = useCallback(() => {
+    setVoiceMode((v) => {
+      const next = !v;
+      if (!next) {
+        stopListening();
+        stopSpeaking();
+      }
+      return next;
+    });
+  }, [stopListening, stopSpeaking]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -452,6 +614,28 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
                   />
                   <button
                     type="button"
+                    onClick={toggleListen}
+                    disabled={loading || quotaHit || !canVoice}
+                    aria-label={listening ? 'Stop listening' : 'Speak'}
+                    title={listening ? 'Stop' : 'Speak'}
+                    style={{
+                      background: listening ? BRASS : 'transparent',
+                      border: `1px solid ${BRASS}`,
+                      color: listening ? MIDNIGHT : BRASS,
+                      width: 34,
+                      height: 30,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: loading || !canVoice ? 'not-allowed' : 'pointer',
+                      opacity: !canVoice ? 0.4 : 1,
+                      transition: 'all 0.18s ease',
+                    }}
+                  >
+                    <MicGlyph active={listening} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => void send()}
                     disabled={loading || quotaHit || !input.trim()}
                     style={{
@@ -468,6 +652,46 @@ export default function ChatWidget({ chartContext, firstName, tier, userId }: Pr
                   >
                     Ask
                   </button>
+                </div>
+                {/* Voice mode toggle — when on, mic auto-sends + assistant
+                    replies are spoken aloud. */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={toggleVoiceMode}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      padding: 0,
+                      color: voiceMode ? BRASS : INK_FAINT,
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: 10,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {voiceMode ? '● Voice mode · on' : '○ Voice mode · off'}
+                  </button>
+                  {speaking && (
+                    <button
+                      type="button"
+                      onClick={stopSpeaking}
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        color: BRASS,
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: 10,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ⏹ Stop speaking
+                    </button>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -573,6 +797,17 @@ function OracleSigil() {
         fill={BRASS}
       />
       <circle cx="13" cy="13" r="1.2" fill={MIDNIGHT} />
+    </svg>
+  );
+}
+
+function MicGlyph({ active }: { active: boolean }) {
+  return (
+    <svg width="14" height="16" viewBox="0 0 14 16" fill="none" aria-hidden="true">
+      <rect x="4.5" y="1" width="5" height="9" rx="2.5" fill="currentColor" />
+      <path d="M2 8 a5 5 0 0 0 10 0" stroke="currentColor" strokeWidth="1" fill="none" />
+      <line x1="7" y1="13" x2="7" y2="15" stroke="currentColor" strokeWidth="1" />
+      {active && <circle cx="7" cy="6" r="6.4" stroke="currentColor" strokeWidth="0.5" opacity="0.5" fill="none" />}
     </svg>
   );
 }
