@@ -659,19 +659,17 @@ body {
 
 .mk-cta-giant {
   display: inline-block;
-  padding: 26px 64px;
-  /* Filled brass — the homepage dawn washes out an outline CTA. Solid
-     brass on midnight ink reads from anywhere on the page. */
+  padding: 16px 42px;
+  border-radius: 999px;
   background: var(--brass);
   border: 1px solid var(--brass);
   color: var(--bg-base);
   text-decoration: none;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  /* Soft brass halo so it lifts off any backdrop (dawn or night). */
   box-shadow: 0 0 0 1px rgba(200, 160, 82, 0.4),
               0 8px 32px rgba(200, 160, 82, 0.28),
               0 2px 12px rgba(0, 0, 0, 0.45);
