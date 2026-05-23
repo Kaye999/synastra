@@ -498,11 +498,17 @@ export default function AstrocartoMap({
 
   const [hoveredLine, setHoveredLine] = useState<string | null>(null);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<Tooltip>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  // mapColumnRef is the actual SVG container — used by screenToMap so
+  // tooltip coords align with the tooltip's positioning context (the
+  // map column, not the whole AstrocartoMap component which also
+  // includes the "how to read this" header block above the map).
+  const mapColumnRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -535,7 +541,10 @@ export default function AstrocartoMap({
   }, []);
 
   function screenToMap(e: { clientX: number; clientY: number }): { x: number; y: number } {
-    const rect = wrapperRef.current?.getBoundingClientRect();
+    // Coords are relative to the map column, NOT the outer wrapper,
+    // because the tooltip is rendered inside the map column and
+    // positioned absolutely against it.
+    const rect = mapColumnRef.current?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
@@ -579,6 +588,19 @@ export default function AstrocartoMap({
       setTooltip(null);
       hideTimerRef.current = null;
     }, 120);
+  }
+
+  function showCountryTooltip(name: string, e: React.PointerEvent) {
+    // Only show a country tooltip when no planetary line is hovered —
+    // lines are the primary surface and should never be obscured by a
+    // generic country label.
+    if (hoveredLine) return;
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    const { x, y } = screenToMap(e);
+    setTooltip({ x, y, title: name });
   }
 
   function showCityTooltip(
@@ -658,14 +680,11 @@ export default function AstrocartoMap({
     return paths.join(' ');
   }, [view]);
 
-  // Real country outlines — Natural Earth 1:110m, pre-projected at build
-  // time into whichever space the active view uses. Single concatenated
-  // path for fast render (177 features otherwise) — fill-rule:evenodd
-  // handles holes correctly.
-  const continentPaths = useMemo(() => {
-    const source = view === 'classic' ? WORLD_COUNTRIES : WORLD_COUNTRIES_FLAT;
-    return source.map((c) => c.d).join(' ');
-  }, [view]);
+  // Country outlines come from Natural Earth 1:110m, pre-projected at
+  // build time into whichever space the active view uses. Rendered as
+  // individual <path> elements (177 of them) below so each country is
+  // hoverable — the previous concatenated single-path render was faster
+  // but killed country identification.
 
   // Equator polyline (used as a brass accent) — sampled through project().
   const equatorPath = useMemo(() => {
@@ -808,6 +827,7 @@ export default function AstrocartoMap({
       >
         {/* Map column */}
         <div
+          ref={mapColumnRef}
           style={{
             position: 'relative',
             flex: '1 1 640px',
@@ -849,16 +869,36 @@ export default function AstrocartoMap({
                 opacity={0.08}
               />
 
-              {/* Countries (real Natural Earth outlines, very faint) */}
-              <path
-                d={continentPaths}
-                fillRule="evenodd"
-                fill="rgba(200,160,82,0.05)"
-                stroke="rgba(200,160,82,0.28)"
-                strokeWidth={0.6}
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
+              {/* Countries — rendered as individual paths so each is
+                  hoverable (shows the country name in the tooltip). The
+                  hovered country gets a brighter stroke + tinted fill so
+                  the user can see what they're pointing at. Outlines
+                  bumped from 0.28 → 0.45 opacity so borders are
+                  legible at default zoom. */}
+              {(view === 'classic' ? WORLD_COUNTRIES : WORLD_COUNTRIES_FLAT).map((c) => {
+                const isHovered = hoveredCountry === c.name;
+                return (
+                  <path
+                    key={`${c.iso}-${c.name}`}
+                    d={c.d}
+                    fillRule="evenodd"
+                    fill={isHovered ? 'rgba(200,160,82,0.16)' : 'rgba(200,160,82,0.05)'}
+                    stroke={isHovered ? 'rgba(200,160,82,0.95)' : 'rgba(200,160,82,0.45)'}
+                    strokeWidth={isHovered ? 1 : 0.6}
+                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                    onPointerEnter={(e) => {
+                      setHoveredCountry(c.name);
+                      showCountryTooltip(c.name, e);
+                    }}
+                    onPointerLeave={() => {
+                      setHoveredCountry(null);
+                      hideTooltip();
+                    }}
+                    style={{ cursor: 'pointer', transition: 'fill 120ms ease, stroke 120ms ease, stroke-width 120ms ease' }}
+                  />
+                );
+              })}
 
               {/* Equator accent */}
               <path
