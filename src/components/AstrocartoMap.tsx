@@ -503,6 +503,8 @@ export default function AstrocartoMap({
   const [mounted, setMounted] = useState(false);
 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -514,6 +516,22 @@ export default function AstrocartoMap({
       mq.removeEventListener?.('change', onChange);
       cancelAnimationFrame(id);
     };
+  }, []);
+
+  // Native wheel listener — React's synthetic `onWheel` is passive in
+  // modern React, so e.preventDefault() inside it silently no-ops and
+  // the browser zooms the whole page instead. Attaching natively with
+  // { passive: false } lets us actually stop the page-zoom.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = -e.deltaY;
+      setZoom((z) => Math.min(6, Math.max(0.5, z * (1 + delta * 0.0015))));
+    };
+    svg.addEventListener('wheel', handler, { passive: false });
+    return () => svg.removeEventListener('wheel', handler);
   }, []);
 
   function screenToMap(e: { clientX: number; clientY: number }): { x: number; y: number } {
@@ -536,27 +554,31 @@ export default function AstrocartoMap({
     dragRef.current = null;
   }
 
-  function onWheel(e: React.WheelEvent) {
-    e.preventDefault?.();
-    const delta = -e.deltaY;
-    setZoom((z) => {
-      const next = Math.min(6, Math.max(0.5, z * (1 + delta * 0.0015)));
-      return next;
-    });
-  }
-
   function showLineTooltip(
     planet: string,
     kind: LineKind,
     e: React.PointerEvent,
   ) {
+    // Cancel any pending hide — if the pointer just moved from one line
+    // to an adjacent one, we want a smooth tooltip swap, not a flicker.
+    if (hideTimerRef.current) {
+      clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
     const theme = LINE_THEMES[planet]?.[kind] ?? '';
     const { x, y } = screenToMap(e);
     setTooltip({ x, y, title: `${planet} ${kind}`, subtitle: theme });
   }
 
   function hideTooltip() {
-    setTooltip(null);
+    // Debounce: gives the pointer a beat to enter an adjacent line
+    // before we clear, so MC→IC→AC transitions look like one tooltip
+    // settling rather than three rapid blinks.
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => {
+      setTooltip(null);
+      hideTimerRef.current = null;
+    }, 120);
   }
 
   function showCityTooltip(
@@ -793,6 +815,7 @@ export default function AstrocartoMap({
           }}
         >
           <svg
+            ref={svgRef}
             viewBox={`0 0 ${dims.w} ${dims.h}`}
             preserveAspectRatio="xMidYMid meet"
             role="img"
@@ -801,12 +824,12 @@ export default function AstrocartoMap({
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
-            onWheel={onWheel}
             style={{
               display: 'block',
               width: '100%',
               height: 'auto',
               touchAction: 'none',
+              overscrollBehavior: 'contain',
               cursor: dragRef.current ? 'grabbing' : 'grab',
             }}
           >
@@ -887,7 +910,6 @@ export default function AstrocartoMap({
                         setHoveredLine(null);
                         hideTooltip();
                       }}
-                      onMove={(e) => showLineTooltip(pd.planet, 'MC', e)}
                       onClick={() => onLineClick?.(pd.planet, 'MC')}
                     />
                     {/* IC */}
@@ -908,7 +930,6 @@ export default function AstrocartoMap({
                         setHoveredLine(null);
                         hideTooltip();
                       }}
-                      onMove={(e) => showLineTooltip(pd.planet, 'IC', e)}
                       onClick={() => onLineClick?.(pd.planet, 'IC')}
                     />
                     {/* AC segments */}
@@ -931,7 +952,6 @@ export default function AstrocartoMap({
                           setHoveredLine(null);
                           hideTooltip();
                         }}
-                        onMove={(e) => showLineTooltip(pd.planet, 'AC', e)}
                         onClick={() => onLineClick?.(pd.planet, 'AC')}
                       />
                     ))}
@@ -955,7 +975,6 @@ export default function AstrocartoMap({
                           setHoveredLine(null);
                           hideTooltip();
                         }}
-                        onMove={(e) => showLineTooltip(pd.planet, 'DC', e)}
                         onClick={() => onLineClick?.(pd.planet, 'DC')}
                       />
                     ))}
@@ -1239,7 +1258,6 @@ type AstroLineProps = {
   delay: number;
   onEnter: (e: React.PointerEvent) => void;
   onLeave: () => void;
-  onMove: (e: React.PointerEvent) => void;
   onClick: () => void;
 };
 
@@ -1254,21 +1272,21 @@ function AstroLine({
   delay,
   onEnter,
   onLeave,
-  onMove,
   onClick,
 }: AstroLineProps) {
   // Use a large pathLength so stroke-dashoffset draw-in works for any length.
   const drawInReady = mounted || reducedMotion;
   return (
     <g>
-      {/* invisible fat hit-area */}
+      {/* invisible fat hit-area — non-scaling so the click target stays
+          a constant pixel width regardless of zoom. */}
       <path
         d={d}
         fill="none"
         stroke="transparent"
         strokeWidth={14}
+        vectorEffect="non-scaling-stroke"
         onPointerEnter={onEnter}
-        onPointerMove={onMove}
         onPointerLeave={onLeave}
         onClick={onClick}
         style={{ cursor: 'pointer' }}
@@ -1281,6 +1299,7 @@ function AstroLine({
         strokeLinecap="round"
         opacity={opacity}
         pathLength={1}
+        vectorEffect="non-scaling-stroke"
         style={{
           strokeDasharray: dashed
             ? drawInReady
