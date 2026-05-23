@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Synastra · content preview — week of 25 May 2026</title>
+<style>
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: normal;
+    src: url('file:///Users/kaye/Projects/synastra/marketing/higgsfield/fonts/Fraunces.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    font-style: italic;
+    src: url('file:///Users/kaye/Projects/synastra/marketing/higgsfield/fonts/Fraunces-Italic.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'CrimsonItalic';
+    src: url('file:///Users/kaye/Projects/synastra/marketing/higgsfield/fonts/Crimson-Italic.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'PlexMono';
+    src: url('file:///Users/kaye/Projects/synastra/marketing/higgsfield/fonts/PlexMono.ttf') format('truetype');
+  }
+
+  html, body { margin: 0; padding: 0; background: #07070d; }
+  body {
+    padding: 40px;
+    font-family: 'Fraunces', 'Georgia', serif;
+    color: #F4EFE0;
+  }
+  h1 {
+    font-family: 'PlexMono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #C8A052;
+    margin: 0 0 30px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 384px);
+    gap: 44px 36px;
+    justify-content: start;
+  }
+  .cell { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .cell-label {
+    font-family: 'PlexMono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(200, 160, 82, 0.85);
+    text-align: center;
+  }
+  .frame {
+    width: 384px;
+    height: 480px;
+    overflow: hidden;
+    box-shadow: 0 8px 36px rgba(0, 0, 0, 0.55);
+    background: #06050b;
+  }
+
+  /* the 1080x1350 design canvas, scaled down to fit the 384x480 frame */
+  .slide {
+    width: 1080px;
+    height: 1350px;
+    position: relative;
+    transform: scale(0.3555);
+    transform-origin: top left;
+    background:
+      radial-gradient(ellipse at 50% 28%, #1c1538 0%, #0c0a1d 55%, #060410 100%);
+    color: #F4EFE0;
+    overflow: hidden;
+  }
+  .nebula {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 72% 62%, rgba(150, 90, 220, 0.13), transparent 48%),
+      radial-gradient(circle at 22% 78%, rgba(70, 100, 220, 0.10), transparent 52%),
+      radial-gradient(circle at 50% 18%, rgba(200, 160, 82, 0.06), transparent 38%);
+  }
+  .inner {
+    position: absolute;
+    inset: 90px 90px 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+  }
+
+  .top { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 26px; }
+  .ornament {
+    color: #C8A052;
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    line-height: 1;
+  }
+  .tag {
+    font-family: 'PlexMono', monospace;
+    font-size: 21px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #C8A052;
+  }
+  .rule { width: 64px; height: 1px; background: rgba(200, 160, 82, 0.4); }
+
+  .body-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 44px;
+    max-width: 860px;
+  }
+  .body-text {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    line-height: 1.5;
+    color: #F4EFE0;
+  }
+  .invite {
+    font-family: 'CrimsonItalic', 'Fraunces', serif;
+    font-style: italic;
+    font-size: 32px;
+    line-height: 1.4;
+    color: rgba(244, 239, 224, 0.78);
+    max-width: 760px;
+  }
+
+  .foot { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 6px; }
+  .sigil {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 38px;
+    color: rgba(200, 160, 82, 0.7);
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .credit {
+    font-family: 'PlexMono', monospace;
+    font-size: 17px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(200, 160, 82, 0.55);
+  }
+
+  /* ─── Product Whisper ─── */
+  .ph-headline {
+    font-family: 'Fraunces', serif;
+    font-size: 96px;
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: #F4EFE0;
+  }
+  .ph-list {
+    font-family: 'PlexMono', monospace;
+    font-size: 19px;
+    letter-spacing: 0.22em;
+    line-height: 2;
+    color: rgba(244, 239, 224, 0.62);
+    text-transform: uppercase;
+    max-width: 820px;
+  }
+  .ph-sub {
+    font-family: 'CrimsonItalic', serif;
+    font-style: italic;
+    font-size: 30px;
+    color: rgba(244, 239, 224, 0.7);
+  }
+  .ph-cta {
+    font-family: 'PlexMono', monospace;
+    font-size: 19px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #C8A052;
+    border: 1px solid #C8A052;
+    padding: 20px 38px;
+  }
+
+  /* ─── Sign Card cover ─── */
+  .sign-glyph {
+    font-family: 'Fraunces', 'Georgia', serif;
+    font-size: 280px;
+    line-height: 0.95;
+    color: rgba(200, 160, 82, 0.85);
+  }
+  .sign-name {
+    font-family: 'PlexMono', monospace;
+    font-size: 36px;
+    letter-spacing: 0.36em;
+    color: #F4EFE0;
+  }
+  .sign-sub {
+    font-family: 'CrimsonItalic', serif;
+    font-style: italic;
+    font-size: 38px;
+    color: rgba(244, 239, 224, 0.72);
+  }
+
+  /* ─── Field Note cover ─── */
+  .fn-label {
+    font-family: 'PlexMono', monospace;
+    font-size: 19px;
+    letter-spacing: 0.32em;
+    color: #C8A052;
+    text-transform: uppercase;
+  }
+  .fn-headline {
+    font-family: 'Fraunces', serif;
+    font-size: 84px;
+    line-height: 1.08;
+    letter-spacing: -0.012em;
+    color: #F4EFE0;
+    max-width: 880px;
+  }
+  .fn-sub {
+    font-family: 'CrimsonItalic', serif;
+    font-style: italic;
+    font-size: 34px;
+    color: rgba(244, 239, 224, 0.72);
+    max-width: 760px;
+  }
+  .swipe {
+    font-family: 'PlexMono', monospace;
+    font-size: 18px;
+    letter-spacing: 0.32em;
+    color: rgba(200, 160, 82, 0.75);
+    text-transform: uppercase;
+  }
+
+  /* ─── Moon Ceremony ─── */
+  .moon-glyph {
+    font-family: 'Fraunces', serif;
+    font-size: 140px;
+    line-height: 1;
+    color: rgba(232, 224, 206, 0.9);
+  }
+  .moon-quote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 40px;
+    line-height: 1.45;
+    color: #F4EFE0;
+    max-width: 860px;
+  }
+  .moon-close {
+    font-family: 'PlexMono', monospace;
+    font-size: 17px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(200, 160, 82, 0.75);
+  }
+</style>
+</head>
+<body>
+
+<h1>§ Synastra · Sample Week — 25–31 May 2026</h1>
+
+<div class="grid">
+
+  <!-- 1 — MON · WESTERN -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="tag">Western · May 25 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="body-text">The Sun crossed into Gemini four days ago and the air has changed. What was singular wants to multiply — ask both sides, hold two truths at once. The mind is this season's instrument. Sharpen it on questions, not arguments.</div>
+            <div class="invite">Today, write down the question you've been avoiding asking.</div>
+          </div>
+          <div class="foot">
+            <div class="sigil">S</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Mon 25 · Daily — Western</div>
+  </div>
+
+  <!-- 2 — TUE · VEDIC -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="tag">Vedic · May 26 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="body-text">The Moon moves through Rohini — a nakshatra of patient, fruit-bearing growth. What you watered three months ago is ready to taste. Vedic time isn't a line; it's a tree, and the tree is in flower.</div>
+            <div class="invite">Today, return to a project you abandoned. It's been ripening without you.</div>
+          </div>
+          <div class="foot">
+            <div class="sigil">S</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Tue 26 · Daily — Vedic</div>
+  </div>
+
+  <!-- 3 — WED · NUMEROLOGY -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="tag">Numerology · May 27 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="body-text">Today reduces to a 6 — the Keeper number. Harmony, responsibility, the people who quietly hold things together. Whatever you've been carrying for someone else, notice the weight. It's allowed to be visible.</div>
+            <div class="invite">Today, name one thing you've been doing for someone who never asked you to keep doing it.</div>
+          </div>
+          <div class="foot">
+            <div class="sigil">S</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Wed 27 · Daily — Numerology</div>
+  </div>
+
+  <!-- 4 — WED · FIELD NOTE COVER -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="fn-label">Field Note · No. 01</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="fn-headline">What's your Vedic Lagna?</div>
+            <div class="fn-sub">the rising sign nobody told you about</div>
+          </div>
+          <div class="foot">
+            <div class="swipe">swipe ›</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Wed 27 · Field Note carousel (cover)</div>
+  </div>
+
+  <!-- 5 — THU · KABBALAH -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="tag">Kabbalah · May 28 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="body-text">A Geburah day — severity, Mars, the necessary cut. Not every wound is something done to you. Sometimes the sephirah of judgement is the surgeon, not the assault. What needs removing isn't punishment. It's pruning.</div>
+            <div class="invite">Today, name one habit you've outgrown but kept out of loyalty to who you used to be.</div>
+          </div>
+          <div class="foot">
+            <div class="sigil">S</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Thu 28 · Daily — Kabbalah</div>
+  </div>
+
+  <!-- 6 — FRI · HUMAN DESIGN -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="tag">Human Design · May 29 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="body-text">Saturn transits Gate 17 — the gate of opinions. For Generators and Manifesting Generators: don't lead with what you think. Let the sacral respond first; the opinion forms behind it. You're built to answer, not announce.</div>
+            <div class="invite">Today, sit with one decision an extra hour. Notice which part of you wanted to rush.</div>
+          </div>
+          <div class="foot">
+            <div class="sigil">S</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Fri 29 · Daily — Human Design</div>
+  </div>
+
+  <!-- 7 — FRI · PRODUCT WHISPER -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="fn-label">Synastra</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="ph-headline">One Chart.<br>Seven Traditions.<br>One Oracle.</div>
+            <div class="ph-list">Western · Vedic · Numerology · Kabbalah<br>Human Design · Tarot · Astrocartography</div>
+            <div class="ph-sub">A Master Oracle trained across all of them.</div>
+          </div>
+          <div class="foot">
+            <div class="ph-cta">Begin free → getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Fri 29 · Product Whisper</div>
+  </div>
+
+  <!-- 8 — SAT · SIGN CARD COVER -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="ornament">✦</div>
+            <div class="fn-label">Sign Series</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="sign-glyph">♊</div>
+            <div class="sign-name">G E M I N I</div>
+            <div class="sign-sub">through seven lenses</div>
+          </div>
+          <div class="foot">
+            <div class="swipe">swipe ›</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Sat 30 · Sign Card (cover)</div>
+  </div>
+
+  <!-- 9 — MOON CEREMONY -->
+  <div class="cell">
+    <div class="frame">
+      <div class="slide">
+        <div class="nebula"></div>
+        <div class="inner">
+          <div class="top">
+            <div class="moon-glyph">☾</div>
+            <div class="tag">New Moon · Gemini · 16 Jun 2026</div>
+            <div class="rule"></div>
+          </div>
+          <div class="body-wrap">
+            <div class="moon-quote">The Moon and Sun meet at 25° Gemini — a quiet re-set in the season of asking. New moons in Gemini favour writing a question, not an answer.</div>
+            <div class="invite">What is the better version of the question you've been carrying?</div>
+          </div>
+          <div class="foot">
+            <div class="moon-close">Set it down · Light a candle · Begin</div>
+            <div class="credit">@synastra · getsynastra.com</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cell-label">Monthly · Moon Ceremony</div>
+  </div>
+
+</div>
+
+<script>
+// Seeded starfield per slide — same starfield each render, different per slide.
+document.querySelectorAll('.slide').forEach((slide, idx) => {
+  let s = idx * 137 + 17;
+  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  let svg = '<svg viewBox="0 0 1080 1350" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" xmlns="http://www.w3.org/2000/svg">';
+  for (let i = 0; i < 55; i++) {
+    const cx = (rand() * 1080).toFixed(0);
+    const cy = (rand() * 1350).toFixed(0);
+    const r = (rand() * 0.95 + 0.4).toFixed(2);
+    const o = (rand() * 0.55 + 0.25).toFixed(2);
+    svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff" opacity="${o}"/>`;
+  }
+  svg += '</svg>';
+  slide.insertAdjacentHTML('afterbegin', svg);
+});
+</script>
+</body></html>
