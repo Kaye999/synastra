@@ -278,9 +278,11 @@ function growBranch(
 function generateTree(seed: number): TreeData {
   const rand = makePrng(seed);
   const out: TreeData = { branches: [], leaves: [] };
-  // trunk grows up from bottom-center; angle = -PI/2 = straight up
-  // viewBox is 240x340, so start at (120, 340)
-  growBranch(120, 340, -Math.PI / 2, 105, 11, 5, out, rand);
+  // Trunk grows up from BELOW the viewBox bottom so its base extends
+  // into the grass / ground rather than terminating awkwardly at the
+  // visible edge. SVG overflow:visible lets it draw past viewBox.
+  // viewBox is 240x340 — start at y=370 (30px below).
+  growBranch(120, 370, -Math.PI / 2, 115, 12, 5, out, rand);
   return out;
 }
 
@@ -731,9 +733,9 @@ body:has(.homepage-bg-root) .cosmos-root {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 110px;
+  height: 200px;
   pointer-events: none;
-  opacity: clamp(0, calc((var(--hp-scroll) - 0.65) * 4), 1);
+  opacity: clamp(0, calc((var(--hp-scroll) - 0.62) * 4), 1);
   transition: opacity 200ms linear;
 }
 .homepage-bg-grass svg {
@@ -789,15 +791,36 @@ body:has(.homepage-bg-root) .cosmos-root {
    Gentle wind sway. Reveals with the grass. */
 .homepage-bg-tree {
   position: absolute;
-  bottom: 70px;      /* base sits inside the grass layer */
-  right: 9%;
-  width: 220px;
-  height: 320px;
+  bottom: 30px;      /* trunk base sits ~30px above viewport bottom,
+                        well inside the 200px grass layer above */
+  right: 8%;
+  width: 260px;
+  height: 380px;
   pointer-events: none;
   opacity: clamp(0, calc((var(--hp-scroll) - 0.62) * 4), 1);
   transition: opacity 200ms linear;
   filter: drop-shadow(-4px 2px 9px rgba(255, 210, 155, 0.55))
           drop-shadow(0 4px 4px rgba(0, 0, 0, 0.45));
+}
+/* Soil mound — small dark ellipse at the tree base, suggests a slight
+   rise of earth around the trunk. Sits BEHIND the tree, so the trunk
+   reads as planted into something solid. */
+.homepage-bg-tree-mound {
+  position: absolute;
+  bottom: 80px;      /* a bit above the very bottom, at grass mid-height */
+  right: 3%;
+  width: 280px;
+  height: 70px;
+  pointer-events: none;
+  opacity: clamp(0, calc((var(--hp-scroll) - 0.62) * 4), 0.92);
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(5, 12, 7, 0.85) 0%,
+    rgba(10, 22, 12, 0.55) 40%,
+    rgba(10, 22, 12, 0.20) 70%,
+    transparent 100%
+  );
+  filter: blur(3px);
 }
 .homepage-bg-tree svg {
   display: block;
@@ -825,25 +848,43 @@ body:has(.homepage-bg-root) .cosmos-root {
 }
 
 /* ─── 18. Realistic moon ──────────────────────────────────────────────
-   Full moon with soft halo, body radial-gradient (warm cream → grey),
-   approximate maria positions and a few crater dots. Visible during the
-   night phase; fades out as the sky brightens. */
+   Real photograph (Gregory H. Revera, Wikimedia Commons, CC BY-SA 3.0)
+   masked to a circle, with a radial-gradient halo for the bloom and a
+   subtle inset shadow for sphere-edge limb darkening. Visible during
+   the night phase, fades out as the sky brightens. */
 .homepage-bg-moon {
   position: absolute;
-  top: 7%;
-  left: 13%;
-  width: 120px;
-  height: 120px;
+  top: 6%;
+  left: 11%;
+  width: 150px;
+  height: 150px;
   pointer-events: none;
   opacity: calc(var(--hp-night) * 0.95);
   transition: opacity 240ms linear;
-  filter: drop-shadow(0 0 14px rgba(245, 238, 220, 0.35));
 }
-.homepage-bg-moon svg {
+.homepage-bg-moon-halo {
+  position: absolute;
+  inset: -60%;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(245, 238, 220, 0.42) 0%,
+    rgba(245, 238, 220, 0.20) 22%,
+    rgba(245, 238, 220, 0.08) 38%,
+    rgba(245, 238, 220, 0) 60%
+  );
+  pointer-events: none;
+}
+.homepage-bg-moon img {
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  border-radius: 50%;
+  object-fit: cover;
+  filter: brightness(1.06) contrast(1.10) saturate(0.92);
+  box-shadow:
+    0 0 28px rgba(245, 238, 220, 0.40),
+    inset 0 0 12px rgba(15, 10, 5, 0.55);
 }
 
 /* ─── 17. Footer veil ─────────────────────────────────────────────── */
@@ -891,7 +932,11 @@ export default function HomepageBackground() {
   const grassMid   = useMemo(() => generateGrassPath(2903, 1000, 100, 1.15), []);
   const grassFront = useMemo(() => generateGrassPath(5851, 1000, 100, 1.35), []);
   const heroBlades = useMemo(() => generateHeroBlades(8204, 1000, 100, 46), []);
+  // Tree seed picked for a balanced asymmetric silhouette.
   const tree       = useMemo(() => generateTree(11371), []);
+  // Build moon src once with a cache-buster scoped to the asset, not to
+  // every page render — the file is committed in /public.
+  const moonSrc    = '/img/moon.jpg';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -997,118 +1042,12 @@ export default function HomepageBackground() {
         {renderStarLayer(mid, 'homepage-bg-stars--mid')}
         {renderStarLayer(near, 'homepage-bg-stars--near')}
 
-        {/* Realistic full moon — built around the actual near-side
-            geography: Oceanus Procellarum, Mare Imbrium / Serenitatis /
-            Tranquillitatis / Crisium / Fecunditatis / Nectaris / Nubium,
-            plus Tycho (with ray system), Copernicus, Kepler, Aristarchus.
-            Surface noise filter adds micro-texture. Visible at night. */}
+        {/* Real photographic moon (Wikimedia Commons / G. H. Revera) —
+            masked to a circle, halo behind it for the bloom. Visible
+            during the night phase, fades as the sky brightens. */}
         <div className="homepage-bg-moon">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <radialGradient id="moon-body" cx="0.42" cy="0.40" r="0.58">
-                <stop offset="0%"   stopColor="#f8f1d8" />
-                <stop offset="32%"  stopColor="#ede2c2" />
-                <stop offset="72%"  stopColor="#c8bca0" />
-                <stop offset="95%"  stopColor="#928670" />
-                <stop offset="100%" stopColor="#6f6452" />
-              </radialGradient>
-              <radialGradient id="moon-halo-grad" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%"   stopColor="rgba(248,241,216,0.55)" />
-                <stop offset="35%"  stopColor="rgba(248,241,216,0.18)" />
-                <stop offset="100%" stopColor="rgba(248,241,216,0)" />
-              </radialGradient>
-              <filter id="moon-noise" x="0%" y="0%" width="100%" height="100%">
-                <feTurbulence type="fractalNoise" baseFrequency="3.5" numOctaves="2" seed="11" />
-                <feColorMatrix values="0 0 0 0 0.62
-                                        0 0 0 0 0.58
-                                        0 0 0 0 0.50
-                                        0 0 0 0.07 0" />
-                <feComposite in2="SourceGraphic" operator="in" />
-              </filter>
-              <clipPath id="moon-clip">
-                <circle cx="100" cy="100" r="68" />
-              </clipPath>
-            </defs>
-
-            {/* halo */}
-            <circle cx="100" cy="100" r="96" fill="url(#moon-halo-grad)" />
-            {/* body */}
-            <circle cx="100" cy="100" r="68" fill="url(#moon-body)" />
-
-            <g clipPath="url(#moon-clip)">
-              {/* surface noise overlay */}
-              <circle cx="100" cy="100" r="68" filter="url(#moon-noise)" opacity="0.55" />
-
-              {/* highland highlights */}
-              <ellipse cx="110" cy="48"  rx="22" ry="11" fill="rgba(248,240,215,0.10)" />
-              <ellipse cx="58"  cy="58"  rx="16" ry="13" fill="rgba(248,240,215,0.08)" />
-              <ellipse cx="115" cy="155" rx="18" ry="11" fill="rgba(248,240,215,0.08)" />
-
-              {/* maria — real near-side geography */}
-              {/* Oceanus Procellarum (huge, left) */}
-              <ellipse cx="60"  cy="95"  rx="22" ry="34" fill="rgba(82,78,70,0.42)" />
-              {/* Mare Imbrium (upper-left, prominent) */}
-              <ellipse cx="78"  cy="60"  rx="20" ry="14" fill="rgba(76,72,64,0.48)" transform="rotate(-12 78 60)" />
-              {/* Sinus Iridum — northern arc of Imbrium */}
-              <ellipse cx="64"  cy="50"  rx="9"  ry="5"  fill="rgba(80,76,68,0.40)" transform="rotate(-25 64 50)" />
-              {/* Mare Serenitatis (upper-mid-right, almost circular) */}
-              <ellipse cx="120" cy="68"  rx="13" ry="13" fill="rgba(80,76,68,0.44)" />
-              {/* Mare Tranquillitatis (mid-right, Apollo 11) */}
-              <ellipse cx="130" cy="95"  rx="16" ry="14" fill="rgba(82,78,70,0.42)" transform="rotate(20 130 95)" />
-              {/* Mare Crisium (far upper-right, distinctive small almond) */}
-              <ellipse cx="152" cy="78"  rx="10" ry="7"  fill="rgba(72,68,60,0.55)" transform="rotate(-15 152 78)" />
-              {/* Mare Fecunditatis (lower-right of Tranquillitatis) */}
-              <ellipse cx="137" cy="117" rx="9"  ry="15" fill="rgba(80,76,68,0.42)" />
-              {/* Mare Nectaris */}
-              <ellipse cx="121" cy="130" rx="8"  ry="8"  fill="rgba(82,78,70,0.40)" />
-              {/* Mare Nubium (lower-mid, irregular) */}
-              <ellipse cx="80"  cy="135" rx="16" ry="9"  fill="rgba(78,74,66,0.40)" />
-              {/* Mare Humorum (lower-left) */}
-              <ellipse cx="58"  cy="138" rx="9"  ry="10" fill="rgba(76,72,64,0.42)" />
-              {/* Mare Vaporum (small, central) */}
-              <ellipse cx="100" cy="88"  rx="6"  ry="6"  fill="rgba(88,84,76,0.30)" />
-              {/* Mare Frigoris (long thin arc near top) */}
-              <ellipse cx="98"  cy="38"  rx="38" ry="4"  fill="rgba(82,78,70,0.32)" transform="rotate(-8 98 38)" />
-
-              {/* Tycho — bright crater with ray system in southern hemisphere */}
-              <g opacity="0.78">
-                <line x1="96" y1="152" x2="76"  y2="172" stroke="rgba(245,238,215,0.22)" strokeWidth="0.5" />
-                <line x1="96" y1="152" x2="116" y2="174" stroke="rgba(245,238,215,0.22)" strokeWidth="0.5" />
-                <line x1="96" y1="152" x2="68"  y2="158" stroke="rgba(245,238,215,0.20)" strokeWidth="0.5" />
-                <line x1="96" y1="152" x2="124" y2="160" stroke="rgba(245,238,215,0.20)" strokeWidth="0.5" />
-                <line x1="96" y1="152" x2="96"  y2="178" stroke="rgba(245,238,215,0.22)" strokeWidth="0.6" />
-                <line x1="96" y1="152" x2="82"  y2="128" stroke="rgba(245,238,215,0.18)" strokeWidth="0.5" />
-                <line x1="96" y1="152" x2="110" y2="130" stroke="rgba(245,238,215,0.18)" strokeWidth="0.5" />
-              </g>
-              <circle cx="96" cy="152" r="3.4" fill="rgba(245,238,215,0.9)" />
-              <circle cx="96" cy="152" r="3.4" fill="none" stroke="rgba(70,65,55,0.5)" strokeWidth="0.4" />
-
-              {/* Copernicus — bright crater */}
-              <circle cx="88" cy="100" r="2.8" fill="rgba(225,215,190,0.85)" />
-              <circle cx="88" cy="100" r="4.2" fill="none" stroke="rgba(225,215,190,0.32)" strokeWidth="0.5" />
-              {/* Kepler */}
-              <circle cx="72" cy="100" r="1.7" fill="rgba(225,215,190,0.85)" />
-              {/* Aristarchus — very bright small crater */}
-              <circle cx="62" cy="78"  r="1.5" fill="rgba(248,240,215,0.95)" />
-              {/* Plato — dark-floored crater near top */}
-              <circle cx="90" cy="42"  r="2.2" fill="rgba(70,66,58,0.55)" />
-
-              {/* scattered minor craters */}
-              <circle cx="100" cy="58"  r="1.0" fill="rgba(78,74,66,0.6)" />
-              <circle cx="125" cy="125" r="0.9" fill="rgba(78,74,66,0.55)" />
-              <circle cx="65"  cy="120" r="0.8" fill="rgba(78,74,66,0.55)" />
-              <circle cx="140" cy="103" r="1.0" fill="rgba(78,74,66,0.5)" />
-              <circle cx="50"  cy="80"  r="0.9" fill="rgba(78,74,66,0.5)" />
-              <circle cx="145" cy="138" r="0.8" fill="rgba(78,74,66,0.55)" />
-              <circle cx="80"  cy="155" r="0.8" fill="rgba(78,74,66,0.55)" />
-
-              {/* limb darkening — soft inset shadow ring at edge */}
-              <circle cx="100" cy="100" r="68" fill="none"
-                stroke="rgba(20,15,10,0.55)" strokeWidth="3" />
-              <circle cx="100" cy="100" r="68" fill="none"
-                stroke="rgba(20,15,10,0.18)" strokeWidth="9" />
-            </g>
-          </svg>
+          <div className="homepage-bg-moon-halo" />
+          <img src={moonSrc} alt="" aria-hidden="true" loading="eager" />
         </div>
 
         <div className="homepage-bg-shooting">
@@ -1150,6 +1089,10 @@ export default function HomepageBackground() {
           <div className="homepage-bg-flare-ghost homepage-bg-flare-ghost--5" />
           <div className="homepage-bg-flare-ghost homepage-bg-flare-ghost--6" />
         </div>
+
+        {/* Soil mound behind the tree — soft dark elliptical patch
+            so the trunk reads as rooted into a small rise of earth. */}
+        <div className="homepage-bg-tree-mound" />
 
         {/* Lone tree — procedurally grown: recursive branches with
             natural taper + dense leaf clusters at each tip. Rendered
