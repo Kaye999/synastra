@@ -146,28 +146,142 @@ function heptagramPath(pts: { x: number; y: number }[]): string {
     .join(' ');
 }
 
-// ─── Grass silhouette ────────────────────────────────────────────────
-// Procedural grass-blade path across a 1000-unit-wide horizon. Each
-// "blade" is a triangle: a base point, a peak, then back down to the
-// next base point. Heights vary so the silhouette feels natural.
-// Three layers (back/mid/front) with different seeds give parallax depth.
-function generateGrassPath(seed: number, w = 1000, h = 100): string {
+// ─── Grass silhouette (bezier-curved blades) ─────────────────────────
+// Builds a horizon path out of leaning, curved blade tips instead of
+// flat triangles. Each blade segment uses two quadratic curves (up to
+// the tip, then back down) so the silhouette reads like real meadow.
+function generateGrassPath(
+  seed: number,
+  w = 1000,
+  h = 100,
+  density = 1,
+): string {
   const rand = makePrng(seed);
-  const out: string[] = [`M 0 ${h}`, `L 0 ${(h * 0.55).toFixed(1)}`];
+  const out: string[] = [`M 0 ${h}`];
   let x = 0;
+  // floor (slight undulation so the base isn't a ruler line)
+  let baseY = h * (0.62 + rand() * 0.10);
+  out.push(`L 0 ${baseY.toFixed(1)}`);
   while (x < w) {
-    const bladeWidth = 2.5 + rand() * 11;            // 2.5–13.5 units
-    const bladeHeight = h * (0.30 + rand() * 0.60);  // tip at 30–90% of h
-    const baseY = h * (0.55 + rand() * 0.18);
-    const tipX = x + bladeWidth * 0.5;
-    const tipY = h - bladeHeight;
-    const nextX = x + bladeWidth;
-    out.push(`L ${tipX.toFixed(1)} ${tipY.toFixed(1)}`);
-    out.push(`L ${nextX.toFixed(1)} ${baseY.toFixed(1)}`);
+    const bw = (1.5 + rand() * 7) / density;
+    const bh = h * (0.30 + rand() * 0.65);
+    const lean = (rand() - 0.5) * bw * 1.6;
+    const tipX = x + bw * 0.5 + lean;
+    const tipY = h - bh;
+    const nextX = x + bw;
+    const nextBaseY = h * (0.55 + rand() * 0.18);
+    // up to tip
+    const upCpX = x + bw * 0.25 + lean * 0.3;
+    const upCpY = h - bh * 0.55;
+    // down to next base
+    const dnCpX = x + bw * 0.75 + lean * 0.7;
+    const dnCpY = h - bh * 0.55;
+    out.push(
+      `Q ${upCpX.toFixed(1)} ${upCpY.toFixed(1)} ${(tipX - 0.15).toFixed(1)} ${tipY.toFixed(1)}`,
+      `L ${(tipX + 0.15).toFixed(1)} ${tipY.toFixed(1)}`,
+      `Q ${dnCpX.toFixed(1)} ${dnCpY.toFixed(1)} ${nextX.toFixed(1)} ${nextBaseY.toFixed(1)}`,
+    );
     x = nextX;
+    baseY = nextBaseY;
   }
   out.push(`L ${w} ${h}`, 'Z');
   return out.join(' ');
+}
+
+// ─── Hero foreground blades ──────────────────────────────────────────
+// Individual prominent blades drawn in front of the silhouette layers.
+// Each gets its own color (varied hue/lightness for natural feel) and
+// catches a warm dawn rim via drop-shadow. ~30-50 of these.
+type HeroBlade = { d: string; fill: string };
+function generateHeroBlades(
+  seed: number,
+  w: number,
+  h: number,
+  count: number,
+): HeroBlade[] {
+  const rand = makePrng(seed);
+  const blades: HeroBlade[] = [];
+  for (let i = 0; i < count; i++) {
+    const x = rand() * w;
+    const height = h * (0.55 + rand() * 0.55);
+    const lean = (rand() - 0.5) * 18;
+    const width = 0.6 + rand() * 1.4;
+    const tipX = x + lean;
+    const tipY = h - height;
+    const cpX = x + lean * 0.5;
+    const cpY = h - height * 0.55;
+    const hue = 90 + rand() * 40;            // 90–130
+    const sat = 28 + rand() * 38;            // 28–66%
+    const light = 12 + rand() * 22;          // 12–34%
+    const fill = `hsla(${hue.toFixed(0)}, ${sat.toFixed(0)}%, ${light.toFixed(0)}%, 0.95)`;
+    const d =
+      `M ${(x - width / 2).toFixed(1)} ${h} ` +
+      `Q ${cpX.toFixed(1)} ${cpY.toFixed(1)} ${(tipX - 0.18).toFixed(1)} ${tipY.toFixed(1)} ` +
+      `L ${(tipX + 0.18).toFixed(1)} ${tipY.toFixed(1)} ` +
+      `Q ${(cpX + width * 0.6).toFixed(1)} ${cpY.toFixed(1)} ${(x + width / 2).toFixed(1)} ${h} Z`;
+    blades.push({ d, fill });
+  }
+  return blades;
+}
+
+// ─── Procedural tree (recursive branches + leaf clusters) ────────────
+type TreeBranch = { x1: number; y1: number; x2: number; y2: number; w: number };
+type TreeLeaf = { x: number; y: number; r: number; tone: number };
+type TreeData = { branches: TreeBranch[]; leaves: TreeLeaf[] };
+
+function growBranch(
+  x: number, y: number,
+  angle: number, length: number,
+  thickness: number, depth: number,
+  out: TreeData,
+  rand: () => number,
+): void {
+  const x2 = x + Math.cos(angle) * length;
+  const y2 = y + Math.sin(angle) * length;
+  out.branches.push({ x1: x, y1: y, x2, y2, w: thickness });
+  if (depth <= 0) {
+    // tip: dense leaf cluster
+    const n = 5 + Math.floor(rand() * 6);
+    for (let i = 0; i < n; i++) {
+      const r = 3 + rand() * 5;
+      out.leaves.push({
+        x: x2 + (rand() - 0.5) * 16,
+        y: y2 + (rand() - 0.5) * 16,
+        r,
+        tone: rand(), // 0..1 for color variation
+      });
+    }
+    return;
+  }
+  // 2-3 child branches with realistic spread
+  const numChildren = 2 + (rand() < 0.45 ? 1 : 0);
+  const spread = 0.75 + rand() * 0.35; // total angular spread between children
+  for (let i = 0; i < numChildren; i++) {
+    const t = numChildren === 1 ? 0.5 : i / (numChildren - 1);
+    const childAngle =
+      angle + (t - 0.5) * spread + (rand() - 0.5) * 0.25;
+    const childLength = length * (0.62 + rand() * 0.22);
+    const childThickness = Math.max(0.6, thickness * (0.60 + rand() * 0.18));
+    growBranch(x2, y2, childAngle, childLength, childThickness, depth - 1, out, rand);
+    // sprinkle a few leaves along longer parent branches for fullness
+    if (depth >= 2 && rand() < 0.35) {
+      out.leaves.push({
+        x: x + (x2 - x) * (0.4 + rand() * 0.4),
+        y: y + (y2 - y) * (0.4 + rand() * 0.4),
+        r: 2 + rand() * 3,
+        tone: rand(),
+      });
+    }
+  }
+}
+
+function generateTree(seed: number): TreeData {
+  const rand = makePrng(seed);
+  const out: TreeData = { branches: [], leaves: [] };
+  // trunk grows up from bottom-center; angle = -PI/2 = straight up
+  // viewBox is 240x340, so start at (120, 340)
+  growBranch(120, 340, -Math.PI / 2, 105, 11, 5, out, rand);
+  return out;
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────
@@ -651,9 +765,16 @@ body:has(.homepage-bg-root) .cosmos-root {
    screen layers warm-green over the dark silhouette so you read both
    "meadow" and "rim light" without losing the silhouette. */
 .homepage-bg-grass-highlight {
-  fill: rgba(90, 140, 75, 0.65);
+  fill: rgba(90, 140, 75, 0.55);
   mix-blend-mode: screen;
-  filter: drop-shadow(0 -2px 3px rgba(255, 220, 160, 0.45));
+  filter: drop-shadow(0 -2px 3px rgba(255, 220, 160, 0.35));
+}
+/* Individual foreground blades — each catches strong dawn light. The
+   container draws ABOVE the silhouettes; per-blade hue is set inline.
+   The strong warm rim makes them read as 3D blades, not flat shapes. */
+.homepage-bg-grass-hero {
+  filter: drop-shadow(0 -2px 3px rgba(255, 220, 160, 0.65))
+          drop-shadow(0  1px 2px rgba(0, 0, 0, 0.40));
 }
 @keyframes grass-sway {
   0%   { transform: skewX(-0.6deg) translateY( 0.6px); }
@@ -686,16 +807,17 @@ body:has(.homepage-bg-root) .cosmos-root {
   transform-origin: 50% 100%;
   animation: tree-sway 22s ease-in-out infinite alternate;
 }
-.homepage-bg-tree .tree-fill {
-  fill: rgba(8, 18, 12, 0.97);
-}
-.homepage-bg-tree .tree-trunk {
-  fill: rgba(5, 12, 8, 0.98);
-}
-.homepage-bg-tree .tree-branch {
-  stroke: rgba(5, 12, 8, 0.95);
-  fill: none;
+.homepage-bg-tree .tree-branches line {
+  stroke: rgba(28, 18, 10, 0.97);   /* warm dark bark */
   stroke-linecap: round;
+  fill: none;
+}
+.homepage-bg-tree .tree-leaves circle {
+  /* fill set inline per leaf for hue variation */
+}
+.homepage-bg-tree .tree-leaf-highlight circle {
+  fill: rgba(110, 150, 80, 0.45);
+  mix-blend-mode: screen;
 }
 @keyframes tree-sway {
   0%   { transform: rotate(-0.35deg) translateX(-0.5px); }
@@ -765,9 +887,11 @@ export default function HomepageBackground() {
   const { far, mid, near } = useMemo(() => generateAllStars(STARS_SEED), []);
   const hepPts = useMemo(() => heptagramPoints(), []);
   const hepPath = useMemo(() => heptagramPath(hepPts), [hepPts]);
-  const grassBack  = useMemo(() => generateGrassPath(1471, 1000, 100), []);
-  const grassMid   = useMemo(() => generateGrassPath(2903, 1000, 100), []);
-  const grassFront = useMemo(() => generateGrassPath(5851, 1000, 100), []);
+  const grassBack  = useMemo(() => generateGrassPath(1471, 1000, 100, 0.85), []);
+  const grassMid   = useMemo(() => generateGrassPath(2903, 1000, 100, 1.15), []);
+  const grassFront = useMemo(() => generateGrassPath(5851, 1000, 100, 1.35), []);
+  const heroBlades = useMemo(() => generateHeroBlades(8204, 1000, 100, 46), []);
+  const tree       = useMemo(() => generateTree(11371), []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -873,40 +997,117 @@ export default function HomepageBackground() {
         {renderStarLayer(mid, 'homepage-bg-stars--mid')}
         {renderStarLayer(near, 'homepage-bg-stars--near')}
 
-        {/* Realistic full moon — night-phase only. Maria positions and
-            sizes approximate the actual lunar near side. */}
+        {/* Realistic full moon — built around the actual near-side
+            geography: Oceanus Procellarum, Mare Imbrium / Serenitatis /
+            Tranquillitatis / Crisium / Fecunditatis / Nectaris / Nubium,
+            plus Tycho (with ray system), Copernicus, Kepler, Aristarchus.
+            Surface noise filter adds micro-texture. Visible at night. */}
         <div className="homepage-bg-moon">
-          <svg viewBox="0 0 120 120">
+          <svg viewBox="0 0 200 200">
             <defs>
-              <radialGradient id="moon-body" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%"   stopColor="#f5efd9" />
-                <stop offset="55%"  stopColor="#e6dcc1" />
-                <stop offset="92%"  stopColor="#b4a994" />
-                <stop offset="100%" stopColor="#8a8273" />
+              <radialGradient id="moon-body" cx="0.42" cy="0.40" r="0.58">
+                <stop offset="0%"   stopColor="#f8f1d8" />
+                <stop offset="32%"  stopColor="#ede2c2" />
+                <stop offset="72%"  stopColor="#c8bca0" />
+                <stop offset="95%"  stopColor="#928670" />
+                <stop offset="100%" stopColor="#6f6452" />
               </radialGradient>
-              <radialGradient id="moon-halo" cx="0.5" cy="0.5" r="0.5">
-                <stop offset="0%"   stopColor="rgba(245,238,220,0.50)" />
-                <stop offset="40%"  stopColor="rgba(245,238,220,0.18)" />
-                <stop offset="100%" stopColor="rgba(245,238,220,0)" />
+              <radialGradient id="moon-halo-grad" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%"   stopColor="rgba(248,241,216,0.55)" />
+                <stop offset="35%"  stopColor="rgba(248,241,216,0.18)" />
+                <stop offset="100%" stopColor="rgba(248,241,216,0)" />
               </radialGradient>
+              <filter id="moon-noise" x="0%" y="0%" width="100%" height="100%">
+                <feTurbulence type="fractalNoise" baseFrequency="3.5" numOctaves="2" seed="11" />
+                <feColorMatrix values="0 0 0 0 0.62
+                                        0 0 0 0 0.58
+                                        0 0 0 0 0.50
+                                        0 0 0 0.07 0" />
+                <feComposite in2="SourceGraphic" operator="in" />
+              </filter>
+              <clipPath id="moon-clip">
+                <circle cx="100" cy="100" r="68" />
+              </clipPath>
             </defs>
-            <circle cx="60" cy="60" r="58" fill="url(#moon-halo)" />
-            <circle cx="60" cy="60" r="38" fill="url(#moon-body)" />
-            {/* maria — approximate real positions */}
-            <ellipse cx="48" cy="44" rx="9.0" ry="5.5" fill="rgba(108,103,93,0.32)" />
-            <ellipse cx="68" cy="46" rx="6.0" ry="5.0" fill="rgba(105,100,90,0.30)" />
-            <ellipse cx="72" cy="58" rx="6.0" ry="7.0" fill="rgba(110,105,95,0.30)" />
-            <ellipse cx="73" cy="70" rx="4.0" ry="6.0" fill="rgba(110,105,95,0.27)" />
-            <ellipse cx="55" cy="72" rx="7.5" ry="4.0" fill="rgba(115,110,98,0.28)" />
-            <ellipse cx="42" cy="60" rx="5.0" ry="9.0" fill="rgba(108,103,93,0.28)" />
-            {/* small craters */}
-            <circle cx="58" cy="80" r="1.3" fill="rgba(85,80,72,0.45)" />
-            <circle cx="50" cy="55" r="1.0" fill="rgba(85,80,72,0.40)" />
-            <circle cx="64" cy="48" r="0.8" fill="rgba(85,80,72,0.35)" />
-            <circle cx="66" cy="72" r="0.9" fill="rgba(85,80,72,0.40)" />
-            <circle cx="44" cy="74" r="0.7" fill="rgba(85,80,72,0.35)" />
-            {/* limb shadow for subtle 3D */}
-            <circle cx="61" cy="61" r="38" fill="rgba(20,18,30,0.10)" />
+
+            {/* halo */}
+            <circle cx="100" cy="100" r="96" fill="url(#moon-halo-grad)" />
+            {/* body */}
+            <circle cx="100" cy="100" r="68" fill="url(#moon-body)" />
+
+            <g clipPath="url(#moon-clip)">
+              {/* surface noise overlay */}
+              <circle cx="100" cy="100" r="68" filter="url(#moon-noise)" opacity="0.55" />
+
+              {/* highland highlights */}
+              <ellipse cx="110" cy="48"  rx="22" ry="11" fill="rgba(248,240,215,0.10)" />
+              <ellipse cx="58"  cy="58"  rx="16" ry="13" fill="rgba(248,240,215,0.08)" />
+              <ellipse cx="115" cy="155" rx="18" ry="11" fill="rgba(248,240,215,0.08)" />
+
+              {/* maria — real near-side geography */}
+              {/* Oceanus Procellarum (huge, left) */}
+              <ellipse cx="60"  cy="95"  rx="22" ry="34" fill="rgba(82,78,70,0.42)" />
+              {/* Mare Imbrium (upper-left, prominent) */}
+              <ellipse cx="78"  cy="60"  rx="20" ry="14" fill="rgba(76,72,64,0.48)" transform="rotate(-12 78 60)" />
+              {/* Sinus Iridum — northern arc of Imbrium */}
+              <ellipse cx="64"  cy="50"  rx="9"  ry="5"  fill="rgba(80,76,68,0.40)" transform="rotate(-25 64 50)" />
+              {/* Mare Serenitatis (upper-mid-right, almost circular) */}
+              <ellipse cx="120" cy="68"  rx="13" ry="13" fill="rgba(80,76,68,0.44)" />
+              {/* Mare Tranquillitatis (mid-right, Apollo 11) */}
+              <ellipse cx="130" cy="95"  rx="16" ry="14" fill="rgba(82,78,70,0.42)" transform="rotate(20 130 95)" />
+              {/* Mare Crisium (far upper-right, distinctive small almond) */}
+              <ellipse cx="152" cy="78"  rx="10" ry="7"  fill="rgba(72,68,60,0.55)" transform="rotate(-15 152 78)" />
+              {/* Mare Fecunditatis (lower-right of Tranquillitatis) */}
+              <ellipse cx="137" cy="117" rx="9"  ry="15" fill="rgba(80,76,68,0.42)" />
+              {/* Mare Nectaris */}
+              <ellipse cx="121" cy="130" rx="8"  ry="8"  fill="rgba(82,78,70,0.40)" />
+              {/* Mare Nubium (lower-mid, irregular) */}
+              <ellipse cx="80"  cy="135" rx="16" ry="9"  fill="rgba(78,74,66,0.40)" />
+              {/* Mare Humorum (lower-left) */}
+              <ellipse cx="58"  cy="138" rx="9"  ry="10" fill="rgba(76,72,64,0.42)" />
+              {/* Mare Vaporum (small, central) */}
+              <ellipse cx="100" cy="88"  rx="6"  ry="6"  fill="rgba(88,84,76,0.30)" />
+              {/* Mare Frigoris (long thin arc near top) */}
+              <ellipse cx="98"  cy="38"  rx="38" ry="4"  fill="rgba(82,78,70,0.32)" transform="rotate(-8 98 38)" />
+
+              {/* Tycho — bright crater with ray system in southern hemisphere */}
+              <g opacity="0.78">
+                <line x1="96" y1="152" x2="76"  y2="172" stroke="rgba(245,238,215,0.22)" strokeWidth="0.5" />
+                <line x1="96" y1="152" x2="116" y2="174" stroke="rgba(245,238,215,0.22)" strokeWidth="0.5" />
+                <line x1="96" y1="152" x2="68"  y2="158" stroke="rgba(245,238,215,0.20)" strokeWidth="0.5" />
+                <line x1="96" y1="152" x2="124" y2="160" stroke="rgba(245,238,215,0.20)" strokeWidth="0.5" />
+                <line x1="96" y1="152" x2="96"  y2="178" stroke="rgba(245,238,215,0.22)" strokeWidth="0.6" />
+                <line x1="96" y1="152" x2="82"  y2="128" stroke="rgba(245,238,215,0.18)" strokeWidth="0.5" />
+                <line x1="96" y1="152" x2="110" y2="130" stroke="rgba(245,238,215,0.18)" strokeWidth="0.5" />
+              </g>
+              <circle cx="96" cy="152" r="3.4" fill="rgba(245,238,215,0.9)" />
+              <circle cx="96" cy="152" r="3.4" fill="none" stroke="rgba(70,65,55,0.5)" strokeWidth="0.4" />
+
+              {/* Copernicus — bright crater */}
+              <circle cx="88" cy="100" r="2.8" fill="rgba(225,215,190,0.85)" />
+              <circle cx="88" cy="100" r="4.2" fill="none" stroke="rgba(225,215,190,0.32)" strokeWidth="0.5" />
+              {/* Kepler */}
+              <circle cx="72" cy="100" r="1.7" fill="rgba(225,215,190,0.85)" />
+              {/* Aristarchus — very bright small crater */}
+              <circle cx="62" cy="78"  r="1.5" fill="rgba(248,240,215,0.95)" />
+              {/* Plato — dark-floored crater near top */}
+              <circle cx="90" cy="42"  r="2.2" fill="rgba(70,66,58,0.55)" />
+
+              {/* scattered minor craters */}
+              <circle cx="100" cy="58"  r="1.0" fill="rgba(78,74,66,0.6)" />
+              <circle cx="125" cy="125" r="0.9" fill="rgba(78,74,66,0.55)" />
+              <circle cx="65"  cy="120" r="0.8" fill="rgba(78,74,66,0.55)" />
+              <circle cx="140" cy="103" r="1.0" fill="rgba(78,74,66,0.5)" />
+              <circle cx="50"  cy="80"  r="0.9" fill="rgba(78,74,66,0.5)" />
+              <circle cx="145" cy="138" r="0.8" fill="rgba(78,74,66,0.55)" />
+              <circle cx="80"  cy="155" r="0.8" fill="rgba(78,74,66,0.55)" />
+
+              {/* limb darkening — soft inset shadow ring at edge */}
+              <circle cx="100" cy="100" r="68" fill="none"
+                stroke="rgba(20,15,10,0.55)" strokeWidth="3" />
+              <circle cx="100" cy="100" r="68" fill="none"
+                stroke="rgba(20,15,10,0.18)" strokeWidth="9" />
+            </g>
           </svg>
         </div>
 
@@ -950,60 +1151,49 @@ export default function HomepageBackground() {
           <div className="homepage-bg-flare-ghost homepage-bg-flare-ghost--6" />
         </div>
 
-        {/* Lone tree silhouette on the right of the horizon. Rendered
-            before grass so the grass blades overlap the trunk base. */}
+        {/* Lone tree — procedurally grown: recursive branches with
+            natural taper + dense leaf clusters at each tip. Rendered
+            before grass so the front blades overlap the trunk base. */}
         <div className="homepage-bg-tree">
           <svg viewBox="0 0 240 340" preserveAspectRatio="xMidYEnd meet">
-            {/* trunk */}
-            <path className="tree-trunk" d="
-              M 116 340
-              L 112 290
-              L 110 250
-              L 108 220
-              L 106 195
-              L 103 175
-              L 102 160
-              L 105 150
-              L 110 145
-              L 116 142
-              L 124 142
-              L 132 144
-              L 138 148
-              L 142 155
-              L 140 175
-              L 138 195
-              L 136 220
-              L 134 250
-              L 132 290
-              L 128 340
-              Z" />
-            {/* a few branches poking through the canopy */}
-            <path className="tree-branch" d="M 120 195 L 100 175 L 82 160" strokeWidth="2.4" />
-            <path className="tree-branch" d="M 124 188 L 145 168 L 162 154" strokeWidth="2.4" />
-            <path className="tree-branch" d="M 118 168 L 95 142 L 78 128"  strokeWidth="1.8" />
-            <path className="tree-branch" d="M 126 162 L 150 138 L 166 124" strokeWidth="1.8" />
-            <path className="tree-branch" d="M 122 138 L 108 110"           strokeWidth="1.6" />
-            <path className="tree-branch" d="M 124 138 L 138 108"           strokeWidth="1.6" />
-            {/* crown — many circles for natural bumpy silhouette */}
-            <g className="tree-fill">
-              <circle cx="120" cy="120" r="58" />
-              <circle cx="80"  cy="125" r="40" />
-              <circle cx="160" cy="120" r="44" />
-              <circle cx="95"  cy="88"  r="34" />
-              <circle cx="140" cy="86"  r="38" />
-              <circle cx="62"  cy="138" r="26" />
-              <circle cx="178" cy="132" r="30" />
-              <circle cx="115" cy="62"  r="28" />
-              <circle cx="155" cy="60"  r="27" />
-              <circle cx="105" cy="155" r="36" />
-              <circle cx="135" cy="155" r="34" />
-              <circle cx="74"  cy="103" r="22" />
-              <circle cx="170" cy="100" r="24" />
-              <circle cx="125" cy="42"  r="22" />
-              <circle cx="100" cy="48"  r="20" />
-              <circle cx="148" cy="46"  r="19" />
-              <circle cx="88"  cy="160" r="22" />
-              <circle cx="156" cy="170" r="20" />
+            {/* branches: stroke-width per branch via the procedural data */}
+            <g className="tree-branches">
+              {tree.branches.map((b, i) => (
+                <line
+                  key={`b${i}`}
+                  x1={b.x1}
+                  y1={b.y1}
+                  x2={b.x2}
+                  y2={b.y2}
+                  strokeWidth={b.w}
+                />
+              ))}
+            </g>
+            {/* leaves: dark-green base */}
+            <g className="tree-leaves">
+              {tree.leaves.map((l, i) => (
+                <circle
+                  key={`l${i}`}
+                  cx={l.x}
+                  cy={l.y}
+                  r={l.r}
+                  fill={`hsla(${(105 + l.tone * 28).toFixed(0)}, ${(28 + l.tone * 22).toFixed(0)}%, ${(7 + l.tone * 11).toFixed(0)}%, 0.94)`}
+                />
+              ))}
+            </g>
+            {/* leaves: warm highlight on a third of clusters facing the
+                rising sun (lower-left of each cluster) — screen blend
+                makes them read as catching dawn light without losing
+                the silhouette */}
+            <g className="tree-leaf-highlight">
+              {tree.leaves.filter((_, i) => i % 3 === 0).map((l, i) => (
+                <circle
+                  key={`h${i}`}
+                  cx={l.x - l.r * 0.35}
+                  cy={l.y + l.r * 0.25}
+                  r={l.r * 0.55}
+                />
+              ))}
             </g>
           </svg>
         </div>
@@ -1019,6 +1209,15 @@ export default function HomepageBackground() {
             {/* highlight: re-uses the front silhouette path, painted in
                 screen-blend warm-green to light the tips */}
             <path d={grassFront} className="homepage-bg-grass-highlight" />
+            {/* hero blades: individual leaning curved blades that
+                stand proud of the silhouette and catch strong dawn
+                light — each has its own hue/lightness for natural
+                variation across the meadow */}
+            <g className="homepage-bg-grass-hero">
+              {heroBlades.map((b, i) => (
+                <path key={`hb${i}`} d={b.d} fill={b.fill} />
+              ))}
+            </g>
           </svg>
         </div>
 
