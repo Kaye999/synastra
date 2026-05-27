@@ -631,24 +631,97 @@ body:has(.homepage-bg-root) .cosmos-root {
   animation: grass-sway 14s ease-in-out infinite alternate;
 }
 .homepage-bg-grass-back {
-  fill: rgba(10, 9, 7, 0.55);
-  filter: blur(2.5px);
+  fill: rgba(34, 62, 42, 0.55);    /* deep sage, atmospheric */
+  filter: blur(3px);
   transform: translateY(8px) scaleY(0.72);
   transform-origin: 50% 100%;
 }
 .homepage-bg-grass-mid {
-  fill: rgba(6, 5, 4, 0.85);
-  filter: blur(0.6px) drop-shadow(0 -2px 4px rgba(244, 200, 130, 0.30));
+  fill: rgba(20, 42, 26, 0.88);    /* mid meadow green */
+  filter: blur(0.6px) drop-shadow(0 -2px 4px rgba(244, 200, 130, 0.35));
   transform: translateY(3px) scaleY(0.88);
   transform-origin: 50% 100%;
 }
 .homepage-bg-grass-front {
-  fill: rgba(0, 0, 0, 0.98);
-  filter: drop-shadow(0 -3px 5px rgba(255, 210, 150, 0.55));
+  fill: rgba(8, 22, 12, 0.97);     /* dark green silhouette */
+  filter: drop-shadow(0 -3px 5px rgba(255, 215, 155, 0.60));
+}
+/* A lighter highlight pass that draws only on the upper portion of the
+   front layer — these are the tips catching the dawn light. Mix-blend
+   screen layers warm-green over the dark silhouette so you read both
+   "meadow" and "rim light" without losing the silhouette. */
+.homepage-bg-grass-highlight {
+  fill: rgba(90, 140, 75, 0.65);
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 -2px 3px rgba(255, 220, 160, 0.45));
 }
 @keyframes grass-sway {
   0%   { transform: skewX(-0.6deg) translateY( 0.6px); }
   100% { transform: skewX( 0.6deg) translateY(-0.6px); }
+}
+
+/* ─── 17. Lone tree silhouette ────────────────────────────────────────
+   Hand-tuned SVG silhouette (trunk + 15 overlapping circles for the
+   crown + a few branch strokes). Sits on the grass line, slightly
+   right-of-centre. Warm dawn-glow drop-shadow on the lower-left edge
+   simulates the sun rising up behind/to-the-left of the tree.
+   Gentle wind sway. Reveals with the grass. */
+.homepage-bg-tree {
+  position: absolute;
+  bottom: 70px;      /* base sits inside the grass layer */
+  right: 9%;
+  width: 220px;
+  height: 320px;
+  pointer-events: none;
+  opacity: clamp(0, calc((var(--hp-scroll) - 0.62) * 4), 1);
+  transition: opacity 200ms linear;
+  filter: drop-shadow(-4px 2px 9px rgba(255, 210, 155, 0.55))
+          drop-shadow(0 4px 4px rgba(0, 0, 0, 0.45));
+}
+.homepage-bg-tree svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  animation: tree-sway 22s ease-in-out infinite alternate;
+}
+.homepage-bg-tree .tree-fill {
+  fill: rgba(8, 18, 12, 0.97);
+}
+.homepage-bg-tree .tree-trunk {
+  fill: rgba(5, 12, 8, 0.98);
+}
+.homepage-bg-tree .tree-branch {
+  stroke: rgba(5, 12, 8, 0.95);
+  fill: none;
+  stroke-linecap: round;
+}
+@keyframes tree-sway {
+  0%   { transform: rotate(-0.35deg) translateX(-0.5px); }
+  100% { transform: rotate( 0.35deg) translateX( 0.5px); }
+}
+
+/* ─── 18. Realistic moon ──────────────────────────────────────────────
+   Full moon with soft halo, body radial-gradient (warm cream → grey),
+   approximate maria positions and a few crater dots. Visible during the
+   night phase; fades out as the sky brightens. */
+.homepage-bg-moon {
+  position: absolute;
+  top: 7%;
+  left: 13%;
+  width: 120px;
+  height: 120px;
+  pointer-events: none;
+  opacity: calc(var(--hp-night) * 0.95);
+  transition: opacity 240ms linear;
+  filter: drop-shadow(0 0 14px rgba(245, 238, 220, 0.35));
+}
+.homepage-bg-moon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ─── 17. Footer veil ─────────────────────────────────────────────── */
@@ -681,7 +754,8 @@ body:has(.homepage-bg-root) .cosmos-root {
   .homepage-bg-sun-corona,
   .homepage-bg-star,
   .homepage-bg-shoot,
-  .homepage-bg-grass svg {
+  .homepage-bg-grass svg,
+  .homepage-bg-tree svg {
     animation: none !important;
   }
 }
@@ -799,6 +873,43 @@ export default function HomepageBackground() {
         {renderStarLayer(mid, 'homepage-bg-stars--mid')}
         {renderStarLayer(near, 'homepage-bg-stars--near')}
 
+        {/* Realistic full moon — night-phase only. Maria positions and
+            sizes approximate the actual lunar near side. */}
+        <div className="homepage-bg-moon">
+          <svg viewBox="0 0 120 120">
+            <defs>
+              <radialGradient id="moon-body" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%"   stopColor="#f5efd9" />
+                <stop offset="55%"  stopColor="#e6dcc1" />
+                <stop offset="92%"  stopColor="#b4a994" />
+                <stop offset="100%" stopColor="#8a8273" />
+              </radialGradient>
+              <radialGradient id="moon-halo" cx="0.5" cy="0.5" r="0.5">
+                <stop offset="0%"   stopColor="rgba(245,238,220,0.50)" />
+                <stop offset="40%"  stopColor="rgba(245,238,220,0.18)" />
+                <stop offset="100%" stopColor="rgba(245,238,220,0)" />
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="58" fill="url(#moon-halo)" />
+            <circle cx="60" cy="60" r="38" fill="url(#moon-body)" />
+            {/* maria — approximate real positions */}
+            <ellipse cx="48" cy="44" rx="9.0" ry="5.5" fill="rgba(108,103,93,0.32)" />
+            <ellipse cx="68" cy="46" rx="6.0" ry="5.0" fill="rgba(105,100,90,0.30)" />
+            <ellipse cx="72" cy="58" rx="6.0" ry="7.0" fill="rgba(110,105,95,0.30)" />
+            <ellipse cx="73" cy="70" rx="4.0" ry="6.0" fill="rgba(110,105,95,0.27)" />
+            <ellipse cx="55" cy="72" rx="7.5" ry="4.0" fill="rgba(115,110,98,0.28)" />
+            <ellipse cx="42" cy="60" rx="5.0" ry="9.0" fill="rgba(108,103,93,0.28)" />
+            {/* small craters */}
+            <circle cx="58" cy="80" r="1.3" fill="rgba(85,80,72,0.45)" />
+            <circle cx="50" cy="55" r="1.0" fill="rgba(85,80,72,0.40)" />
+            <circle cx="64" cy="48" r="0.8" fill="rgba(85,80,72,0.35)" />
+            <circle cx="66" cy="72" r="0.9" fill="rgba(85,80,72,0.40)" />
+            <circle cx="44" cy="74" r="0.7" fill="rgba(85,80,72,0.35)" />
+            {/* limb shadow for subtle 3D */}
+            <circle cx="61" cy="61" r="38" fill="rgba(20,18,30,0.10)" />
+          </svg>
+        </div>
+
         <div className="homepage-bg-shooting">
           <div className="homepage-bg-shoot homepage-bg-shoot--a" />
           <div className="homepage-bg-shoot homepage-bg-shoot--b" />
@@ -839,6 +950,64 @@ export default function HomepageBackground() {
           <div className="homepage-bg-flare-ghost homepage-bg-flare-ghost--6" />
         </div>
 
+        {/* Lone tree silhouette on the right of the horizon. Rendered
+            before grass so the grass blades overlap the trunk base. */}
+        <div className="homepage-bg-tree">
+          <svg viewBox="0 0 240 340" preserveAspectRatio="xMidYEnd meet">
+            {/* trunk */}
+            <path className="tree-trunk" d="
+              M 116 340
+              L 112 290
+              L 110 250
+              L 108 220
+              L 106 195
+              L 103 175
+              L 102 160
+              L 105 150
+              L 110 145
+              L 116 142
+              L 124 142
+              L 132 144
+              L 138 148
+              L 142 155
+              L 140 175
+              L 138 195
+              L 136 220
+              L 134 250
+              L 132 290
+              L 128 340
+              Z" />
+            {/* a few branches poking through the canopy */}
+            <path className="tree-branch" d="M 120 195 L 100 175 L 82 160" strokeWidth="2.4" />
+            <path className="tree-branch" d="M 124 188 L 145 168 L 162 154" strokeWidth="2.4" />
+            <path className="tree-branch" d="M 118 168 L 95 142 L 78 128"  strokeWidth="1.8" />
+            <path className="tree-branch" d="M 126 162 L 150 138 L 166 124" strokeWidth="1.8" />
+            <path className="tree-branch" d="M 122 138 L 108 110"           strokeWidth="1.6" />
+            <path className="tree-branch" d="M 124 138 L 138 108"           strokeWidth="1.6" />
+            {/* crown — many circles for natural bumpy silhouette */}
+            <g className="tree-fill">
+              <circle cx="120" cy="120" r="58" />
+              <circle cx="80"  cy="125" r="40" />
+              <circle cx="160" cy="120" r="44" />
+              <circle cx="95"  cy="88"  r="34" />
+              <circle cx="140" cy="86"  r="38" />
+              <circle cx="62"  cy="138" r="26" />
+              <circle cx="178" cy="132" r="30" />
+              <circle cx="115" cy="62"  r="28" />
+              <circle cx="155" cy="60"  r="27" />
+              <circle cx="105" cy="155" r="36" />
+              <circle cx="135" cy="155" r="34" />
+              <circle cx="74"  cy="103" r="22" />
+              <circle cx="170" cy="100" r="24" />
+              <circle cx="125" cy="42"  r="22" />
+              <circle cx="100" cy="48"  r="20" />
+              <circle cx="148" cy="46"  r="19" />
+              <circle cx="88"  cy="160" r="22" />
+              <circle cx="156" cy="170" r="20" />
+            </g>
+          </svg>
+        </div>
+
         <div className="homepage-bg-vignette" />
         <div className="homepage-bg-grain" />
 
@@ -847,6 +1016,9 @@ export default function HomepageBackground() {
             <path d={grassBack}  className="homepage-bg-grass-back"  />
             <path d={grassMid}   className="homepage-bg-grass-mid"   />
             <path d={grassFront} className="homepage-bg-grass-front" />
+            {/* highlight: re-uses the front silhouette path, painted in
+                screen-blend warm-green to light the tips */}
+            <path d={grassFront} className="homepage-bg-grass-highlight" />
           </svg>
         </div>
 
