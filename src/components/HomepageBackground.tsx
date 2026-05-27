@@ -874,17 +874,25 @@ body:has(.homepage-bg-root) .cosmos-root {
   );
   pointer-events: none;
 }
-.homepage-bg-moon img {
+/* The IMG sits inside a circular crop. The source photo has a thin
+   black halo at the edge of the lunar disc, so we scale the image up
+   ~14% to push that band outside the crop — only the disc itself
+   remains visible. */
+.homepage-bg-moon-clip {
   position: relative;
-  display: block;
   width: 100%;
   height: 100%;
   border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 28px rgba(245, 238, 220, 0.40);
+}
+.homepage-bg-moon img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  filter: brightness(1.06) contrast(1.10) saturate(0.92);
-  box-shadow:
-    0 0 28px rgba(245, 238, 220, 0.40),
-    inset 0 0 12px rgba(15, 10, 5, 0.55);
+  transform: scale(1.14);
+  filter: brightness(1.06) contrast(1.08) saturate(0.95);
 }
 
 /* ─── 17. Footer veil ─────────────────────────────────────────────── */
@@ -1047,7 +1055,9 @@ export default function HomepageBackground() {
             during the night phase, fades as the sky brightens. */}
         <div className="homepage-bg-moon">
           <div className="homepage-bg-moon-halo" />
-          <img src={moonSrc} alt="" aria-hidden="true" loading="eager" />
+          <div className="homepage-bg-moon-clip">
+            <img src={moonSrc} alt="" aria-hidden="true" loading="eager" />
+          </div>
         </div>
 
         <div className="homepage-bg-shooting">
