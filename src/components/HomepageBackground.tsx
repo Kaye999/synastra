@@ -510,19 +510,23 @@ body:has(.homepage-bg-root) .cosmos-root {
   100% { transform: translate3d(70vw, 26vh, 0) rotate(22deg); opacity: 0; }
 }
 
-/* ─── 07. Heptagram yantra reveal ──────────────────────────────────
-   Layered sacred geometry built on the seven-vertex ring. Each layer
-   inscribes itself via stroke-dashoffset driven by its own staged
-   CSS var (--hp-s1..s8). Reveals as scroll enters the "Seven" band
-   and retracts as it leaves. All strokes are in the brand brass. */
+/* ─── 07. Heptagram yantra — continuous celestial wheel ───────────
+   Layered sacred geometry built on the seven-vertex ring. Visible
+   throughout the scroll; the whole SVG rotates slowly on a long loop
+   and each individual layer breathes on its own long period (35–60s,
+   phase-offset) so the geometry feels alive without flashing. Brass
+   tones throughout. Receives a small brightness boost while crossing
+   the "Seven" content band so the section still feels like its
+   visual peak. */
 .homepage-bg-heptagram {
   position: absolute;
-  top: 14%;
+  top: 12%;
   left: 50%;
   transform: translate(-50%, 0);
-  width: clamp(420px, 48vw, 640px);
+  width: clamp(380px, 44vw, 580px);
   aspect-ratio: 1 / 1;
-  opacity: calc(clamp(0, var(--hp-seven), 1) * var(--hp-night));
+  /* base opacity ~0.42 always, lifts to ~0.78 around the Seven band */
+  opacity: calc(0.42 + var(--hp-seven) * 0.36);
   pointer-events: none;
   transition: opacity 240ms linear;
 }
@@ -530,87 +534,102 @@ body:has(.homepage-bg-root) .cosmos-root {
   width: 100%;
   height: 100%;
   overflow: visible;
+  transform-origin: 50% 50%;
+  animation: yantra-rotate 220s linear infinite;
 }
 .homepage-bg-heptagram .hep-glow {
   fill: rgba(244, 200, 130, 0.10);
   filter: blur(10px);
+  animation: yantra-glow 18s ease-in-out infinite alternate;
 }
-/* All stroked layers share the same brass + linecap + glow */
 .homepage-bg-heptagram path,
 .homepage-bg-heptagram circle,
 .homepage-bg-heptagram line {
   stroke-linecap: round;
 }
+
+/* Shared base styling per layer — opacity drives the breath cycle. */
 .hep-ring-outer {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.42);
+  stroke: rgba(244, 200, 130, 0.55);
   stroke-width: 0.22;
-  stroke-dasharray: 305;
-  stroke-dashoffset: calc(305 * (1 - var(--hp-s1)));
-  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.30));
+  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.35));
+  animation: layer-breath 38s ease-in-out -2s  infinite alternate;
 }
 .hep-ticks {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.55);
-  stroke-width: 0.32;
-  stroke-dasharray: 25;
-  stroke-dashoffset: calc(25 * (1 - var(--hp-s2)));
+  stroke: rgba(244, 200, 130, 0.70);
+  stroke-width: 0.34;
+  animation: layer-breath 44s ease-in-out -8s  infinite alternate;
 }
 .hep-heptagon {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.42);
+  stroke: rgba(244, 200, 130, 0.55);
   stroke-width: 0.26;
-  stroke-dasharray: 330;
-  stroke-dashoffset: calc(330 * (1 - var(--hp-s2)));
-  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.25));
+  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.30));
+  animation: layer-breath 41s ease-in-out -14s infinite alternate;
 }
 .hep-star-72 {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.45);
-  stroke-width: 0.26;
-  stroke-dasharray: 470;
-  stroke-dashoffset: calc(470 * (1 - var(--hp-s3)));
-  filter: drop-shadow(0 0 1.3px rgba(244, 200, 130, 0.30));
+  stroke: rgba(244, 200, 130, 0.58);
+  stroke-width: 0.28;
+  filter: drop-shadow(0 0 1.4px rgba(244, 200, 130, 0.35));
+  animation: layer-breath 49s ease-in-out -20s infinite alternate;
 }
 .hep-star-73 {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.68);
+  stroke: rgba(244, 200, 130, 0.78);
   stroke-width: 0.36;
-  stroke-dasharray: 530;
-  stroke-dashoffset: calc(530 * (1 - var(--hp-s4)));
-  filter: drop-shadow(0 0 1.8px rgba(244, 200, 130, 0.50));
+  filter: drop-shadow(0 0 1.8px rgba(244, 200, 130, 0.55));
+  animation: layer-breath 56s ease-in-out -26s infinite alternate;
 }
 .hep-spokes {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.28);
+  stroke: rgba(244, 200, 130, 0.40);
   stroke-width: 0.16;
-  stroke-dasharray: 50;
-  stroke-dashoffset: calc(50 * (1 - var(--hp-s5)));
+  animation: layer-breath 35s ease-in-out -5s  infinite alternate;
 }
 .hep-ring-inner {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.55);
-  stroke-width: 0.24;
-  stroke-dasharray: 90;
-  stroke-dashoffset: calc(90 * (1 - var(--hp-s6)));
+  stroke: rgba(244, 200, 130, 0.65);
+  stroke-width: 0.26;
+  animation: layer-breath 47s ease-in-out -32s infinite alternate;
 }
 .hep-star-inner {
   fill: none;
-  stroke: rgba(244, 200, 130, 0.62);
+  stroke: rgba(244, 200, 130, 0.72);
   stroke-width: 0.30;
-  stroke-dasharray: 150;
-  stroke-dashoffset: calc(150 * (1 - var(--hp-s7)));
-  filter: drop-shadow(0 0 1.5px rgba(244, 200, 130, 0.45));
+  filter: drop-shadow(0 0 1.5px rgba(244, 200, 130, 0.50));
+  animation: layer-breath 53s ease-in-out -38s infinite alternate;
 }
 .hep-vertex {
   fill: #FCFAF6;
-  opacity: var(--hp-s8);
   filter: drop-shadow(0 0 2.5px rgba(252, 250, 246, 0.85));
+  animation: vertex-twinkle 28s ease-in-out -10s infinite alternate;
+  transform-origin: center;
 }
 .hep-bindu {
   fill: rgba(255, 230, 180, 0.98);
-  opacity: var(--hp-s8);
   filter: drop-shadow(0 0 3px rgba(255, 220, 160, 0.85));
+  animation: vertex-twinkle 24s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+@keyframes yantra-rotate {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes layer-breath {
+  0%   { opacity: 0.35; }
+  100% { opacity: 1; }
+}
+@keyframes vertex-twinkle {
+  0%   { opacity: 0.45; transform: scale(0.85); }
+  100% { opacity: 1;    transform: scale(1.15); }
+}
+@keyframes yantra-glow {
+  0%   { opacity: 0.6; }
+  100% { opacity: 1; }
 }
 
 /* ─── 08. Horizon haze ────────────────────────────────────────────── */
@@ -1053,7 +1072,13 @@ body:has(.homepage-bg-root) .cosmos-root {
   .homepage-bg-star,
   .homepage-bg-shoot,
   .homepage-bg-grass svg,
-  .homepage-bg-tree svg {
+  .homepage-bg-tree svg,
+  .homepage-bg-heptagram svg,
+  .homepage-bg-heptagram .hep-glow,
+  .hep-ring-outer, .hep-ticks, .hep-heptagon,
+  .hep-star-72, .hep-star-73, .hep-spokes,
+  .hep-ring-inner, .hep-star-inner,
+  .hep-vertex, .hep-bindu {
     animation: none !important;
   }
 }
@@ -1114,20 +1139,6 @@ export default function HomepageBackground() {
         else seven = Math.max(0, 1 - (local - 0.65) / 0.35); // fade out
       }
 
-      // Yantra cascade — each layer reveals on its own staggered band
-      // of the master heptagram progress so the geometry "inscribes"
-      // itself outer-in. They all retract together as seven fades.
-      const stage = (start: number, end: number) =>
-        Math.max(0, Math.min(1, (seven - start) / (end - start)));
-      const s1 = stage(0.00, 0.18);  // outer ring
-      const s2 = stage(0.10, 0.30);  // heptagon + ticks
-      const s3 = stage(0.20, 0.45);  // {7/2} star
-      const s4 = stage(0.30, 0.58);  // {7/3} star (the main one)
-      const s5 = stage(0.42, 0.62);  // radial spokes
-      const s6 = stage(0.52, 0.72);  // inner ring
-      const s7 = stage(0.62, 0.80);  // inner mini star
-      const s8 = stage(0.70, 0.88);  // vertex dots + centre bindu
-
       root.style.setProperty('--hp-scroll', progress.toFixed(3));
       root.style.setProperty('--hp-sky-mix', skyMix.toFixed(3));
       root.style.setProperty('--hp-stars', stars.toFixed(3));
@@ -1136,14 +1147,6 @@ export default function HomepageBackground() {
       root.style.setProperty('--hp-night', (1 - skyMix).toFixed(3));
       root.style.setProperty('--hp-seven', seven.toFixed(3));
       root.style.setProperty('--hp-aurora', aurora.toFixed(3));
-      root.style.setProperty('--hp-s1', s1.toFixed(3));
-      root.style.setProperty('--hp-s2', s2.toFixed(3));
-      root.style.setProperty('--hp-s3', s3.toFixed(3));
-      root.style.setProperty('--hp-s4', s4.toFixed(3));
-      root.style.setProperty('--hp-s5', s5.toFixed(3));
-      root.style.setProperty('--hp-s6', s6.toFixed(3));
-      root.style.setProperty('--hp-s7', s7.toFixed(3));
-      root.style.setProperty('--hp-s8', s8.toFixed(3));
     };
 
     const onScroll = () => {
@@ -1161,7 +1164,6 @@ export default function HomepageBackground() {
       if (raf) cancelAnimationFrame(raf);
       ['--hp-scroll','--hp-sky-mix','--hp-stars','--hp-sun-y','--hp-sun-glow',
        '--hp-night','--hp-seven','--hp-aurora',
-       '--hp-s1','--hp-s2','--hp-s3','--hp-s4','--hp-s5','--hp-s6','--hp-s7','--hp-s8',
       ].forEach(v => root.style.removeProperty(v));
     };
   }, []);
