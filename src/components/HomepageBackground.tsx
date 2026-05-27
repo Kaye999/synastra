@@ -120,30 +120,88 @@ function generateAllStars(seed: number) {
   return { far, mid, near };
 }
 
-// ─── Heptagram vertices ──────────────────────────────────────────────
-// 7 points on a circle, connected as {7/3} star polygon. Coordinates in
-// percentage of an SVG viewBox (100×100 square). Centred at (50, 50)
-// with radius 45 — caller scales/positions the SVG itself.
-function heptagramPoints(): { x: number; y: number }[] {
-  const cx = 50, cy = 50, r = 45;
-  const pts: { x: number; y: number }[] = [];
-  for (let i = 0; i < 7; i++) {
-    // Start at top (-90°), evenly spaced
-    const theta = (-Math.PI / 2) + (i * (2 * Math.PI) / 7);
-    pts.push({
-      x: cx + r * Math.cos(theta),
-      y: cy + r * Math.sin(theta),
-    });
+// ─── Sacred-geometry yantra (built around the heptagram) ─────────────
+// All geometry lives inside a 100×100 viewBox centred at (50, 50).
+// Several concentric layers — outer ring, inscribed heptagon, two
+// heptagram star polygons ({7/2} and {7/3}), radial spokes, inner
+// ring with a mini {7/3} star, vertex pinpricks, and a central
+// bindu. Each layer cascades in on its own sub-stage of --hp-seven.
+type Pt = { x: number; y: number };
+
+function ringPoints(cx: number, cy: number, r: number, n = 7): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < n; i++) {
+    const t = (-Math.PI / 2) + (i * (2 * Math.PI) / n);
+    out.push({ x: cx + r * Math.cos(t), y: cy + r * Math.sin(t) });
   }
-  return pts;
+  return out;
 }
 
-// Connect every 3rd point (i → i+3 mod 7) to draw the heptagram.
-function heptagramPath(pts: { x: number; y: number }[]): string {
-  const order = [0, 3, 6, 2, 5, 1, 4, 0]; // closes back to 0
-  return order
-    .map((idx, i) => (i === 0 ? 'M' : 'L') + pts[idx].x + ' ' + pts[idx].y)
-    .join(' ');
+function polyPath(pts: Pt[], closed = true): string {
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) d += ` L ${pts[i].x} ${pts[i].y}`;
+  if (closed) d += ' Z';
+  return d;
+}
+
+// {n/k} star polygon: connect every k-th vertex around an n-point ring.
+function starPath(pts: Pt[], k: number): string {
+  const n = pts.length;
+  const out: string[] = [];
+  for (let i = 0; i <= n; i++) {
+    const idx = (i * k) % n;
+    out.push((i === 0 ? 'M ' : 'L ') + pts[idx].x + ' ' + pts[idx].y);
+  }
+  return out.join(' ');
+}
+
+// 7 radial spokes from centre to each vertex of the outer ring, as a
+// single multi-move path so it animates uniformly with dashoffset.
+function spokesPath(pts: Pt[], cx: number, cy: number): string {
+  return pts.map(p => `M ${cx} ${cy} L ${p.x} ${p.y}`).join(' ');
+}
+
+// 7 short tick marks just inside the outer ring, one per vertex.
+function ticksPath(cx: number, cy: number, rInner: number, rOuter: number): string {
+  const out: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const t = (-Math.PI / 2) + (i * (2 * Math.PI) / 7);
+    out.push(
+      `M ${(cx + rInner * Math.cos(t)).toFixed(2)} ${(cy + rInner * Math.sin(t)).toFixed(2)} `
+      + `L ${(cx + rOuter * Math.cos(t)).toFixed(2)} ${(cy + rOuter * Math.sin(t)).toFixed(2)}`,
+    );
+  }
+  return out.join(' ');
+}
+
+// Bundle all yantra geometry for rendering.
+type Yantra = {
+  outerPts: Pt[];
+  innerPts: Pt[];
+  heptagon: string;
+  star72: string;
+  star73: string;
+  spokes: string;
+  ticks: string;
+  innerStar73: string;
+};
+
+function buildYantra(): Yantra {
+  const cx = 50, cy = 50;
+  const rOuter = 45;
+  const rInner = 13;
+  const outerPts = ringPoints(cx, cy, rOuter, 7);
+  const innerPts = ringPoints(cx, cy, rInner, 7);
+  return {
+    outerPts,
+    innerPts,
+    heptagon:    polyPath(outerPts, true),
+    star72:      starPath(outerPts, 2),
+    star73:      starPath(outerPts, 3),
+    spokes:      spokesPath(outerPts, cx, cy),
+    ticks:       ticksPath(cx, cy, rOuter - 3, rOuter - 0.5),
+    innerStar73: starPath(innerPts, 3),
+  };
 }
 
 // ─── Grass silhouette (bezier-curved blades) ─────────────────────────
@@ -452,15 +510,19 @@ body:has(.homepage-bg-root) .cosmos-root {
   100% { transform: translate3d(70vw, 26vh, 0) rotate(22deg); opacity: 0; }
 }
 
-/* ─── 07. Heptagram constellation reveal ──────────────────────────── */
+/* ─── 07. Heptagram yantra reveal ──────────────────────────────────
+   Layered sacred geometry built on the seven-vertex ring. Each layer
+   inscribes itself via stroke-dashoffset driven by its own staged
+   CSS var (--hp-s1..s8). Reveals as scroll enters the "Seven" band
+   and retracts as it leaves. All strokes are in the brand brass. */
 .homepage-bg-heptagram {
   position: absolute;
-  top: 18%;
+  top: 14%;
   left: 50%;
   transform: translate(-50%, 0);
-  width: clamp(360px, 42vw, 560px);
+  width: clamp(420px, 48vw, 640px);
   aspect-ratio: 1 / 1;
-  opacity: calc(var(--hp-seven) * var(--hp-night));
+  opacity: calc(clamp(0, var(--hp-seven), 1) * var(--hp-night));
   pointer-events: none;
   transition: opacity 240ms linear;
 }
@@ -469,24 +531,86 @@ body:has(.homepage-bg-root) .cosmos-root {
   height: 100%;
   overflow: visible;
 }
-.homepage-bg-heptagram .hep-line {
+.homepage-bg-heptagram .hep-glow {
+  fill: rgba(244, 200, 130, 0.10);
+  filter: blur(10px);
+}
+/* All stroked layers share the same brass + linecap + glow */
+.homepage-bg-heptagram path,
+.homepage-bg-heptagram circle,
+.homepage-bg-heptagram line {
+  stroke-linecap: round;
+}
+.hep-ring-outer {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.42);
+  stroke-width: 0.22;
+  stroke-dasharray: 305;
+  stroke-dashoffset: calc(305 * (1 - var(--hp-s1)));
+  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.30));
+}
+.hep-ticks {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.55);
+  stroke-width: 0.32;
+  stroke-dasharray: 25;
+  stroke-dashoffset: calc(25 * (1 - var(--hp-s2)));
+}
+.hep-heptagon {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.42);
+  stroke-width: 0.26;
+  stroke-dasharray: 330;
+  stroke-dashoffset: calc(330 * (1 - var(--hp-s2)));
+  filter: drop-shadow(0 0 1.2px rgba(244, 200, 130, 0.25));
+}
+.hep-star-72 {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.45);
+  stroke-width: 0.26;
+  stroke-dasharray: 470;
+  stroke-dashoffset: calc(470 * (1 - var(--hp-s3)));
+  filter: drop-shadow(0 0 1.3px rgba(244, 200, 130, 0.30));
+}
+.hep-star-73 {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.68);
+  stroke-width: 0.36;
+  stroke-dasharray: 530;
+  stroke-dashoffset: calc(530 * (1 - var(--hp-s4)));
+  filter: drop-shadow(0 0 1.8px rgba(244, 200, 130, 0.50));
+}
+.hep-spokes {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.28);
+  stroke-width: 0.16;
+  stroke-dasharray: 50;
+  stroke-dashoffset: calc(50 * (1 - var(--hp-s5)));
+}
+.hep-ring-inner {
+  fill: none;
+  stroke: rgba(244, 200, 130, 0.55);
+  stroke-width: 0.24;
+  stroke-dasharray: 90;
+  stroke-dashoffset: calc(90 * (1 - var(--hp-s6)));
+}
+.hep-star-inner {
   fill: none;
   stroke: rgba(244, 200, 130, 0.62);
-  stroke-width: 0.35;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 2px rgba(244, 200, 130, 0.45));
-  /* total path length is ~393 (7 chords × ~56). Set generously and
-     animate dashoffset via CSS var. */
-  stroke-dasharray: 420;
-  stroke-dashoffset: calc(420 * (1 - var(--hp-seven)));
+  stroke-width: 0.30;
+  stroke-dasharray: 150;
+  stroke-dashoffset: calc(150 * (1 - var(--hp-s7)));
+  filter: drop-shadow(0 0 1.5px rgba(244, 200, 130, 0.45));
 }
-.homepage-bg-heptagram .hep-vertex {
+.hep-vertex {
   fill: #FCFAF6;
-  filter: drop-shadow(0 0 4px rgba(252, 250, 246, 0.85));
+  opacity: var(--hp-s8);
+  filter: drop-shadow(0 0 2.5px rgba(252, 250, 246, 0.85));
 }
-.homepage-bg-heptagram .hep-glow {
-  fill: rgba(244, 200, 130, 0.18);
-  filter: blur(8px);
+.hep-bindu {
+  fill: rgba(255, 230, 180, 0.98);
+  opacity: var(--hp-s8);
+  filter: drop-shadow(0 0 3px rgba(255, 220, 160, 0.85));
 }
 
 /* ─── 08. Horizon haze ────────────────────────────────────────────── */
@@ -883,6 +1007,9 @@ body:has(.homepage-bg-root) .cosmos-root {
   width: 100%;
   height: 100%;
   border-radius: 50%;
+  /* Tighten the visible disc INSIDE the rounded clip so any residual
+     dark edge of the photo falls outside the visible area. */
+  clip-path: circle(47% at 50% 50%);
   overflow: hidden;
   box-shadow: 0 0 28px rgba(245, 238, 220, 0.40);
 }
@@ -891,8 +1018,8 @@ body:has(.homepage-bg-root) .cosmos-root {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.14);
-  filter: brightness(1.06) contrast(1.08) saturate(0.95);
+  transform: scale(1.28);
+  filter: brightness(1.06) contrast(1.06) saturate(0.95);
 }
 
 /* ─── 17. Footer veil ─────────────────────────────────────────────── */
@@ -934,8 +1061,7 @@ body:has(.homepage-bg-root) .cosmos-root {
 
 export default function HomepageBackground() {
   const { far, mid, near } = useMemo(() => generateAllStars(STARS_SEED), []);
-  const hepPts = useMemo(() => heptagramPoints(), []);
-  const hepPath = useMemo(() => heptagramPath(hepPts), [hepPts]);
+  const yantra = useMemo(() => buildYantra(), []);
   const grassBack  = useMemo(() => generateGrassPath(1471, 1000, 100, 0.85), []);
   const grassMid   = useMemo(() => generateGrassPath(2903, 1000, 100, 1.15), []);
   const grassFront = useMemo(() => generateGrassPath(5851, 1000, 100, 1.35), []);
@@ -988,6 +1114,20 @@ export default function HomepageBackground() {
         else seven = Math.max(0, 1 - (local - 0.65) / 0.35); // fade out
       }
 
+      // Yantra cascade — each layer reveals on its own staggered band
+      // of the master heptagram progress so the geometry "inscribes"
+      // itself outer-in. They all retract together as seven fades.
+      const stage = (start: number, end: number) =>
+        Math.max(0, Math.min(1, (seven - start) / (end - start)));
+      const s1 = stage(0.00, 0.18);  // outer ring
+      const s2 = stage(0.10, 0.30);  // heptagon + ticks
+      const s3 = stage(0.20, 0.45);  // {7/2} star
+      const s4 = stage(0.30, 0.58);  // {7/3} star (the main one)
+      const s5 = stage(0.42, 0.62);  // radial spokes
+      const s6 = stage(0.52, 0.72);  // inner ring
+      const s7 = stage(0.62, 0.80);  // inner mini star
+      const s8 = stage(0.70, 0.88);  // vertex dots + centre bindu
+
       root.style.setProperty('--hp-scroll', progress.toFixed(3));
       root.style.setProperty('--hp-sky-mix', skyMix.toFixed(3));
       root.style.setProperty('--hp-stars', stars.toFixed(3));
@@ -996,6 +1136,14 @@ export default function HomepageBackground() {
       root.style.setProperty('--hp-night', (1 - skyMix).toFixed(3));
       root.style.setProperty('--hp-seven', seven.toFixed(3));
       root.style.setProperty('--hp-aurora', aurora.toFixed(3));
+      root.style.setProperty('--hp-s1', s1.toFixed(3));
+      root.style.setProperty('--hp-s2', s2.toFixed(3));
+      root.style.setProperty('--hp-s3', s3.toFixed(3));
+      root.style.setProperty('--hp-s4', s4.toFixed(3));
+      root.style.setProperty('--hp-s5', s5.toFixed(3));
+      root.style.setProperty('--hp-s6', s6.toFixed(3));
+      root.style.setProperty('--hp-s7', s7.toFixed(3));
+      root.style.setProperty('--hp-s8', s8.toFixed(3));
     };
 
     const onScroll = () => {
@@ -1012,7 +1160,9 @@ export default function HomepageBackground() {
       window.removeEventListener('resize', onScroll);
       if (raf) cancelAnimationFrame(raf);
       ['--hp-scroll','--hp-sky-mix','--hp-stars','--hp-sun-y','--hp-sun-glow',
-       '--hp-night','--hp-seven','--hp-aurora'].forEach(v => root.style.removeProperty(v));
+       '--hp-night','--hp-seven','--hp-aurora',
+       '--hp-s1','--hp-s2','--hp-s3','--hp-s4','--hp-s5','--hp-s6','--hp-s7','--hp-s8',
+      ].forEach(v => root.style.removeProperty(v));
     };
   }, []);
 
@@ -1068,14 +1218,40 @@ export default function HomepageBackground() {
 
         <div className="homepage-bg-heptagram">
           <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-            {/* soft glow disc behind */}
+            {/* soft glow disc behind everything */}
             <circle cx="50" cy="50" r="46" className="hep-glow" />
-            {/* the heptagram path */}
-            <path d={hepPath} className="hep-line" />
-            {/* the 7 vertex stars */}
-            {hepPts.map((p, i) => (
+
+            {/* 01: outer ring */}
+            <circle cx="50" cy="50" r="45" className="hep-ring-outer" />
+
+            {/* 02: vertex ticks just inside the ring */}
+            <path d={yantra.ticks} className="hep-ticks" />
+
+            {/* 02: inscribed heptagon */}
+            <path d={yantra.heptagon} className="hep-heptagon" />
+
+            {/* 03: {7/2} alternate star polygon */}
+            <path d={yantra.star72} className="hep-star-72" />
+
+            {/* 04: {7/3} main heptagram — the prominent feature */}
+            <path d={yantra.star73} className="hep-star-73" />
+
+            {/* 05: radial spokes from centre to each vertex */}
+            <path d={yantra.spokes} className="hep-spokes" />
+
+            {/* 06: inner ring */}
+            <circle cx="50" cy="50" r="13" className="hep-ring-inner" />
+
+            {/* 07: inner mini {7/3} heptagram */}
+            <path d={yantra.innerStar73} className="hep-star-inner" />
+
+            {/* 08: vertex pinpricks at each of the 7 outer points */}
+            {yantra.outerPts.map((p, i) => (
               <circle key={i} cx={p.x} cy={p.y} r="0.9" className="hep-vertex" />
             ))}
+
+            {/* 08: central bindu (point of unity) */}
+            <circle cx="50" cy="50" r="1.0" className="hep-bindu" />
           </svg>
         </div>
 
