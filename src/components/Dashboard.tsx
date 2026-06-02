@@ -163,6 +163,8 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
     }
   });
   const [mode, setMode] = useState<Mode>('astro');
+  const [morningOpen, setMorningOpen] = useState(true);
+  const [arcOpen, setArcOpen] = useState(false);
   const { userId } = useAuth();
 
   // Scroll to top whenever the user switches tradition. Without this the
@@ -366,22 +368,29 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
           <DailyRitual />
         </div>
 
-        {/* ─── Morning Cup + Monthly Forecast (two columns on desktop) ──── */}
-        <div
-          className="dash-top-grid"
-          style={{
-            display: 'grid',
-            gap: 48,
-            gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 1fr)',
-            marginBottom: 56,
-            alignItems: 'start',
-          }}
-        >
+        {/* ─── Morning Cup + The Arc — full-width collapsible dropdowns ──── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 56 }}>
           <div className="reveal" style={{ animationDelay: '120ms' }}>
-            <MorningCup user={user} firstName={firstName} demo={demo} />
+            <CollapsibleHero
+              eyebrow={`TODAY · ${new Date().toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' }).toUpperCase()}`}
+              title="Morning Cup"
+              tease="What today's sky is saying to you."
+              open={morningOpen}
+              onToggle={() => setMorningOpen((v) => !v)}
+            >
+              <MorningCup user={user} firstName={firstName} demo={demo} />
+            </CollapsibleHero>
           </div>
-          <div className="reveal" style={{ animationDelay: '480ms' }}>
-            <MonthlyForecast user={user} firstName={firstName} demo={demo} />
+          <div className="reveal" style={{ animationDelay: '240ms' }}>
+            <CollapsibleHero
+              eyebrow={`${new Date().toLocaleDateString('en-AU', { month: 'long', year: 'numeric' }).toUpperCase()} · THE ARC`}
+              title="Twelve threads, one month"
+              tease="Open each thread of the month."
+              open={arcOpen}
+              onToggle={() => setArcOpen((v) => !v)}
+            >
+              <MonthlyForecast user={user} firstName={firstName} demo={demo} />
+            </CollapsibleHero>
           </div>
         </div>
 
@@ -1159,5 +1168,116 @@ function TraditionTopBar({
         })}
       </div>
     </nav>
+  );
+}
+
+// CollapsibleHero — full-width dropdown shell for Morning Cup + The Arc.
+// Header is always visible: eyebrow date, serif title, italic tease, +/− toggle.
+// Click anywhere on the header to expand/collapse the body.
+function CollapsibleHero({
+  eyebrow,
+  title,
+  tease,
+  open,
+  onToggle,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  tease: string;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section
+      style={{
+        border: '1px solid rgba(200, 160, 82, 0.18)',
+        background: 'rgba(12, 10, 14, 0.55)',
+        backdropFilter: 'blur(2px)',
+        WebkitBackdropFilter: 'blur(2px)',
+      }}
+    >
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 24,
+          width: '100%',
+          padding: '28px 36px',
+          background: 'transparent',
+          border: 'none',
+          textAlign: 'left',
+          cursor: 'pointer',
+          color: 'inherit',
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div
+            style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 10,
+              letterSpacing: '0.24em',
+              color: 'var(--brass, #C8A052)',
+              marginBottom: 10,
+            }}
+          >
+            {eyebrow}
+          </div>
+          <h2
+            style={{
+              fontFamily: "'Alice', serif",
+              fontSize: 'clamp(28px, 4.2vw, 44px)',
+              fontWeight: 500,
+              letterSpacing: '-0.01em',
+              color: 'var(--ink, #ECE4D2)',
+              margin: 0,
+              lineHeight: 1.05,
+            }}
+          >
+            {title}
+          </h2>
+          <p
+            style={{
+              fontFamily: "'Hanken Grotesk', 'Crimson Text', serif",
+              fontStyle: 'italic',
+              fontSize: 15,
+              color: 'var(--ink-faint, #A89878)',
+              margin: '10px 0 0',
+            }}
+          >
+            {tease}
+          </p>
+        </div>
+        <span
+          aria-hidden="true"
+          style={{
+            flexShrink: 0,
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: 22,
+            color: 'var(--brass, #C8A052)',
+            transition: 'transform 240ms ease',
+            transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+            lineHeight: 1,
+          }}
+        >
+          +
+        </span>
+      </button>
+      {open && (
+        <div
+          style={{
+            padding: '8px 36px 40px',
+            borderTop: '1px solid rgba(200, 160, 82, 0.10)',
+          }}
+        >
+          {children}
+        </div>
+      )}
+    </section>
   );
 }
