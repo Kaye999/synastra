@@ -15,19 +15,19 @@
 // single horizontally scrolling strip with category labels as dividers.
 
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import Starfield from './Starfield';
 import PaywallBlur from './PaywallBlur';
 import ChatWidget from './ChatWidget';
 import SettingsCog from './SettingsCog';
-import MorningCup from './MorningCup';
-import DailyRitual from './DailyRitual';
-import MonthlyForecast from './MonthlyForecast';
 import DeepReadTabs from './DeepReadTabs';
 import CompatibilityForm from './CompatibilityForm';
 import TransitAlerts from './TransitAlerts';
 import Ornament from './Ornament';
+import TraditionTopBar from './TraditionTopBar';
+import { type Mode, isMode } from '@/lib/modes';
 
 // ─── Interactive widgets ────────────────────────────────────────────────────
 import NatalChartWheel from './NatalChartWheel';
@@ -70,50 +70,9 @@ import { computeChartBalance, formatBalanceSummary } from '@/lib/interp/helpers'
 import type { BirthData, Tier, Planet } from '@/lib/types';
 import { canAccessTradition, type Tradition } from '@/lib/tiers';
 
-// ─── Mode & group taxonomy ──────────────────────────────────────────────────
-// Seven traditions across four groups (2026-05-18 — collapsed from 12).
-type Mode =
-  | 'astro' | 'vedic' | 'kab' | 'numerology'
-  | 'hd' | 'astrocarto' | 'tarot';
-
-type ModeGroup = 'astrological' | 'symbolic' | 'psychological' | 'geographic';
-
-const MODE_LABELS: Record<Mode, string> = {
-  astro: 'Western',
-  vedic: 'Vedic',
-  kab: 'Kabbalah',
-  numerology: 'Numerology',
-  hd: 'Human Design',
-  astrocarto: 'Astrocartography',
-  tarot: 'Tarot',
-};
-
-// Maps a chart Mode to its tiers.ts Tradition key — used to gate tabs per tier.
-const MODE_TRADITION: Record<Mode, Tradition> = {
-  astro: 'western',
-  vedic: 'vedic',
-  kab: 'kabbalah',
-  numerology: 'numerology',
-  hd: 'humanDesign',
-  astrocarto: 'astrocartography',
-  tarot: 'tarot',
-};
-
-const MODE_GROUPS: Record<ModeGroup, { label: string; modes: Mode[] }> = {
-  astrological:  { label: 'Astrological',  modes: ['astro', 'vedic'] },
-  symbolic:      { label: 'Symbolic',      modes: ['kab', 'numerology', 'tarot'] },
-  psychological: { label: 'Psychological', modes: ['hd'] },
-  geographic:    { label: 'Geographic',    modes: ['astrocarto'] },
-};
-
-const GROUP_ORDER: ModeGroup[] = ['astrological', 'symbolic', 'psychological', 'geographic'];
-
-function groupOfMode(m: Mode): ModeGroup {
-  for (const g of GROUP_ORDER) {
-    if (MODE_GROUPS[g].modes.includes(m)) return g;
-  }
-  return 'astrological';
-}
+// ─── Mode taxonomy ──────────────────────────────────────────────────────────
+// Mode type + labels + ordering live in @/lib/modes (shared with TraditionTopBar
+// and the /today page).
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -162,10 +121,16 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
       });
     }
   });
-  const [mode, setMode] = useState<Mode>('astro');
-  const [morningOpen, setMorningOpen] = useState(true);
-  const [arcOpen, setArcOpen] = useState(false);
+  const search = useSearchParams();
+  const urlMode = search.get('mode');
+  const initialMode: Mode = urlMode && isMode(urlMode) ? urlMode : 'astro';
+  const [mode, setMode] = useState<Mode>(initialMode);
   const { userId } = useAuth();
+
+  // Keep local mode in sync with the URL so cross-page nav from /today works.
+  useEffect(() => {
+    if (urlMode && isMode(urlMode) && urlMode !== mode) setMode(urlMode);
+  }, [urlMode, mode]);
 
   // Scroll to top whenever the user switches tradition. Without this the
   // page keeps its prior scroll position — read halfway through Western,
@@ -179,8 +144,6 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
   }, [mode]);
 
   const firstName = user.name || user.fullName.split(' ')[0] || 'You';
-  // activeGroup retained for future per-category routing — not currently rendered.
-  void groupOfMode;
 
   const coords = useMemo(() => {
     return resolveCityCoords(user.city) || { lat: -33.87, lon: 151.21, tzOffset: 10 };
@@ -311,7 +274,7 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
       <Starfield />
 
       {/* ── Tradition tabs — fixed at top, always visible while reading. ── */}
-      <TraditionTopBar mode={mode} setMode={setMode} tier={tier} />
+      <TraditionTopBar tier={tier} currentMode={mode} />
 
       {/* Top-left identity cluster: home link + avatar, in one row so they
           can never collide with each other or with the top-right controls
@@ -363,38 +326,8 @@ export default function Dashboard({ user, tier, onReset, demo = false }: Dashboa
       <TransitAlerts user={user} firstName={firstName} tier={tier} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '150px 24px 120px' }}>
-        {/* ─── Daily Ritual strip — planet, affirmation, weekly aspect ──── */}
-        <div className="reveal" style={{ animationDelay: '60ms' }}>
-          <DailyRitual />
-        </div>
-
-        {/* ─── Morning Cup + The Arc — full-width collapsible dropdowns ──── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 56 }}>
-          <div className="reveal" style={{ animationDelay: '120ms' }}>
-            <CollapsibleHero
-              eyebrow={`TODAY · ${new Date().toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'long' }).toUpperCase()}`}
-              title="Morning Cup"
-              tease="What today's sky is saying to you."
-              open={morningOpen}
-              onToggle={() => setMorningOpen((v) => !v)}
-            >
-              <MorningCup user={user} firstName={firstName} demo={demo} />
-            </CollapsibleHero>
-          </div>
-          <div className="reveal" style={{ animationDelay: '240ms' }}>
-            <CollapsibleHero
-              eyebrow={`${new Date().toLocaleDateString('en-AU', { month: 'long', year: 'numeric' }).toUpperCase()} · THE ARC`}
-              title="Twelve threads, one month"
-              tease="Open each thread of the month."
-              open={arcOpen}
-              onToggle={() => setArcOpen((v) => !v)}
-            >
-              <MonthlyForecast user={user} firstName={firstName} demo={demo} />
-            </CollapsibleHero>
-          </div>
-        </div>
-
-        {/* Tradition switcher is rendered as a fixed top bar — see <TraditionTopBar /> below. */}
+        {/* Daily Ritual, Morning Cup, and The Arc now live on /today.
+            This page renders the tradition deep-read only. */}
 
         {/* Hero */}
         <header className="reveal" style={{ marginBottom: 64, animationDelay: '360ms' }}>
@@ -1007,277 +940,3 @@ function EssayBlock({
   );
 }
 
-
-// ─── Tradition top bar ──────────────────────────────────────────────────────
-//
-// Single fixed row of all 7 traditions at the top of every chart page.
-// Replaces the previous two-tier (Category → Tradition) nav — with only 7
-// items the category layer was just noise. Sits between the corner
-// identity cluster (top-left) and the controls cluster (top-right).
-//
-// Active state: brass colour + 2px brass underline.
-// Hover: ink colour (no underline yet).
-// Mobile: horizontal scroll with brass momentum.
-
-const TRADITION_TAB_ORDER: readonly Mode[] = [
-  'astro',        // Western
-  'vedic',
-  'numerology',
-  'kab',          // Kabbalah
-  'hd',           // Human Design
-  'tarot',
-  'astrocarto',   // Astrocartography
-];
-
-// Small padlock glyph shown on tradition tabs the current tier cannot open.
-function LockGlyph() {
-  return (
-    <svg
-      width="9"
-      height="9"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      style={{ marginLeft: 5, flexShrink: 0 }}
-    >
-      <rect x="5" y="11" width="14" height="9" rx="1.6" fill="currentColor" />
-      <path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" strokeWidth="2.4" fill="none" />
-    </svg>
-  );
-}
-
-function TraditionTopBar({
-  mode,
-  setMode,
-  tier,
-}: {
-  mode: Mode;
-  setMode: (m: Mode) => void;
-  tier: Tier;
-}) {
-  return (
-    <nav
-      aria-label="Synastra traditions"
-      style={{
-        position: 'fixed',
-        // Sit BELOW the 14+40=54px corner control row (logo + UserButton
-        // top-left, Alerts + SettingsCog top-right). Gives both rows clear
-        // space — no overlap, neat horizontal axis.
-        top: 68,
-        left: 0,
-        right: 0,
-        zIndex: 30,
-        height: 48,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(10, 14, 26, 0.72)',
-        backdropFilter: 'blur(14px)',
-        WebkitBackdropFilter: 'blur(14px)',
-        borderTop: '1px solid rgba(252, 250, 246, 0.04)',
-        borderBottom: '1px solid rgba(252, 250, 246, 0.06)',
-        padding: '0 24px',
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          gap: 6,
-          alignItems: 'center',
-          flexWrap: 'nowrap',
-        }}
-      >
-        {TRADITION_TAB_ORDER.map((m, i) => {
-          const active = mode === m;
-          const locked = !canAccessTradition(tier, MODE_TRADITION[m]);
-          return (
-            <span key={m} style={{ display: 'inline-flex', alignItems: 'center' }}>
-              {i > 0 && (
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 3,
-                    height: 3,
-                    borderRadius: '50%',
-                    background: 'rgba(252, 250, 246, 0.18)',
-                    margin: '0 8px',
-                  }}
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => setMode(m)}
-                className={active ? 'active' : ''}
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  // Vertical padding 14px gives a 44px touch target on mobile
-                  // (Apple HIG minimum) while keeping the typography compact.
-                  padding: '14px 6px',
-                  color: active
-                    ? 'var(--brass)'
-                    : locked
-                      ? 'rgba(252, 250, 246, 0.40)'
-                      : 'rgba(252, 250, 246, 0.62)',
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: 11,
-                  fontWeight: active ? 600 : 500,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  transition: 'color 0.18s ease',
-                  whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    (e.currentTarget as HTMLButtonElement).style.color = locked
-                      ? 'rgba(252, 250, 246, 0.40)'
-                      : 'rgba(252, 250, 246, 0.62)';
-                  }
-                }}
-              >
-                {MODE_LABELS[m]}
-                {locked && <LockGlyph />}
-                {active && (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      left: 4,
-                      right: 4,
-                      bottom: 2,
-                      height: 2,
-                      background: 'var(--brass)',
-                      borderRadius: 2,
-                    }}
-                  />
-                )}
-              </button>
-            </span>
-          );
-        })}
-      </div>
-    </nav>
-  );
-}
-
-// CollapsibleHero — full-width dropdown shell for Morning Cup + The Arc.
-// Header is always visible: eyebrow date, serif title, italic tease, +/− toggle.
-// Click anywhere on the header to expand/collapse the body.
-function CollapsibleHero({
-  eyebrow,
-  title,
-  tease,
-  open,
-  onToggle,
-  children,
-}: {
-  eyebrow: string;
-  title: string;
-  tease: string;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      style={{
-        border: '1px solid rgba(200, 160, 82, 0.18)',
-        background: 'rgba(12, 10, 14, 0.55)',
-        backdropFilter: 'blur(2px)',
-        WebkitBackdropFilter: 'blur(2px)',
-      }}
-    >
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 24,
-          width: '100%',
-          padding: '28px 36px',
-          background: 'transparent',
-          border: 'none',
-          textAlign: 'left',
-          cursor: 'pointer',
-          color: 'inherit',
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: 10,
-              letterSpacing: '0.24em',
-              color: 'var(--brass, #C8A052)',
-              marginBottom: 10,
-            }}
-          >
-            {eyebrow}
-          </div>
-          <h2
-            style={{
-              fontFamily: "'Alice', serif",
-              fontSize: 'clamp(28px, 4.2vw, 44px)',
-              fontWeight: 500,
-              letterSpacing: '-0.01em',
-              color: 'var(--ink, #ECE4D2)',
-              margin: 0,
-              lineHeight: 1.05,
-            }}
-          >
-            {title}
-          </h2>
-          <p
-            style={{
-              fontFamily: "'Hanken Grotesk', 'Crimson Text', serif",
-              fontStyle: 'italic',
-              fontSize: 15,
-              color: 'var(--ink-faint, #A89878)',
-              margin: '10px 0 0',
-            }}
-          >
-            {tease}
-          </p>
-        </div>
-        <span
-          aria-hidden="true"
-          style={{
-            flexShrink: 0,
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: 22,
-            color: 'var(--brass, #C8A052)',
-            transition: 'transform 240ms ease',
-            transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-            lineHeight: 1,
-          }}
-        >
-          +
-        </span>
-      </button>
-      {open && (
-        <div
-          style={{
-            padding: '8px 36px 40px',
-            borderTop: '1px solid rgba(200, 160, 82, 0.10)',
-          }}
-        >
-          {children}
-        </div>
-      )}
-    </section>
-  );
-}
