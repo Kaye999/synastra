@@ -4,6 +4,7 @@ import HomepageBackground from '@/components/HomepageBackground';
 import Ornament from '@/components/Ornament';
 import Reveal from './_marketing/Reveal';
 import LineageScroller from './_marketing/LineageScroller';
+import PaidFeaturePreviews from '@/components/landing/PaidFeaturePreviews';
 
 // ─── Landing page ────────────────────────────────────────────────────
 // Synastra marketing home. Server component; the Reveal wrapper is the
@@ -431,6 +432,9 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── 6.5. PAID FEATURE PREVIEWS ─────────────────────────────── */}
+      <PaidFeaturePreviews />
 
       {/* ── 7. PRICING PREVIEW ─────────────────────────────────────── */}
       <section style={{ position: 'relative', zIndex: 1, padding: '80px 24px 100px' }}>
