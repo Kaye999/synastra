@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import Onboarding from '@/components/Onboarding';
+import BrandHome from '@/components/BrandHome';
 import type { BirthData } from '@/lib/types';
 
 type Status =
@@ -78,6 +79,7 @@ export default function OnboardingPage() {
 
   return (
     <>
+      <BrandHome />
       <Onboarding
         onSave={handleSave}
         submitDisabled={isBusy}

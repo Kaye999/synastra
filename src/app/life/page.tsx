@@ -17,6 +17,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import LifeTimeline from '@/components/LifeTimeline';
+import BrandHome from '@/components/BrandHome';
 import type { BirthData } from '@/lib/types';
 import type { Tier } from '@/lib/tiers';
 
@@ -55,10 +56,13 @@ export default async function LifePage() {
   const profile = await loadProfile(userId);
   if (!profile) redirect('/onboarding');
   return (
-    <LifeTimeline
-      userId={userId}
-      birthData={profile.birthData}
-      tier={profile.tier}
-    />
+    <>
+      <BrandHome />
+      <LifeTimeline
+        userId={userId}
+        birthData={profile.birthData}
+        tier={profile.tier}
+      />
+    </>
   );
 }

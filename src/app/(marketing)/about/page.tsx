@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
+import BrandHome from '@/components/BrandHome';
 
 export const metadata = {
   title: 'About · Synastra',
@@ -11,6 +12,7 @@ export default function AboutPage() {
   return (
     <main style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       <Starfield />
+      <BrandHome />
       <article
         style={{
           position: 'relative',

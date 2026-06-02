@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
+import BrandHome from '@/components/BrandHome';
 import Reveal from '../../_marketing/Reveal';
 
 // How it works — editorial longread. Magazine feature energy:
@@ -69,6 +70,7 @@ export default async function HowItWorksPage() {
   return (
     <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
+      <BrandHome />
 
       <article
         style={{
@@ -259,41 +261,51 @@ export default async function HowItWorksPage() {
 }
 
 // ─── Stylised chart wheel SVG ──────────────────────────────────────────
-// A soft, editorial zodiac wheel — twelve sectors, a hairline inner ring,
-// and a scatter of planetary-glyph-sized dots. Not an actual chart — a
-// decorative bloom meant to signal "chart" without implying specifics.
+// Editorial natal-chart bloom: zodiac glyphs on the outer ring, ten planet
+// glyphs scattered across the houses, faint house numbers in the inner ring,
+// and four aspect lines (two trines, two squares) drawn in brass. Not a real
+// chart — a decorative artefact that signals "a chart" with enough density
+// to feel substantial.
+
+const ZODIAC_GLYPHS = ['♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓'];
+const PLANETS = [
+  { glyph: '☉', ang:  18, r: 158 },
+  { glyph: '☽', ang:  68, r: 152 },
+  { glyph: '☿', ang:  42, r: 168 },
+  { glyph: '♀', ang: 108, r: 156 },
+  { glyph: '♂', ang: 144, r: 164 },
+  { glyph: '♃', ang: 192, r: 152 },
+  { glyph: '♄', ang: 228, r: 168 },
+  { glyph: '♅', ang: 268, r: 156 },
+  { glyph: '♆', ang: 312, r: 162 },
+  { glyph: '♇', ang: 338, r: 150 },
+];
+
+// Aspect lines: (planet index a, planet index b, kind).
+// trine = 120° flowing (brass solid), square = 90° tense (brass dashed)
+const ASPECTS: Array<{ a: number; b: number; kind: 'trine' | 'square' }> = [
+  { a: 0, b: 5, kind: 'trine' },
+  { a: 1, b: 7, kind: 'trine' },
+  { a: 3, b: 6, kind: 'square' },
+  { a: 2, b: 8, kind: 'square' },
+];
 
 function ChartWheel() {
   const cx = 200;
   const cy = 200;
   const rOuter = 180;
+  const rZodiac = 168;
   const rInner = 130;
-  const rHub = 18;
+  const rHouseLabel = 116;
+  const rHub = 22;
 
-  const sectors = Array.from({ length: 12 }, (_, i) => {
-    const a = (i * 30 - 90) * (Math.PI / 180);
-    const a2 = ((i + 1) * 30 - 90) * (Math.PI / 180);
-    const x1 = cx + rOuter * Math.cos(a);
-    const y1 = cy + rOuter * Math.sin(a);
-    const x2 = cx + rOuter * Math.cos(a2);
-    const y2 = cy + rOuter * Math.sin(a2);
-    return { a, a2, x1, y1, x2, y2 };
-  });
+  const polar = (ang: number, r: number) => {
+    const a = (ang - 90) * (Math.PI / 180);
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  };
 
-  // Pseudo-random planetary dots at fixed angles
-  const dots = [
-    { ang: 12, r: 150 },
-    { ang: 55, r: 160 },
-    { ang: 92, r: 144 },
-    { ang: 148, r: 158 },
-    { ang: 190, r: 150 },
-    { ang: 232, r: 162 },
-    { ang: 280, r: 146 },
-    { ang: 315, r: 156 },
-  ].map((d) => {
-    const a = (d.ang - 90) * (Math.PI / 180);
-    return { x: cx + d.r * Math.cos(a), y: cy + d.r * Math.sin(a) };
-  });
+  const sectors = Array.from({ length: 12 }, (_, i) => polar(i * 30, rOuter));
+  const planets = PLANETS.map((p) => ({ ...p, ...polar(p.ang, p.r) }));
 
   return (
     <svg viewBox="0 0 400 400" width="100%" role="presentation" aria-hidden="true">
@@ -303,61 +315,101 @@ function ChartWheel() {
           <stop offset="70%" stopColor="currentColor" stopOpacity="0.02" />
           <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
         </radialGradient>
+        <radialGradient id="hub-glow" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor="#C8A052" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#C8A052" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      {/* soft halo */}
-      <circle cx={cx} cy={cy} r={rOuter + 10} fill="url(#wheel-glow)" />
+      {/* soft halo behind the wheel */}
+      <circle cx={cx} cy={cy} r={rOuter + 14} fill="url(#wheel-glow)" />
 
       {/* outer ring */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={rOuter}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={0.8}
-        opacity={0.75}
-      />
-      {/* inner ring */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={rInner}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={0.4}
-        opacity={0.35}
-      />
+      <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="currentColor" strokeWidth={0.9} opacity={0.85} />
+      {/* zodiac band rule */}
+      <circle cx={cx} cy={cy} r={rOuter - 22} fill="none" stroke="currentColor" strokeWidth={0.35} opacity={0.45} />
+      {/* inner ring (house border) */}
+      <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="currentColor" strokeWidth={0.45} opacity={0.45} />
       {/* hub */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={rHub}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth={0.6}
-        opacity={0.55}
-      />
+      <circle cx={cx} cy={cy} r={rHub} fill="none" stroke="currentColor" strokeWidth={0.6} opacity={0.65} />
+      <circle cx={cx} cy={cy} r={rHub} fill="url(#hub-glow)" />
 
-      {/* twelve sector dividers */}
-      <g stroke="currentColor" strokeWidth={0.35} opacity={0.35}>
+      {/* twelve sector dividers (full radius) */}
+      <g stroke="currentColor" strokeWidth={0.35} opacity={0.32}>
         {sectors.map((s, i) => (
-          <line key={i} x1={cx} y1={cy} x2={s.x1} y2={s.y1} />
+          <line key={i} x1={cx} y1={cy} x2={s.x} y2={s.y} />
         ))}
       </g>
 
-      {/* cardinal cross (emphasised) */}
-      <g stroke="currentColor" strokeWidth={0.7} opacity={0.6}>
+      {/* cardinal cross (emphasised) — ASC line and MC line */}
+      <g stroke="currentColor" strokeWidth={0.8} opacity={0.65}>
         <line x1={cx - rOuter} y1={cy} x2={cx + rOuter} y2={cy} />
         <line x1={cx} y1={cy - rOuter} x2={cx} y2={cy + rOuter} />
       </g>
 
-      {/* planetary dots */}
-      <g fill="currentColor">
-        {dots.map((d, i) => (
+      {/* ASC / MC tick marks at the cardinal points */}
+      <g fill="#C8A052" opacity={0.85}>
+        <circle cx={cx - rOuter} cy={cy} r={2.4} />
+        <circle cx={cx} cy={cy - rOuter} r={2.4} />
+        <circle cx={cx + rOuter} cy={cy} r={2.4} />
+        <circle cx={cx} cy={cy + rOuter} r={2.4} />
+      </g>
+
+      {/* zodiac glyphs in the outer band */}
+      <g
+        fill="currentColor"
+        opacity={0.78}
+        style={{ fontFamily: "'Alice', 'EB Garamond', serif", fontSize: 13, fontWeight: 500 }}
+        textAnchor="middle"
+      >
+        {ZODIAC_GLYPHS.map((g, i) => {
+          const { x, y } = polar(i * 30 + 15, rZodiac);
+          return <text key={g} x={x} y={y + 4}>{g}</text>;
+        })}
+      </g>
+
+      {/* house numbers in the inner band */}
+      <g
+        fill="currentColor"
+        opacity={0.35}
+        style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, letterSpacing: '0.06em' }}
+        textAnchor="middle"
+      >
+        {Array.from({ length: 12 }, (_, i) => {
+          const { x, y } = polar(i * 30 + 15, rHouseLabel);
+          return <text key={i} x={x} y={y + 3}>{String(i + 1).padStart(2, '0')}</text>;
+        })}
+      </g>
+
+      {/* aspect lines — trines solid brass, squares dashed brass */}
+      <g stroke="#C8A052" fill="none" opacity={0.55}>
+        {ASPECTS.map((asp, i) => {
+          const A = planets[asp.a];
+          const B = planets[asp.b];
+          return (
+            <line
+              key={i}
+              x1={A.x}
+              y1={A.y}
+              x2={B.x}
+              y2={B.y}
+              strokeWidth={asp.kind === 'trine' ? 0.9 : 0.7}
+              strokeDasharray={asp.kind === 'trine' ? undefined : '3 4'}
+            />
+          );
+        })}
+      </g>
+
+      {/* planet glyphs */}
+      <g
+        fill="currentColor"
+        style={{ fontFamily: "'EB Garamond', 'Alice', serif", fontSize: 15, fontWeight: 500 }}
+        textAnchor="middle"
+      >
+        {planets.map((p, i) => (
           <g key={i}>
-            <circle cx={d.x} cy={d.y} r={5} opacity={0.15} />
-            <circle cx={d.x} cy={d.y} r={2.2} />
+            <circle cx={p.x} cy={p.y} r={9} fill="rgba(8, 12, 24, 0.85)" stroke="currentColor" strokeWidth={0.4} opacity={0.9} />
+            <text x={p.x} y={p.y + 5} fill="#C8A052" opacity={0.95}>{p.glyph}</text>
           </g>
         ))}
       </g>
@@ -365,13 +417,14 @@ function ChartWheel() {
       {/* central sigil */}
       <g
         transform={`translate(${cx} ${cy})`}
-        stroke="currentColor"
-        strokeWidth={0.7}
+        stroke="#C8A052"
+        strokeWidth={0.8}
         fill="none"
-        opacity={0.85}
+        opacity={0.9}
       >
-        <circle r="6" />
-        <path d="M0 -10 L0 10 M-8.6 -5 L8.6 5 M-8.6 5 L8.6 -5" opacity={0.7} />
+        <circle r="7" />
+        <circle r="3" fill="#C8A052" opacity={0.6} stroke="none" />
+        <path d="M0 -12 L0 12 M-10.4 -6 L10.4 6 M-10.4 6 L10.4 -6" opacity={0.55} />
       </g>
     </svg>
   );

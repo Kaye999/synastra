@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, UserButton } from '@clerk/nextjs';
+import BrandHome from '@/components/BrandHome';
 
 type Profile = {
   birth_data: { date?: string; time?: string; place?: string } | null;
@@ -93,6 +94,7 @@ export default function SettingsPage() {
 
   return (
     <main className="settings-shell">
+      <BrandHome />
       <style jsx global>{`
         .settings-shell {
           min-height: 100vh;

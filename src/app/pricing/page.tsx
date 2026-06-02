@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { useAuth } from '@clerk/nextjs';
 import Starfield from '@/components/Starfield';
 import Ornament from '@/components/Ornament';
+import BrandHome from '@/components/BrandHome';
 import Reveal from '../_marketing/Reveal';
 
 type Cadence = 'monthly' | 'onetime';
@@ -170,6 +171,7 @@ export default function PricingPage() {
   return (
     <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
+      <BrandHome />
 
       <div
         style={{

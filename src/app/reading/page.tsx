@@ -14,6 +14,7 @@ import Link from 'next/link';
 import Starfield from '@/components/Starfield';
 import CityAutocomplete from '@/components/CityAutocomplete';
 import Ornament from '@/components/Ornament';
+import BrandHome from '@/components/BrandHome';
 
 type Card = { headline: string; sign: string | null; body: string };
 
@@ -75,6 +76,7 @@ export default function ReadingPage() {
   return (
     <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
+      <BrandHome />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 880, margin: '0 auto', padding: '110px 24px 120px' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>

@@ -9,6 +9,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { canAccess, type Tier } from '@/lib/tiers';
 import Starfield from '@/components/Starfield';
 import MeditationsClient from '@/components/MeditationsClient';
+import BrandHome from '@/components/BrandHome';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +38,7 @@ export default async function MeditationsPage() {
   return (
     <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden' }}>
       <Starfield />
+      <BrandHome />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 920, margin: '0 auto', padding: '88px 24px 140px' }}>
         <Link
           href="/chart"
