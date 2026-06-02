@@ -119,12 +119,17 @@ const PRICING_PREVIEW = [
     price: 'Free',
     alt: 'No card, forever',
     tag: 'Start with the classics.',
-    bullets: ['Western (Sun · Moon · Rising)', 'Numerology (Life Path preview)', 'Full natal chart view', 'Keep your chart forever'],
+    bullets: [
+      'Western (Sun · Moon · Rising)',
+      'Numerology (Life Path preview)',
+      'Full natal chart view',
+      'Keep your chart forever',
+    ],
   },
   {
     name: 'The Five',
-    price: 'A$19 / mo',
-    alt: 'or A$129 / year · save A$99',
+    price: 'A$11.10 / mo',
+    alt: 'or A$77.70 / year · save 42%',
     tag: 'Five traditions, fully unlocked.',
     bullets: [
       'Full Western · Vedic · Numerology',
@@ -132,18 +137,30 @@ const PRICING_PREVIEW = [
       'Daily Guidance · Monthly Forecast',
       '10 Oracle AI questions / day',
     ],
-    featured: true,
   },
   {
     name: 'The Seven',
-    price: 'A$39 / mo',
-    alt: 'or A$259 / year · save A$209',
+    price: 'A$22.20 / mo',
+    alt: 'or A$155.40 / year · save 42%',
     tag: 'All seven. Cross-woven.',
     bullets: [
       'Everything in The Five',
       '+ Tarot · Astrocartography',
       'Transit alerts · Compatibility',
-      'Unlimited Master Oracle (7 traditions + astrology + astronomy + archetypes)',
+      'Unlimited Master Oracle',
+    ],
+    featured: true,
+  },
+  {
+    name: 'The Nine',
+    price: 'A$33.30 / mo',
+    alt: 'or A$233.10 / year · save 42%',
+    tag: 'Nine sacred practices. The full ritual year.',
+    bullets: [
+      'Everything in The Seven',
+      'Sun · Moon · Rising personalisation',
+      'Monthly Zodiac Workbook (PDF)',
+      'Guided meditation audios · Moon journals',
     ],
   },
 ] as const;
@@ -422,7 +439,7 @@ export default async function LandingPage() {
             <div className="mk-eyebrow" style={{ marginBottom: 14 }}>§ Pricing</div>
           </Reveal>
           <Reveal delay={80}>
-            <h2 className="mk-section-title">Three readings. Two, five, seven.</h2>
+            <h2 className="mk-section-title">Four readings. Two, five, seven, nine.</h2>
           </Reveal>
 
           <div className="mk-pricing-mini">
@@ -451,7 +468,9 @@ export default async function LandingPage() {
                       ? isSignedIn ? 'Open your chart' : 'Begin free'
                       : t.name === 'The Five'
                       ? 'Start the reading'
-                      : 'Go deep'} →
+                      : t.name === 'The Seven'
+                      ? 'Go deep'
+                      : 'Step in'} →
                   </Link>
                 </div>
               </Reveal>
